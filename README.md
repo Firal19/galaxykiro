@@ -1,4 +1,4 @@
-# GalaxyDreamTeam Progressive Engagement Website
+# GalaxyKiro - Progressive Engagement Website
 
 A Next.js 14 progressive web application designed to nurture leads through curiosity-driven conversion using interactive tools and assessments.
 
@@ -39,7 +39,7 @@ A Next.js 14 progressive web application designed to nurture leads through curio
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Firal19/galaxykiro.git
 cd progressive-engagement-website
 ```
 
