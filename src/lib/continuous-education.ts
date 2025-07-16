@@ -1,519 +1,534 @@
-import { supabase } from './supabase';
-
-export interface EducationalContent {
-  id: string;
-  title: string;
-  description: string;
-  content_type: 'article' | 'video' | 'tool' | 'webinar' | 'guide';
-  category: string;
-  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
-  estimated_time: number; // in minutes
-  tags: string[];
-  content_url?: string;
-  thumbnail_url?: string;
-  created_at: string;
-  engagement_score: number;
-  completion_rate: number;
+interface EducationContent {
+  id: string
+  title: string
+  type: 'article' | 'video' | 'exercise' | 'assessment' | 'challenge'
+  category: 'mindset' | 'skills' | 'habits' | 'relationships' | 'career' | 'health'
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  estimatedTime: number // minutes
+  content: string
+  actionItems: string[]
+  relatedTools: string[]
+  prerequisites?: string[]
+  tags: string[]
+  createdAt: string
+  updatedAt: string
 }
 
-export interface PersonalizedRecommendation {
-  content: EducationalContent;
-  relevance_score: number;
-  reason: string;
-  priority: 'high' | 'medium' | 'low';
+interface LearningPath {
+  id: string
+  title: string
+  description: string
+  category: string
+  totalContent: number
+  estimatedDuration: number // days
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  contentIds: string[]
+  milestones: Array<{
+    id: string
+    title: string
+    description: string
+    contentIds: string[]
+    requiredCompletion: number // percentage
+  }>
 }
 
-export interface UserEngagementPattern {
-  user_id: string;
-  preferred_content_types: string[];
-  preferred_categories: string[];
-  preferred_time_slots: string[];
-  engagement_frequency: 'daily' | 'weekly' | 'monthly';
-  completion_rate: number;
-  last_activity: string;
+interface UserProgress {
+  userId: string
+  contentCompleted: string[]
+  currentLearningPaths: string[]
+  completedLearningPaths: string[]
+  streakDays: number
+  lastActiveDate: string
+  preferences: {
+    categories: string[]
+    difficulty: string
+    timePerDay: number
+    preferredTypes: string[]
+    deliveryTime: string // "morning" | "afternoon" | "evening"
+  }
+  engagementScore: number
 }
 
-export class ContinuousEducationEngine {
-  
-  /**
-   * Generate personalized content recommendations based on user behavior and preferences
-   */
-  static async generatePersonalizedRecommendations(
-    userId: string, 
-    limit: number = 10
-  ): Promise<PersonalizedRecommendation[]> {
-    try {
-      // Get user profile and preferences
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+interface DeliverySchedule {
+  userId: string
+  contentId: string
+  scheduledFor: string
+  deliveryMethod: 'email' | 'push' | 'in-app'
+  status: 'scheduled' | 'delivered' | 'opened' | 'completed'
+  personalizedMessage?: string
+}
 
-      // Get user's engagement patterns
-      const engagementPattern = await this.analyzeUserEngagementPattern(userId);
+class ContinuousEducationEngine {
+  private content: EducationContent[] = []
+  private learningPaths: LearningPath[] = []
+  private userProgress: Map<string, UserProgress> = new Map()
+
+  constructor() {
+    this.initializeContent()
+    this.initializeLearningPaths()
+  }
+
+  private initializeContent() {
+    // Sample content - in production, this would come from a CMS or database
+    this.content = [
+      {
+        id: 'mindset-001',
+        title: 'The Growth Mindset Foundation',
+        type: 'article',
+        category: 'mindset',
+        difficulty: 'beginner',
+        estimatedTime: 5,
+        content: `
+          The foundation of all personal development starts with your mindset. 
+          A growth mindset believes that abilities and intelligence can be developed 
+          through dedication, hard work, and learning from failure.
+          
+          Key principles:
+          1. Challenges are opportunities to grow
+          2. Effort is the path to mastery
+          3. Feedback is a gift
+          4. Setbacks are temporary
+          
+          Today's reflection: Think of a recent challenge you faced. 
+          How can you reframe it as a growth opportunity?
+        `,
+        actionItems: [
+          'Identify one fixed mindset belief you hold',
+          'Write down three ways you can grow from a recent setback',
+          'Practice saying "I can't do this YET" instead of "I can't do this"'
+        ],
+        relatedTools: ['mindset-assessment', 'growth-tracker'],
+        tags: ['mindset', 'growth', 'foundation'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'habits-001',
+        title: 'The 2-Minute Rule for Building Habits',
+        type: 'exercise',
+        category: 'habits',
+        difficulty: 'beginner',
+        estimatedTime: 10,
+        content: `
+          The 2-Minute Rule: When you start a new habit, it should take less than 2 minutes to do.
+          
+          This isn't about the habit itself, but about establishing the identity of someone who does that habit.
+          
+          Examples:
+          - "Read 30 pages" becomes "Read one page"
+          - "Exercise for 30 minutes" becomes "Put on workout clothes"
+          - "Meditate for 10 minutes" becomes "Sit in meditation position"
+          
+          The goal is to make it as easy as possible to start, then let momentum carry you forward.
+        `,
+        actionItems: [
+          'Choose one habit you want to build',
+          'Scale it down to a 2-minute version',
+          'Do the 2-minute version for 7 days straight',
+          'Track your consistency'
+        ],
+        relatedTools: ['habit-tracker', 'momentum-builder'],
+        tags: ['habits', 'consistency', 'momentum'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'skills-001',
+        title: 'The Art of Deep Work',
+        type: 'video',
+        category: 'skills',
+        difficulty: 'intermediate',
+        estimatedTime: 15,
+        content: `
+          Deep work is the ability to focus without distraction on cognitively demanding tasks. 
+          It's a skill that allows you to quickly master complicated information and produce 
+          better results in less time.
+          
+          Four strategies for deep work:
+          1. Monastic: Complete isolation from distractions
+          2. Bimodal: Alternating between deep work and collaboration
+          3. Rhythmic: Establishing a regular routine
+          4. Journalistic: Switching into deep work mode at any moment
+          
+          Today's practice: Choose one strategy and implement it for 25 minutes.
+        `,
+        actionItems: [
+          'Identify your biggest distractions',
+          'Choose a deep work strategy that fits your lifestyle',
+          'Schedule one deep work session today',
+          'Measure your focus quality (1-10 scale)'
+        ],
+        relatedTools: ['focus-tracker', 'distraction-blocker'],
+        tags: ['focus', 'productivity', 'deep-work'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ]
+  }
+
+  private initializeLearningPaths() {
+    this.learningPaths = [
+      {
+        id: 'foundation-path',
+        title: 'Personal Development Foundation',
+        description: 'Build the core mindsets and habits for lifelong growth',
+        category: 'foundation',
+        totalContent: 10,
+        estimatedDuration: 30,
+        difficulty: 'beginner',
+        contentIds: ['mindset-001', 'habits-001'],
+        milestones: [
+          {
+            id: 'milestone-1',
+            title: 'Mindset Mastery',
+            description: 'Develop a growth-oriented mindset',
+            contentIds: ['mindset-001'],
+            requiredCompletion: 100
+          },
+          {
+            id: 'milestone-2',
+            title: 'Habit Foundation',
+            description: 'Build your first keystone habit',
+            contentIds: ['habits-001'],
+            requiredCompletion: 100
+          }
+        ]
+      },
+      {
+        id: 'productivity-path',
+        title: 'Peak Performance & Productivity',
+        description: 'Master focus, time management, and high-performance habits',
+        category: 'productivity',
+        totalContent: 15,
+        estimatedDuration: 45,
+        difficulty: 'intermediate',
+        contentIds: ['skills-001'],
+        milestones: [
+          {
+            id: 'milestone-1',
+            title: 'Deep Work Mastery',
+            description: 'Develop the ability to focus intensely',
+            contentIds: ['skills-001'],
+            requiredCompletion: 100
+          }
+        ]
+      }
+    ]
+  }
+
+  // Content recommendation engine
+  getPersonalizedContent(userId: string, limit: number = 3): EducationContent[] {
+    const progress = this.userProgress.get(userId)
+    if (!progress) return this.getDefaultContent(limit)
+
+    const { preferences, contentCompleted, engagementScore } = progress
+
+    // Filter content based on preferences and completion status
+    let availableContent = this.content.filter(content => {
+      // Skip completed content
+      if (contentCompleted.includes(content.id)) return false
       
-      // Get user's assessment results to understand interests
-      const { data: assessmentResults } = await supabase
-        .from('tool_usage')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      // Match user preferences
+      if (preferences.categories.length > 0 && !preferences.categories.includes(content.category)) return false
+      if (preferences.difficulty && content.difficulty !== preferences.difficulty) return false
+      if (preferences.preferredTypes.length > 0 && !preferences.preferredTypes.includes(content.type)) return false
+      if (content.estimatedTime > preferences.timePerDay) return false
 
-      // Get user's content consumption history
-      const { data: contentHistory } = await supabase
-        .from('content_engagement')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      return true
+    })
 
-      // Get available educational content
-      const { data: availableContent } = await supabase
-        .from('educational_content')
-        .select('*')
-        .eq('is_active', true)
-        .order('engagement_score', { ascending: false });
+    // Sort by relevance (engagement score, difficulty progression, etc.)
+    availableContent = availableContent.sort((a, b) => {
+      // Prioritize content that matches engagement level
+      const aScore = this.calculateContentRelevance(a, progress)
+      const bScore = this.calculateContentRelevance(b, progress)
+      return bScore - aScore
+    })
 
-      if (!availableContent) return [];
-
-      // Generate recommendations based on multiple factors
-      const recommendations: PersonalizedRecommendation[] = [];
-
-      for (const content of availableContent) {
-        const relevanceScore = this.calculateRelevanceScore(
-          content,
-          userProfile,
-          engagementPattern,
-          assessmentResults || [],
-          contentHistory || []
-        );
-
-        if (relevanceScore > 0.3) { // Minimum relevance threshold
-          recommendations.push({
-            content,
-            relevance_score: relevanceScore,
-            reason: this.generateRecommendationReason(content, userProfile, engagementPattern),
-            priority: relevanceScore > 0.7 ? 'high' : relevanceScore > 0.5 ? 'medium' : 'low'
-          });
-        }
-      }
-
-      // Sort by relevance score and return top recommendations
-      return recommendations
-        .sort((a, b) => b.relevance_score - a.relevance_score)
-        .slice(0, limit);
-
-    } catch (error) {
-      console.error('Error generating personalized recommendations:', error);
-      return [];
-    }
+    return availableContent.slice(0, limit)
   }
 
-  /**
-   * Analyze user engagement patterns to understand preferences
-   */
-  static async analyzeUserEngagementPattern(userId: string): Promise<UserEngagementPattern> {
-    try {
-      // Get user interactions
-      const { data: interactions } = await supabase
-        .from('interactions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(100);
+  private calculateContentRelevance(content: EducationContent, progress: UserProgress): number {
+    let score = 0
 
-      // Get content engagement
-      const { data: contentEngagement } = await supabase
-        .from('content_engagement')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(50);
+    // Category preference match
+    if (progress.preferences.categories.includes(content.category)) score += 10
 
-      // Get tool usage
-      const { data: toolUsage } = await supabase
-        .from('tool_usage')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(20);
+    // Type preference match
+    if (progress.preferences.preferredTypes.includes(content.type)) score += 5
 
-      // Analyze patterns
-      const preferredContentTypes = this.extractPreferredContentTypes(contentEngagement || []);
-      const preferredCategories = this.extractPreferredCategories(interactions || [], toolUsage || []);
-      const preferredTimeSlots = this.extractPreferredTimeSlots(interactions || []);
-      const engagementFrequency = this.calculateEngagementFrequency(interactions || []);
-      const completionRate = this.calculateCompletionRate(toolUsage || []);
-
-      return {
-        user_id: userId,
-        preferred_content_types: preferredContentTypes,
-        preferred_categories: preferredCategories,
-        preferred_time_slots: preferredTimeSlots,
-        engagement_frequency: engagementFrequency,
-        completion_rate: completionRate,
-        last_activity: interactions?.[0]?.created_at || new Date().toISOString()
-      };
-
-    } catch (error) {
-      console.error('Error analyzing engagement pattern:', error);
-      return {
-        user_id: userId,
-        preferred_content_types: [],
-        preferred_categories: [],
-        preferred_time_slots: [],
-        engagement_frequency: 'weekly',
-        completion_rate: 0,
-        last_activity: new Date().toISOString()
-      };
+    // Difficulty progression
+    const difficultyScore = {
+      beginner: progress.engagementScore < 50 ? 10 : 5,
+      intermediate: progress.engagementScore >= 50 && progress.engagementScore < 150 ? 10 : 5,
+      advanced: progress.engagementScore >= 150 ? 10 : 2
     }
+    score += difficultyScore[content.difficulty]
+
+    // Time availability match
+    if (content.estimatedTime <= progress.preferences.timePerDay) score += 5
+
+    // Recency (newer content gets slight boost)
+    const daysSinceCreated = (Date.now() - new Date(content.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    if (daysSinceCreated < 7) score += 3
+
+    return score
   }
 
-  /**
-   * Calculate relevance score for content based on user data
-   */
-  private static calculateRelevanceScore(
-    content: EducationalContent,
-    userProfile: any,
-    engagementPattern: UserEngagementPattern,
-    assessmentResults: any[],
-    contentHistory: any[]
-  ): number {
-    let score = 0;
-
-    // Base score from content quality
-    score += content.engagement_score * 0.2;
-
-    // Content type preference
-    if (engagementPattern.preferred_content_types.includes(content.content_type)) {
-      score += 0.3;
-    }
-
-    // Category preference
-    if (engagementPattern.preferred_categories.includes(content.category)) {
-      score += 0.25;
-    }
-
-    // User's content preferences from profile
-    if (userProfile?.content_preferences?.includes(content.category)) {
-      score += 0.2;
-    }
-
-    // Difficulty level matching (based on user's completion rate)
-    const userLevel = engagementPattern.completion_rate > 0.8 ? 'advanced' : 
-                     engagementPattern.completion_rate > 0.5 ? 'intermediate' : 'beginner';
-    if (content.difficulty_level === userLevel) {
-      score += 0.15;
-    }
-
-    // Penalize if user has already consumed this content
-    const alreadyConsumed = contentHistory.some(h => h.content_id === content.id);
-    if (alreadyConsumed) {
-      score -= 0.5;
-    }
-
-    // Boost score for trending content
-    const daysSinceCreated = Math.floor(
-      (new Date().getTime() - new Date(content.created_at).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (daysSinceCreated <= 7) {
-      score += 0.1; // New content boost
-    }
-
-    // Normalize score to 0-1 range
-    return Math.max(0, Math.min(1, score));
+  private getDefaultContent(limit: number): EducationContent[] {
+    return this.content
+      .filter(content => content.difficulty === 'beginner')
+      .slice(0, limit)
   }
 
-  /**
-   * Generate human-readable reason for recommendation
-   */
-  private static generateRecommendationReason(
-    content: EducationalContent,
-    userProfile: any,
-    engagementPattern: UserEngagementPattern
-  ): string {
-    const reasons = [];
+  // Learning path management
+  enrollInLearningPath(userId: string, pathId: string): boolean {
+    const progress = this.userProgress.get(userId)
+    if (!progress) return false
 
-    if (engagementPattern.preferred_categories.includes(content.category)) {
-      reasons.push(`matches your interest in ${content.category}`);
+    const path = this.learningPaths.find(p => p.id === pathId)
+    if (!path) return false
+
+    if (!progress.currentLearningPaths.includes(pathId)) {
+      progress.currentLearningPaths.push(pathId)
+      this.userProgress.set(userId, progress)
     }
 
-    if (userProfile?.content_preferences?.includes(content.category)) {
-      reasons.push('aligns with your selected preferences');
-    }
-
-    if (engagementPattern.preferred_content_types.includes(content.content_type)) {
-      reasons.push(`you enjoy ${content.content_type} content`);
-    }
-
-    if (content.engagement_score > 0.8) {
-      reasons.push('highly rated by other users');
-    }
-
-    const daysSinceCreated = Math.floor(
-      (new Date().getTime() - new Date(content.created_at).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (daysSinceCreated <= 7) {
-      reasons.push('newly published content');
-    }
-
-    return reasons.length > 0 
-      ? `Recommended because it ${reasons.slice(0, 2).join(' and ')}`
-      : 'Recommended based on your activity patterns';
+    return true
   }
 
-  /**
-   * Extract preferred content types from engagement data
-   */
-  private static extractPreferredContentTypes(contentEngagement: any[]): string[] {
-    const typeCount: { [key: string]: number } = {};
+  getLearningPathProgress(userId: string, pathId: string): {
+    path: LearningPath
+    completionPercentage: number
+    currentMilestone: string | null
+    nextContent: EducationContent | null
+  } | null {
+    const progress = this.userProgress.get(userId)
+    const path = this.learningPaths.find(p => p.id === pathId)
     
-    contentEngagement.forEach(engagement => {
-      const type = engagement.content_type || 'article';
-      typeCount[type] = (typeCount[type] || 0) + 1;
-    });
+    if (!progress || !path) return null
 
-    return Object.entries(typeCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
-      .map(([type]) => type);
-  }
+    const completedContent = path.contentIds.filter(id => progress.contentCompleted.includes(id))
+    const completionPercentage = (completedContent.length / path.contentIds.length) * 100
 
-  /**
-   * Extract preferred categories from user interactions
-   */
-  private static extractPreferredCategories(interactions: any[], toolUsage: any[]): string[] {
-    const categoryCount: { [key: string]: number } = {};
-
-    // From tool usage
-    toolUsage.forEach(usage => {
-      const category = this.mapToolToCategory(usage.tool_name);
-      if (category) {
-        categoryCount[category] = (categoryCount[category] || 0) + 2; // Higher weight for tools
+    // Find current milestone
+    let currentMilestone = null
+    for (const milestone of path.milestones) {
+      const milestoneCompleted = milestone.contentIds.filter(id => progress.contentCompleted.includes(id))
+      const milestoneProgress = (milestoneCompleted.length / milestone.contentIds.length) * 100
+      
+      if (milestoneProgress < milestone.requiredCompletion) {
+        currentMilestone = milestone.id
+        break
       }
-    });
+    }
 
-    // From interactions
-    interactions.forEach(interaction => {
-      if (interaction.metadata?.category) {
-        const category = interaction.metadata.category;
-        categoryCount[category] = (categoryCount[category] || 0) + 1;
+    // Find next content
+    const nextContentId = path.contentIds.find(id => !progress.contentCompleted.includes(id))
+    const nextContent = nextContentId ? this.content.find(c => c.id === nextContentId) || null : null
+
+    return {
+      path,
+      completionPercentage,
+      currentMilestone,
+      nextContent
+    }
+  }
+
+  // Content delivery scheduling
+  scheduleContentDelivery(userId: string, contentId: string, deliveryTime: Date, method: 'email' | 'push' | 'in-app'): DeliverySchedule {
+    const progress = this.userProgress.get(userId)
+    const content = this.content.find(c => c.id === contentId)
+    
+    if (!progress || !content) {
+      throw new Error('User or content not found')
+    }
+
+    // Generate personalized message based on user progress and content
+    const personalizedMessage = this.generatePersonalizedMessage(progress, content)
+
+    const schedule: DeliverySchedule = {
+      userId,
+      contentId,
+      scheduledFor: deliveryTime.toISOString(),
+      deliveryMethod: method,
+      status: 'scheduled',
+      personalizedMessage
+    }
+
+    return schedule
+  }
+
+  private generatePersonalizedMessage(progress: UserProgress, content: EducationContent): string {
+    const { streakDays, engagementScore } = progress
+    const timeOfDay = progress.preferences.deliveryTime
+
+    let greeting = ''
+    switch (timeOfDay) {
+      case 'morning':
+        greeting = 'Good morning! Ready to start your day with growth?'
+        break
+      case 'afternoon':
+        greeting = 'Good afternoon! Time for a quick learning break.'
+        break
+      case 'evening':
+        greeting = 'Good evening! Let\'s end the day with some insights.'
+        break
+      default:
+        greeting = 'Hello!'
+    }
+
+    let motivationalNote = ''
+    if (streakDays > 0) {
+      motivationalNote = `You're on a ${streakDays}-day learning streak! 🔥`
+    } else if (engagementScore > 100) {
+      motivationalNote = 'You\'re making excellent progress on your growth journey!'
+    } else {
+      motivationalNote = 'Every small step counts toward your transformation.'
+    }
+
+    return `${greeting} ${motivationalNote} Today's ${content.type}: "${content.title}" - estimated time: ${content.estimatedTime} minutes.`
+  }
+
+  // Progress tracking
+  markContentCompleted(userId: string, contentId: string): void {
+    const progress = this.userProgress.get(userId)
+    if (!progress) return
+
+    if (!progress.contentCompleted.includes(contentId)) {
+      progress.contentCompleted.push(contentId)
+      progress.engagementScore += 10 // Award points for completion
+      progress.lastActiveDate = new Date().toISOString()
+      
+      // Update streak
+      const lastActive = new Date(progress.lastActiveDate)
+      const today = new Date()
+      const daysDiff = Math.floor((today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (daysDiff <= 1) {
+        progress.streakDays += 1
+      } else {
+        progress.streakDays = 1
       }
-    });
 
-    return Object.entries(categoryCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 5)
-      .map(([category]) => category);
-  }
-
-  /**
-   * Extract preferred time slots from interaction timestamps
-   */
-  private static extractPreferredTimeSlots(interactions: any[]): string[] {
-    const hourCount: { [key: number]: number } = {};
-
-    interactions.forEach(interaction => {
-      const hour = new Date(interaction.created_at).getHours();
-      hourCount[hour] = (hourCount[hour] || 0) + 1;
-    });
-
-    const topHours = Object.entries(hourCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
-      .map(([hour]) => parseInt(hour));
-
-    return topHours.map(hour => {
-      if (hour >= 6 && hour < 12) return 'morning';
-      if (hour >= 12 && hour < 18) return 'afternoon';
-      if (hour >= 18 && hour < 22) return 'evening';
-      return 'night';
-    });
-  }
-
-  /**
-   * Calculate user's engagement frequency
-   */
-  private static calculateEngagementFrequency(interactions: any[]): 'daily' | 'weekly' | 'monthly' {
-    if (interactions.length === 0) return 'weekly';
-
-    const now = new Date();
-    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    const dailyInteractions = interactions.filter(i => new Date(i.created_at) > dayAgo).length;
-    const weeklyInteractions = interactions.filter(i => new Date(i.created_at) > weekAgo).length;
-
-    if (dailyInteractions >= 3) return 'daily';
-    if (weeklyInteractions >= 10) return 'weekly';
-    return 'monthly';
-  }
-
-  /**
-   * Calculate completion rate from tool usage
-   */
-  private static calculateCompletionRate(toolUsage: any[]): number {
-    if (toolUsage.length === 0) return 0;
-
-    const totalCompletionRate = toolUsage.reduce((sum, usage) => sum + (usage.completion_rate || 0), 0);
-    return totalCompletionRate / toolUsage.length;
-  }
-
-  /**
-   * Map tool names to content categories
-   */
-  private static mapToolToCategory(toolName: string): string | null {
-    const categoryMap: { [key: string]: string } = {
-      'potential-assessment': 'Personal Development',
-      'success-factor-calculator': 'Goal Setting',
-      'habit-strength-analyzer': 'Habit Formation',
-      'leadership-style-identifier': 'Leadership',
-      'future-self-visualizer': 'Goal Setting',
-      'cost-of-inaction-calculator': 'Decision Making'
-    };
-
-    return categoryMap[toolName] || null;
-  }
-
-  /**
-   * Schedule content delivery based on user preferences
-   */
-  static async scheduleContentDelivery(userId: string): Promise<void> {
-    try {
-      const engagementPattern = await this.analyzeUserEngagementPattern(userId);
-      const recommendations = await this.generatePersonalizedRecommendations(userId, 5);
-
-      // Get user's subscription preferences
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('subscription_preferences, notification_frequency')
-        .eq('id', userId)
-        .single();
-
-      if (!userProfile?.subscription_preferences) return;
-
-      // Schedule delivery based on preferences
-      const deliverySchedule = {
-        user_id: userId,
-        content_recommendations: recommendations,
-        delivery_channels: userProfile.subscription_preferences,
-        frequency: userProfile.notification_frequency || 'weekly',
-        next_delivery: this.calculateNextDeliveryTime(
-          userProfile.notification_frequency || 'weekly',
-          engagementPattern.preferred_time_slots
-        ),
-        created_at: new Date().toISOString()
-      };
-
-      // Store delivery schedule
-      await supabase
-        .from('content_delivery_schedule')
-        .upsert(deliverySchedule);
-
-    } catch (error) {
-      console.error('Error scheduling content delivery:', error);
+      this.userProgress.set(userId, progress)
     }
   }
 
-  /**
-   * Calculate next delivery time based on frequency and preferred time slots
-   */
-  private static calculateNextDeliveryTime(
-    frequency: string, 
-    preferredTimeSlots: string[]
-  ): string {
-    const now = new Date();
-    let nextDelivery = new Date(now);
-
-    // Set preferred hour
-    const preferredHour = preferredTimeSlots.includes('morning') ? 9 :
-                         preferredTimeSlots.includes('afternoon') ? 14 :
-                         preferredTimeSlots.includes('evening') ? 19 : 10;
-
-    nextDelivery.setHours(preferredHour, 0, 0, 0);
-
-    // Adjust based on frequency
-    switch (frequency) {
-      case 'daily':
-        if (nextDelivery <= now) {
-          nextDelivery.setDate(nextDelivery.getDate() + 1);
-        }
-        break;
-      case 'weekly':
-        nextDelivery.setDate(nextDelivery.getDate() + (7 - nextDelivery.getDay() + 1)); // Next Monday
-        break;
-      case 'monthly':
-        nextDelivery.setMonth(nextDelivery.getMonth() + 1, 1); // First of next month
-        break;
+  // User management
+  initializeUser(userId: string, preferences: UserProgress['preferences']): void {
+    const progress: UserProgress = {
+      userId,
+      contentCompleted: [],
+      currentLearningPaths: [],
+      completedLearningPaths: [],
+      streakDays: 0,
+      lastActiveDate: new Date().toISOString(),
+      preferences,
+      engagementScore: 0
     }
 
-    return nextDelivery.toISOString();
+    this.userProgress.set(userId, progress)
   }
 
-  /**
-   * Track content engagement for improving recommendations
-   */
-  static async trackContentEngagement(
-    userId: string,
-    contentId: string,
-    engagementType: 'view' | 'click' | 'complete' | 'share',
-    metadata?: any
-  ): Promise<void> {
-    try {
-      await supabase
-        .from('content_engagement')
-        .insert({
-          user_id: userId,
-          content_id: contentId,
-          engagement_type: engagementType,
-          metadata: metadata || {},
-          created_at: new Date().toISOString()
-        });
+  updateUserPreferences(userId: string, preferences: Partial<UserProgress['preferences']>): void {
+    const progress = this.userProgress.get(userId)
+    if (!progress) return
 
-      // Update user's engagement score
-      await this.updateUserEngagementScore(userId, engagementType);
+    progress.preferences = { ...progress.preferences, ...preferences }
+    this.userProgress.set(userId, progress)
+  }
 
-    } catch (error) {
-      console.error('Error tracking content engagement:', error);
+  getUserStats(userId: string): {
+    contentCompleted: number
+    streakDays: number
+    engagementScore: number
+    activeLearningPaths: number
+    completedLearningPaths: number
+  } | null {
+    const progress = this.userProgress.get(userId)
+    if (!progress) return null
+
+    return {
+      contentCompleted: progress.contentCompleted.length,
+      streakDays: progress.streakDays,
+      engagementScore: progress.engagementScore,
+      activeLearningPaths: progress.currentLearningPaths.length,
+      completedLearningPaths: progress.completedLearningPaths.length
     }
   }
 
-  /**
-   * Update user's engagement score based on activity
-   */
-  private static async updateUserEngagementScore(
-    userId: string, 
-    engagementType: string
-  ): Promise<void> {
-    const scoreMap = {
-      'view': 1,
-      'click': 2,
-      'complete': 5,
-      'share': 3
-    };
-
-    const points = scoreMap[engagementType as keyof typeof scoreMap] || 1;
-
-    try {
-      const { data: currentScore } = await supabase
-        .from('lead_scores')
-        .select('total_score')
-        .eq('user_id', userId)
-        .single();
-
-      const newScore = (currentScore?.total_score || 0) + points;
-
-      await supabase
-        .from('lead_scores')
-        .upsert({
-          user_id: userId,
-          total_score: newScore,
-          tier: newScore >= 70 ? 'soft-member' : newScore >= 30 ? 'engaged' : 'browser',
-          last_updated: new Date().toISOString()
-        });
-
-    } catch (error) {
-      console.error('Error updating engagement score:', error);
+  // Content management
+  addContent(content: Omit<EducationContent, 'id' | 'createdAt' | 'updatedAt'>): string {
+    const id = `content-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+    const newContent: EducationContent = {
+      ...content,
+      id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
+
+    this.content.push(newContent)
+    return id
+  }
+
+  getContentById(contentId: string): EducationContent | null {
+    return this.content.find(c => c.id === contentId) || null
+  }
+
+  searchContent(query: string, filters?: {
+    category?: string
+    type?: string
+    difficulty?: string
+  }): EducationContent[] {
+    let results = this.content.filter(content => 
+      content.title.toLowerCase().includes(query.toLowerCase()) ||
+      content.content.toLowerCase().includes(query.toLowerCase()) ||
+      content.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    )
+
+    if (filters) {
+      if (filters.category) {
+        results = results.filter(c => c.category === filters.category)
+      }
+      if (filters.type) {
+        results = results.filter(c => c.type === filters.type)
+      }
+      if (filters.difficulty) {
+        results = results.filter(c => c.difficulty === filters.difficulty)
+      }
+    }
+
+    return results
   }
 }
+
+// Singleton instance
+export const continuousEducationEngine = new ContinuousEducationEngine()
+
+// Helper functions for external use
+export function getPersonalizedContent(userId: string, limit?: number) {
+  return continuousEducationEngine.getPersonalizedContent(userId, limit)
+}
+
+export function markContentCompleted(userId: string, contentId: string) {
+  return continuousEducationEngine.markContentCompleted(userId, contentId)
+}
+
+export function initializeUserEducation(userId: string, preferences: UserProgress['preferences']) {
+  return continuousEducationEngine.initializeUser(userId, preferences)
+}
+
+export function getUserEducationStats(userId: string) {
+  return continuousEducationEngine.getUserStats(userId)
+}
+
+export function enrollInPath(userId: string, pathId: string) {
+  return continuousEducationEngine.enrollInLearningPath(userId, pathId)
+}
+
+export function getPathProgress(userId: string, pathId: string) {
+  return continuousEducationEngine.getLearningPathProgress(userId, pathId)
+}
+
+export type { EducationContent, LearningPath, UserProgress, DeliverySchedule }

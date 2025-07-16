@@ -1,407 +1,346 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
-import { useAuth } from '@/lib/contexts/auth-context';
+import { useState, useEffect } from 'react'
+import { useEngagementTracking } from './use-engagement-tracking'
 
-export interface SoftMembershipData {
-  id: string;
-  user_tier: string;
-  subscription_preferences: string[];
-  notification_frequency: string;
-  content_preferences: string[];
-  membership_started_at: string;
-  telegram_handle?: string;
-  phone?: string;
+interface SoftMembershipData {
+  email: string
+  firstName?: string
+  interests?: string[]
+  source?: string
+  membershipLevel: 'soft' | 'full'
+  joinedAt: string
+  lastActive: string
+  engagementScore: number
+  toolsAccessed: string[]
+  assessmentsCompleted: string[]
+  contentViewed: string[]
 }
 
-export interface MembershipProgress {
-  totalAssessments: number;
-  completedAssessments: number;
-  totalScore: number;
-  tier: string;
-  streakDays: number;
-  lastActivity: string;
-  engagementLevel: 'low' | 'medium' | 'high';
+interface SoftMembershipBenefits {
+  id: string
+  title: string
+  description: string
+  unlocked: boolean
+  category: 'tools' | 'content' | 'community' | 'insights'
+  requiredScore?: number
 }
 
-export interface PersonalizedRecommendation {
-  id: string;
-  title: string;
-  description: string;
-  type: 'tool' | 'content' | 'webinar';
-  priority: 'high' | 'medium' | 'low';
-  link: string;
-  reason: string;
-}
+const defaultBenefits: SoftMembershipBenefits[] = [
+  {
+    id: 'tool-access',
+    title: 'Free Assessment Tools',
+    description: 'Access to 5+ personality and potential assessment tools',
+    unlocked: true,
+    category: 'tools'
+  },
+  {
+    id: 'progress-tracking',
+    title: 'Progress Tracking',
+    description: 'Save and track your assessment results over time',
+    unlocked: true,
+    category: 'insights'
+  },
+  {
+    id: 'personalized-insights',
+    title: 'Personalized Insights',
+    description: 'Get customized recommendations based on your profile',
+    unlocked: false,
+    category: 'insights',
+    requiredScore: 50
+  },
+  {
+    id: 'exclusive-content',
+    title: 'Exclusive Content Library',
+    description: 'Access to premium articles, videos, and resources',
+    unlocked: false,
+    category: 'content',
+    requiredScore: 100
+  },
+  {
+    id: 'community-access',
+    title: 'Community Forum',
+    description: 'Connect with other growth-minded individuals',
+    unlocked: false,
+    category: 'community',
+    requiredScore: 150
+  },
+  {
+    id: 'monthly-challenges',
+    title: 'Monthly Growth Challenges',
+    description: 'Participate in structured 30-day transformation programs',
+    unlocked: false,
+    category: 'tools',
+    requiredScore: 200
+  }
+]
 
 export function useSoftMembership() {
-  const [membershipData, setMembershipData] = useState<SoftMembershipData | null>(null);
-  const [progress, setProgress] = useState<MembershipProgress | null>(null);
-  const [recommendations, setRecommendations] = useState<PersonalizedRecommendation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [membershipData, setMembershipData] = useState<SoftMembershipData | null>(null)
+  const [benefits, setBenefits] = useState<SoftMembershipBenefits[]>(defaultBenefits)
+  const [isLoading, setIsLoading] = useState(true)
+  const [registrationStep, setRegistrationStep] = useState<'email' | 'profile' | 'complete'>('email')
+  const { trackEngagement } = useEngagementTracking()
 
+  // Load membership data on mount
   useEffect(() => {
-    if (user) {
-      loadMembershipData();
+    loadMembershipData()
+  }, [])
+
+  // Update benefits based on engagement score
+  useEffect(() => {
+    if (membershipData) {
+      updateBenefitsAccess(membershipData.engagementScore)
     }
-  }, [user]);
+  }, [membershipData])
 
   const loadMembershipData = async () => {
-    if (!user) return;
-
     try {
-      setIsLoading(true);
-      setError(null);
-
-      // Load user membership data
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (userError) throw userError;
-
-      setMembershipData(userData);
-
-      // Load progress data
-      const progressData = await loadProgressData(user.id);
-      setProgress(progressData);
-
-      // Load personalized recommendations
-      const recommendationsData = await loadRecommendations(user.id, progressData);
-      setRecommendations(recommendationsData);
-
-    } catch (err) {
-      console.error('Error loading membership data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load membership data');
+      setIsLoading(true)
+      
+      // Check localStorage first
+      const localData = localStorage.getItem('soft_membership_data')
+      if (localData) {
+        const parsedData = JSON.parse(localData)
+        setMembershipData(parsedData)
+        
+        // Sync with backend if user exists
+        await syncMembershipData(parsedData.email)
+      }
+    } catch (error) {
+      console.error('Error loading membership data:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const loadProgressData = async (userId: string): Promise<MembershipProgress> => {
+  const syncMembershipData = async (email: string) => {
     try {
-      // Load assessment results
-      const { data: assessments } = await supabase
-        .from('tool_usage')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      const response = await fetch('/.netlify/functions/get-soft-membership', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
 
-      // Load lead score
-      const { data: leadScore } = await supabase
-        .from('lead_scores')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      // Calculate streak days
-      const streakDays = calculateStreakDays(assessments || []);
-
-      // Determine engagement level
-      const completedCount = assessments?.length || 0;
-      const engagementLevel = completedCount >= 10 ? 'high' : 
-                             completedCount >= 5 ? 'medium' : 'low';
-
-      return {
-        totalAssessments: 15, // Total available tools
-        completedAssessments: completedCount,
-        totalScore: leadScore?.total_score || 0,
-        tier: leadScore?.tier || 'browser',
-        streakDays,
-        lastActivity: assessments?.[0]?.created_at || new Date().toISOString(),
-        engagementLevel
-      };
+      if (response.ok) {
+        const serverData = await response.json()
+        if (serverData.membership) {
+          setMembershipData(serverData.membership)
+          localStorage.setItem('soft_membership_data', JSON.stringify(serverData.membership))
+        }
+      }
     } catch (error) {
-      console.error('Error loading progress data:', error);
-      return {
-        totalAssessments: 15,
-        completedAssessments: 0,
-        totalScore: 0,
-        tier: 'browser',
-        streakDays: 0,
-        lastActivity: new Date().toISOString(),
-        engagementLevel: 'low'
-      };
+      console.error('Error syncing membership data:', error)
     }
-  };
+  }
 
-  const loadRecommendations = async (
-    userId: string, 
-    progressData: MembershipProgress
-  ): Promise<PersonalizedRecommendation[]> => {
-    try {
-      const recommendations: PersonalizedRecommendation[] = [];
-
-      // Recommend based on completion rate
-      if (progressData.completedAssessments < 5) {
-        recommendations.push({
-          id: '1',
-          title: 'Complete Your Potential Assessment',
-          description: 'Discover your hidden potential with our comprehensive assessment',
-          type: 'tool',
-          priority: 'high',
-          link: '/potential-assessment',
-          reason: 'Essential first step in your growth journey'
-        });
-      }
-
-      // Recommend based on tier
-      if (progressData.tier === 'browser') {
-        recommendations.push({
-          id: '2',
-          title: 'Join Our Next Webinar',
-          description: 'Take the next step in your growth journey',
-          type: 'webinar',
-          priority: 'high',
-          link: '/webinars',
-          reason: 'Perfect for your current engagement level'
-        });
-      }
-
-      // Content recommendations based on engagement level
-      if (progressData.engagementLevel === 'high') {
-        recommendations.push({
-          id: '3',
-          title: 'Schedule Office Visit',
-          description: 'Ready for personalized guidance? Book a consultation',
-          type: 'content',
-          priority: 'high',
-          link: '/office-visit-test',
-          reason: 'Your high engagement shows readiness for next level'
-        });
-      } else {
-        recommendations.push({
-          id: '4',
-          title: 'Explore Success Gap Content',
-          description: 'Learn why some achieve their dreams while others just dream',
-          type: 'content',
-          priority: 'medium',
-          link: '/success-gap/learn-more',
-          reason: 'Build foundation knowledge for success'
-        });
-      }
-
-      // Add streak-based recommendations
-      if (progressData.streakDays >= 7) {
-        recommendations.push({
-          id: '5',
-          title: 'Advanced Leadership Tools',
-          description: 'Your consistency shows readiness for advanced content',
-          type: 'tool',
-          priority: 'medium',
-          link: '/leadership-lever',
-          reason: 'Reward for your consistent engagement'
-        });
-      }
-
-      return recommendations.slice(0, 4); // Limit to 4 recommendations
-    } catch (error) {
-      console.error('Error loading recommendations:', error);
-      return [];
-    }
-  };
-
-  const calculateStreakDays = (assessments: any[]): number => {
-    if (assessments.length === 0) return 0;
-    
-    const dates = assessments.map(a => new Date(a.created_at).toDateString());
-    const uniqueDates = [...new Set(dates)].sort();
-    
-    let streak = 0;
-    const today = new Date().toDateString();
-    
-    for (let i = uniqueDates.length - 1; i >= 0; i--) {
-      const daysDiff = Math.floor(
-        (new Date(today).getTime() - new Date(uniqueDates[i]).getTime()) / (1000 * 60 * 60 * 24)
-      );
-      if (daysDiff === streak) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    
-    return streak;
-  };
-
-  const updateSubscriptionPreferences = async (preferences: {
-    subscription_preferences?: string[];
-    notification_frequency?: string;
-    content_preferences?: string[];
-    phone?: string;
-    telegram_handle?: string;
+  const registerSoftMember = async (data: {
+    email: string
+    firstName?: string
+    interests?: string[]
+    source?: string
   }) => {
-    if (!user) throw new Error('User not authenticated');
-
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          ...preferences,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+      trackEngagement({
+        type: 'cta_click',
+        section: 'soft-membership-registration',
+        metadata: {
+          step: registrationStep,
+          source: data.source
+        }
+      })
 
-      if (error) throw error;
+      const membershipData: SoftMembershipData = {
+        email: data.email,
+        firstName: data.firstName,
+        interests: data.interests || [],
+        source: data.source || 'direct',
+        membershipLevel: 'soft',
+        joinedAt: new Date().toISOString(),
+        lastActive: new Date().toISOString(),
+        engagementScore: 10, // Starting score
+        toolsAccessed: [],
+        assessmentsCompleted: [],
+        contentViewed: []
+      }
 
-      // Reload membership data
-      await loadMembershipData();
+      // Save to backend
+      const response = await fetch('/.netlify/functions/register-soft-member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(membershipData),
+      })
 
-      // Track preference update
-      await supabase
-        .from('interactions')
-        .insert({
-          user_id: user.id,
-          interaction_type: 'preferences_updated',
-          metadata: preferences
-        });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error updating preferences:', error);
-      throw error;
-    }
-  };
-
-  const registerSoftMembership = async (registrationData: {
-    subscription_preferences: string[];
-    phone?: string;
-    telegram_handle?: string;
-    content_preferences?: string[];
-  }) => {
-    if (!user) throw new Error('User not authenticated');
-
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          ...registrationData,
-          user_tier: 'soft-member',
-          membership_started_at: new Date().toISOString(),
-          notification_frequency: 'weekly',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      // Update lead score to soft member level
-      await supabase
-        .from('lead_scores')
-        .upsert({
-          user_id: user.id,
-          total_score: Math.max(70, progress?.totalScore || 0), // Minimum for soft member
-          tier: 'soft-member',
-          last_updated: new Date().toISOString()
-        });
-
-      // Track membership registration
-      await supabase
-        .from('interactions')
-        .insert({
-          user_id: user.id,
-          interaction_type: 'soft_membership_registration',
+      if (response.ok) {
+        const result = await response.json()
+        setMembershipData(result.membership)
+        localStorage.setItem('soft_membership_data', JSON.stringify(result.membership))
+        setRegistrationStep('complete')
+        
+        // Track successful registration
+        trackEngagement({
+          type: 'cta_click',
+          section: 'soft-membership-registration',
           metadata: {
-            subscription_options: registrationData.subscription_preferences,
-            registration_source: 'membership_registration'
+            action: 'registration-complete',
+            source: data.source
           }
-        });
+        })
 
-      // Reload membership data
-      await loadMembershipData();
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error registering soft membership:', error);
-      throw error;
-    }
-  };
-
-  const trackEngagement = async (engagementType: string, metadata?: any) => {
-    if (!user) return;
-
-    try {
-      await supabase
-        .from('interactions')
-        .insert({
-          user_id: user.id,
-          interaction_type: engagementType,
-          metadata: metadata || {}
-        });
-
-      // Update engagement score
-      const scoreIncrease = getScoreIncrease(engagementType);
-      if (scoreIncrease > 0) {
-        const currentScore = progress?.totalScore || 0;
-        const newScore = currentScore + scoreIncrease;
-
-        await supabase
-          .from('lead_scores')
-          .upsert({
-            user_id: user.id,
-            total_score: newScore,
-            tier: newScore >= 70 ? 'soft-member' : newScore >= 30 ? 'engaged' : 'browser',
-            last_updated: new Date().toISOString()
-          });
-
-        // Reload progress to reflect changes
-        const updatedProgress = await loadProgressData(user.id);
-        setProgress(updatedProgress);
+        return { success: true, membership: result.membership }
+      } else {
+        throw new Error('Registration failed')
       }
     } catch (error) {
-      console.error('Error tracking engagement:', error);
+      console.error('Error registering soft member:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
-  };
+  }
 
-  const getScoreIncrease = (engagementType: string): number => {
-    const scoreMap: { [key: string]: number } = {
-      'dashboard_visit': 1,
-      'recommendation_click': 2,
-      'content_view': 1,
-      'tool_completion': 5,
-      'webinar_registration': 10,
-      'settings_update': 2
-    };
+  const updateEngagementScore = async (points: number, activity: string) => {
+    if (!membershipData) return
 
-    return scoreMap[engagementType] || 0;
-  };
+    const updatedData = {
+      ...membershipData,
+      engagementScore: membershipData.engagementScore + points,
+      lastActive: new Date().toISOString()
+    }
+
+    // Update activity arrays based on activity type
+    if (activity.includes('tool-')) {
+      const toolName = activity.replace('tool-', '')
+      if (!updatedData.toolsAccessed.includes(toolName)) {
+        updatedData.toolsAccessed.push(toolName)
+      }
+    } else if (activity.includes('assessment-')) {
+      const assessmentName = activity.replace('assessment-', '')
+      if (!updatedData.assessmentsCompleted.includes(assessmentName)) {
+        updatedData.assessmentsCompleted.push(assessmentName)
+      }
+    } else if (activity.includes('content-')) {
+      const contentId = activity.replace('content-', '')
+      if (!updatedData.contentViewed.includes(contentId)) {
+        updatedData.contentViewed.push(contentId)
+      }
+    }
+
+    setMembershipData(updatedData)
+    localStorage.setItem('soft_membership_data', JSON.stringify(updatedData))
+
+    // Sync with backend
+    try {
+      await fetch('/.netlify/functions/update-engagement-score', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: membershipData.email,
+          points,
+          activity,
+          membershipData: updatedData
+        }),
+      })
+    } catch (error) {
+      console.error('Error updating engagement score:', error)
+    }
+
+    // Track engagement
+    trackEngagement({
+      type: 'benefit_interaction',
+      section: 'soft-membership',
+      metadata: {
+        activity,
+        points,
+        newScore: updatedData.engagementScore
+      }
+    })
+  }
+
+  const updateBenefitsAccess = (engagementScore: number) => {
+    const updatedBenefits = benefits.map(benefit => ({
+      ...benefit,
+      unlocked: benefit.unlocked || (benefit.requiredScore ? engagementScore >= benefit.requiredScore : false)
+    }))
+    setBenefits(updatedBenefits)
+  }
+
+  const getNextBenefit = () => {
+    const lockedBenefits = benefits.filter(b => !b.unlocked && b.requiredScore)
+    if (lockedBenefits.length === 0) return null
+
+    return lockedBenefits.reduce((next, current) => 
+      (current.requiredScore || 0) < (next.requiredScore || 0) ? current : next
+    )
+  }
+
+  const getProgressToNextBenefit = () => {
+    const nextBenefit = getNextBenefit()
+    if (!nextBenefit || !membershipData) return null
+
+    const currentScore = membershipData.engagementScore
+    const requiredScore = nextBenefit.requiredScore || 0
+    const progress = Math.min((currentScore / requiredScore) * 100, 100)
+
+    return {
+      benefit: nextBenefit,
+      progress,
+      pointsNeeded: Math.max(0, requiredScore - currentScore)
+    }
+  }
 
   const isSoftMember = () => {
-    return membershipData?.user_tier === 'soft-member';
-  };
+    return membershipData !== null
+  }
 
-  const canAccessFeature = (feature: string): boolean => {
-    if (!membershipData) return false;
+  const canAccessTool = (toolName: string) => {
+    if (!membershipData) return false
+    
+    // Basic tools are always accessible to soft members
+    const basicTools = ['potential-quotient', 'decision-style', 'leadership-style']
+    if (basicTools.includes(toolName)) return true
 
-    const featureRequirements: { [key: string]: string[] } = {
-      'saved_results': ['soft-member'],
-      'progress_tracking': ['soft-member'],
-      'personalized_recommendations': ['soft-member'],
-      'continuous_education': ['soft-member'],
-      'priority_access': ['soft-member'],
-      'exclusive_webinars': ['soft-member']
-    };
+    // Premium tools require higher engagement scores
+    const premiumTools = {
+      'future-self': 50,
+      'transformation-readiness': 100,
+      'success-factors': 150
+    }
 
-    const requiredTiers = featureRequirements[feature] || [];
-    return requiredTiers.includes(membershipData.user_tier);
-  };
+    const requiredScore = premiumTools[toolName as keyof typeof premiumTools]
+    return requiredScore ? membershipData.engagementScore >= requiredScore : false
+  }
+
+  const getMembershipStats = () => {
+    if (!membershipData) return null
+
+    return {
+      memberSince: membershipData.joinedAt,
+      engagementScore: membershipData.engagementScore,
+      toolsAccessed: membershipData.toolsAccessed.length,
+      assessmentsCompleted: membershipData.assessmentsCompleted.length,
+      contentViewed: membershipData.contentViewed.length,
+      membershipLevel: membershipData.membershipLevel
+    }
+  }
 
   return {
     membershipData,
-    progress,
-    recommendations,
+    benefits,
     isLoading,
-    error,
-    isSoftMember: isSoftMember(),
-    canAccessFeature,
-    updateSubscriptionPreferences,
-    registerSoftMembership,
-    trackEngagement,
-    refreshData: loadMembershipData
-  };
+    registrationStep,
+    setRegistrationStep,
+    registerSoftMember,
+    updateEngagementScore,
+    getNextBenefit,
+    getProgressToNextBenefit,
+    isSoftMember,
+    canAccessTool,
+    getMembershipStats,
+    loadMembershipData
+  }
 }

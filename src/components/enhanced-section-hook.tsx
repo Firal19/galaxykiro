@@ -1,377 +1,663 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, ExternalLink, TrendingUp, Lightbulb, Target, Star, Clock, Users, BookOpen } from "lucide-react"
-import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
-import { useABTesting } from "@/lib/hooks/use-ab-testing"
+import { ChevronDown, ChevronRight, Play, BookOpen, Calculator, Target } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
+import { Button } from "@/components/ui/button"
 
-interface EnhancedSectionHookProps {
-  sectionId: string
-  question: string
-  questionLink: string
+interface SectionHookProps {
+  section: 'decision-door' | 'leadership-lever' | 'vision-void' | 'change-paradox' | 'success-gap'
+  hookVariation?: 'question' | 'statement' | 'story' | 'statistic'
   className?: string
-  children?: React.ReactNode
 }
 
-export function EnhancedSectionHook({ 
-  sectionId, 
-  question, 
-  questionLink, 
-  className,
-  children 
-}: EnhancedSectionHookProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [hasViewed, setHasViewed] = useState(false)
-  const [showProgressiveDisclosure, setShowProgressiveDisclosure] = useState(false)
-  const { trackEngagement } = useEngagementTracking()
-  const { getVariation, trackVariationExposure } = useABTesting()
-
-  const variation = getVariation(sectionId)
-
-  useEffect(() => {
-    if (!hasViewed && variation) {
-      setHasViewed(true)
-      trackEngagement({ type: 'hook_view', section: sectionId, hookVariation: variation.id })
-      trackVariationExposure(sectionId)
-    }
-  }, [hasViewed, variation, sectionId, trackEngagement, trackVariationExposure])
-
-  // Progressive disclosure timer
-  useEffect(() => {
-    if (isExpanded) {
-      const timer = setTimeout(() => {
-        setShowProgressiveDisclosure(true)
-        // Track progressive disclosure view
-        trackEngagement({ 
-          type: 'progressive_disclosure_view', 
-          section: sectionId, 
-          hookVariation: variation?.id,
-          metadata: {
-            timeSpent: 2000 // 2 seconds before disclosure
-          }
-        })
-      }, 2000) // Show additional benefits after 2 seconds
-      return () => clearTimeout(timer)
-    } else {
-      setShowProgressiveDisclosure(false)
-    }
-  }, [isExpanded, sectionId, trackEngagement, variation?.id])
-
-  const handleQuestionClick = () => {
-    trackEngagement({ type: 'question_click', section: sectionId, hookVariation: variation?.id })
-    window.open(questionLink, '_blank')
+interface HookContent {
+  question: {
+    primary: string
+    secondary: string
+    expandedContent: string
+    relatedTools: Array<{
+      name: string
+      description: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+    }>
   }
+  statement: {
+    primary: string
+    secondary: string
+    expandedContent: string
+    relatedTools: Array<{
+      name: string
+      description: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+    }>
+  }
+  story: {
+    primary: string
+    secondary: string
+    expandedContent: string
+    relatedTools: Array<{
+      name: string
+      description: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+    }>
+  }
+  statistic: {
+    primary: string
+    secondary: string
+    expandedContent: string
+    relatedTools: Array<{
+      name: string
+      description: string
+      url: string
+      icon: React.ComponentType<{ className?: string }>
+    }>
+  }
+}
 
-  const handleHookClick = () => {
+const sectionHooks: Record<SectionHookProps['section'], HookContent> = {
+  'decision-door': {
+    question: {
+      primary: "What if every 'maybe later' is actually a 'no' in disguise?",
+      secondary: "The decisions you avoid are still decisions – they're just decisions to stay where you are.",
+      expandedContent: "Research shows that the average person makes 35,000 decisions per day, yet most people struggle with the big ones that could transform their lives. The Decision Door isn't about making perfect choices – it's about making empowered ones. When you understand your decision-making patterns, you can break free from analysis paralysis and start creating the life you actually want.",
+      relatedTools: [
+        {
+          name: "Decision Style Profiler",
+          description: "Discover your unique decision-making patterns",
+          url: "/tools/decision-style",
+          icon: Target
+        },
+        {
+          name: "Choice Clarity Calculator",
+          description: "Get clear on your next big decision",
+          url: "/tools/choice-clarity",
+          icon: Calculator
+        }
+      ]
+    },
+    statement: {
+      primary: "Your next level of life is waiting behind a decision you haven't made yet.",
+      secondary: "Every successful person has one thing in common: they decided to act when others decided to wait.",
+      expandedContent: "The Decision Door represents the moment when potential becomes reality. It's not about having all the answers – it's about having the courage to step forward anyway. Behind every transformation is a decision that felt scary at the time but became the turning point that changed everything.",
+      relatedTools: [
+        {
+          name: "Courage Quotient Assessment",
+          description: "Measure your readiness to make bold decisions",
+          url: "/tools/courage-quotient",
+          icon: Target
+        },
+        {
+          name: "Next Level Planner",
+          description: "Map your path to your next breakthrough",
+          url: "/tools/next-level-planner",
+          icon: BookOpen
+        }
+      ]
+    },
+    story: {
+      primary: "Sarah stared at the job application for 3 months before finally hitting 'submit.'",
+      secondary: "Six months later, she was leading a team of 50 people in her dream role.",
+      expandedContent: "The Decision Door isn't just about big, life-changing moments – it's about recognizing that every small decision is practice for the big ones. Sarah's story isn't unique. What made the difference wasn't her qualifications or timing – it was her willingness to walk through the door of uncertainty. The Decision Door teaches you to see opportunities where others see obstacles.",
+      relatedTools: [
+        {
+          name: "Opportunity Recognition Quiz",
+          description: "Learn to spot hidden opportunities",
+          url: "/tools/opportunity-recognition",
+          icon: Target
+        },
+        {
+          name: "Confidence Builder Toolkit",
+          description: "Build the confidence to take action",
+          url: "/tools/confidence-builder",
+          icon: Play
+        }
+      ]
+    },
+    statistic: {
+      primary: "87% of people regret the chances they didn't take, not the ones they did.",
+      secondary: "The biggest risk is not taking any risk at all.",
+      expandedContent: "Harvard Business School studied 10,000 professionals over 20 years and found that career satisfaction wasn't correlated with perfect decisions – it was correlated with decisive action. The Decision Door framework helps you make better decisions faster, so you can spend less time wondering 'what if' and more time creating 'what is.'",
+      relatedTools: [
+        {
+          name: "Regret Prevention Planner",
+          description: "Make decisions you'll be proud of later",
+          url: "/tools/regret-prevention",
+          icon: BookOpen
+        },
+        {
+          name: "Risk Assessment Matrix",
+          description: "Evaluate opportunities with confidence",
+          url: "/tools/risk-assessment",
+          icon: Calculator
+        }
+      ]
+    }
+  },
+  'leadership-lever': {
+    question: {
+      primary: "Are you leading your life, or is your life leading you?",
+      secondary: "Leadership isn't a title – it's a choice you make every single day.",
+      expandedContent: "The Leadership Lever reveals that everyone is a leader – the question is what you're leading toward. Whether you're leading a team of thousands or just leading yourself toward your goals, the principles are the same. True leadership starts with self-leadership: the ability to influence your own thoughts, emotions, and actions in service of your vision.",
+      relatedTools: [
+        {
+          name: "Self-Leadership Assessment",
+          description: "Discover your leadership starting point",
+          url: "/tools/self-leadership",
+          icon: Target
+        },
+        {
+          name: "Influence Impact Calculator",
+          description: "Measure your leadership effectiveness",
+          url: "/tools/influence-impact",
+          icon: Calculator
+        }
+      ]
+    },
+    statement: {
+      primary: "Every expert was once a beginner who refused to give up.",
+      secondary: "Leadership is not about being perfect – it's about being persistent.",
+      expandedContent: "The Leadership Lever shows you that leadership development is not about waiting until you feel ready – it's about growing into readiness through action. Every time you choose growth over comfort, you're exercising leadership. Every time you help someone else succeed, you're building your leadership muscle.",
+      relatedTools: [
+        {
+          name: "Leadership Growth Tracker",
+          description: "Monitor your leadership development",
+          url: "/tools/leadership-growth",
+          icon: BookOpen
+        },
+        {
+          name: "Mentorship Readiness Quiz",
+          description: "Assess your readiness to lead others",
+          url: "/tools/mentorship-readiness",
+          icon: Target
+        }
+      ]
+    },
+    story: {
+      primary: "Marcus was promoted to manager and felt completely unprepared.",
+      secondary: "Two years later, his team had the highest performance rating in the company.",
+      expandedContent: "Marcus discovered that leadership isn't about having all the answers – it's about asking the right questions and creating an environment where others can succeed. The Leadership Lever taught him that authentic leadership comes from serving others' growth, not from proving your own worth. His transformation from reluctant manager to inspiring leader happened one conversation, one decision, one day at a time.",
+      relatedTools: [
+        {
+          name: "Leadership Style Profiler",
+          description: "Discover your natural leadership approach",
+          url: "/tools/leadership-style",
+          icon: Target
+        },
+        {
+          name: "Team Dynamics Analyzer",
+          description: "Optimize your team's performance",
+          url: "/tools/team-dynamics",
+          icon: Calculator
+        }
+      ]
+    },
+    statistic: {
+      primary: "Companies with strong leadership development are 2.3x more likely to outperform peers.",
+      secondary: "But 77% of organizations report a leadership shortage.",
+      expandedContent: "The Leadership Lever addresses this gap by showing you that leadership development starts with personal development. You can't lead others to places you haven't been yourself. The most effective leaders are those who commit to continuous growth and model the behaviors they want to see in others.",
+      relatedTools: [
+        {
+          name: "Leadership Gap Analysis",
+          description: "Identify your development opportunities",
+          url: "/tools/leadership-gap",
+          icon: Calculator
+        },
+        {
+          name: "Executive Presence Builder",
+          description: "Develop your leadership presence",
+          url: "/tools/executive-presence",
+          icon: Play
+        }
+      ]
+    }
+  },
+  'vision-void': {
+    question: {
+      primary: "Can you describe your life 5 years from now in vivid detail?",
+      secondary: "If you can't see it clearly, how will you know when you've arrived?",
+      expandedContent: "The Vision Void is the gap between where you are and where you want to be – but more importantly, it's the gap between having a vague idea of 'better' and having a crystal-clear vision that pulls you forward. Most people live in the void, hoping things will improve without a clear picture of what improvement looks like.",
+      relatedTools: [
+        {
+          name: "Future Self Visualizer",
+          description: "Create a detailed vision of your future",
+          url: "/tools/future-self",
+          icon: Target
+        },
+        {
+          name: "Vision Clarity Score",
+          description: "Measure how clear your vision really is",
+          url: "/tools/vision-clarity",
+          icon: Calculator
+        }
+      ]
+    },
+    statement: {
+      primary: "A goal without a vision is just a wish with a deadline.",
+      secondary: "Vision is the bridge between your current reality and your desired future.",
+      expandedContent: "The Vision Void teaches you that clarity is power. When you can see your future self clearly – what you're doing, how you're feeling, what you've accomplished – your brain starts working to make that vision reality. Vision isn't just about setting goals; it's about creating a magnetic future that draws you forward even when the path gets difficult.",
+      relatedTools: [
+        {
+          name: "Vision Board Creator",
+          description: "Build a compelling visual representation",
+          url: "/tools/vision-board",
+          icon: BookOpen
+        },
+        {
+          name: "Goal Alignment Checker",
+          description: "Ensure your goals match your vision",
+          url: "/tools/goal-alignment",
+          icon: Target
+        }
+      ]
+    },
+    story: {
+      primary: "Lisa had been 'working on herself' for years but felt like she was going in circles.",
+      secondary: "Everything changed when she got specific about what 'better' actually looked like.",
+      expandedContent: "Lisa's breakthrough came when she realized she was trying to improve without a destination. The Vision Void helped her understand that personal development without direction is just expensive therapy. Once she created a clear, compelling vision of her future self, every decision became easier because she had a filter: 'Does this move me toward my vision or away from it?'",
+      relatedTools: [
+        {
+          name: "Life Direction Compass",
+          description: "Find your true north",
+          url: "/tools/life-direction",
+          icon: Target
+        },
+        {
+          name: "Progress Tracking System",
+          description: "Monitor your journey toward your vision",
+          url: "/tools/progress-tracking",
+          icon: Calculator
+        }
+      ]
+    },
+    statistic: {
+      primary: "People with written goals are 42% more likely to achieve them.",
+      secondary: "But only 3% of people have written goals with specific deadlines.",
+      expandedContent: "The Vision Void bridges this gap by helping you not just set goals, but create a compelling future vision that makes achieving those goals inevitable. Research shows that visualization activates the same neural pathways as actual experience, essentially training your brain for success before you even begin.",
+      relatedTools: [
+        {
+          name: "Goal Achievement Predictor",
+          description: "Calculate your likelihood of success",
+          url: "/tools/goal-achievement",
+          icon: Calculator
+        },
+        {
+          name: "Visualization Training Program",
+          description: "Master the art of mental rehearsal",
+          url: "/tools/visualization-training",
+          icon: Play
+        }
+      ]
+    }
+  },
+  'change-paradox': {
+    question: {
+      primary: "Why do you keep doing things you know aren't working?",
+      secondary: "The definition of insanity is doing the same thing and expecting different results.",
+      expandedContent: "The Change Paradox reveals why change is simultaneously the most natural thing in the world (everything changes) and the most difficult thing for humans to do intentionally. Understanding this paradox is the key to making lasting transformation possible instead of just temporary improvement.",
+      relatedTools: [
+        {
+          name: "Change Readiness Assessment",
+          description: "Discover what's really stopping you",
+          url: "/tools/change-readiness",
+          icon: Target
+        },
+        {
+          name: "Habit Loop Analyzer",
+          description: "Understand your automatic behaviors",
+          url: "/tools/habit-loop",
+          icon: Calculator
+        }
+      ]
+    },
+    statement: {
+      primary: "You are always one decision away from a completely different life.",
+      secondary: "The question isn't whether you can change – it's whether you will.",
+      expandedContent: "The Change Paradox shows you that resistance to change isn't a character flaw – it's a feature of human psychology designed to keep you safe. But what kept you safe in the past might be keeping you stuck in the present. True change happens when you understand how to work with your psychology, not against it.",
+      relatedTools: [
+        {
+          name: "Transformation Timeline",
+          description: "Map your personal change journey",
+          url: "/tools/transformation-timeline",
+          icon: BookOpen
+        },
+        {
+          name: "Resistance Pattern Identifier",
+          description: "Recognize what holds you back",
+          url: "/tools/resistance-patterns",
+          icon: Target
+        }
+      ]
+    },
+    story: {
+      primary: "David tried to quit smoking 47 times before it finally stuck.",
+      secondary: "The difference wasn't willpower – it was understanding why he smoked in the first place.",
+      expandedContent: "David's story illustrates the Change Paradox perfectly: he had the motivation, the knowledge, and the desire to change, but he was fighting against unconscious patterns that served a purpose he didn't understand. Once he addressed the underlying need his smoking habit was meeting, change became not just possible, but inevitable.",
+      relatedTools: [
+        {
+          name: "Underlying Need Detector",
+          description: "Discover what your habits are really doing for you",
+          url: "/tools/underlying-needs",
+          icon: Target
+        },
+        {
+          name: "Sustainable Change Planner",
+          description: "Create lasting transformation strategies",
+          url: "/tools/sustainable-change",
+          icon: BookOpen
+        }
+      ]
+    },
+    statistic: {
+      primary: "92% of people fail to achieve their New Year's resolutions.",
+      secondary: "But those who understand the psychology of change have a 73% success rate.",
+      expandedContent: "The Change Paradox explains why most change attempts fail and provides a framework for joining the 8% who succeed. It's not about having more willpower – it's about understanding how change actually works and designing your approach accordingly.",
+      relatedTools: [
+        {
+          name: "Change Success Predictor",
+          description: "Calculate your likelihood of lasting change",
+          url: "/tools/change-success",
+          icon: Calculator
+        },
+        {
+          name: "Psychology-Based Change Kit",
+          description: "Tools based on behavioral science",
+          url: "/tools/psychology-change-kit",
+          icon: Play
+        }
+      ]
+    }
+  },
+  'success-gap': {
+    question: {
+      primary: "What's the difference between knowing what to do and actually doing it?",
+      secondary: "Everyone knows they should exercise, eat well, and follow their dreams. So why don't they?",
+      expandedContent: "The Success Gap is the space between knowledge and action, between intention and implementation. It's where most dreams go to die and where most potential remains unrealized. Bridging this gap isn't about learning more – it's about understanding why you don't act on what you already know.",
+      relatedTools: [
+        {
+          name: "Knowledge-Action Gap Analyzer",
+          description: "Identify what stops you from taking action",
+          url: "/tools/knowledge-action-gap",
+          icon: Calculator
+        },
+        {
+          name: "Implementation Intention Builder",
+          description: "Turn knowledge into automatic action",
+          url: "/tools/implementation-intentions",
+          icon: Target
+        }
+      ]
+    },
+    statement: {
+      primary: "The gap between who you are and who you could be is measured in actions, not intentions.",
+      secondary: "Success isn't about what you know – it's about what you do with what you know.",
+      expandedContent: "The Success Gap reveals that information is not transformation. You can read every self-help book, attend every seminar, and know all the strategies, but until you bridge the gap between knowing and doing, nothing changes. The gap isn't closed by learning more – it's closed by implementing better.",
+      relatedTools: [
+        {
+          name: "Action Bias Assessment",
+          description: "Discover your natural tendency toward action",
+          url: "/tools/action-bias",
+          icon: Target
+        },
+        {
+          name: "Execution Excellence Tracker",
+          description: "Monitor your follow-through rate",
+          url: "/tools/execution-excellence",
+          icon: Calculator
+        }
+      ]
+    },
+    story: {
+      primary: "Jennifer had three business plans, five workout routines, and two relationship books.",
+      secondary: "But she was still single, out of shape, and working for someone else.",
+      expandedContent: "Jennifer's story is the Success Gap in action. She was incredibly knowledgeable about what she wanted to change but couldn't understand why she wasn't changing. The breakthrough came when she realized that knowing what to do was actually preventing her from doing it – she was addicted to the feeling of progress that came from learning without the risk that came from acting.",
+      relatedTools: [
+        {
+          name: "Learning vs. Doing Audit",
+          description: "Balance knowledge acquisition with action",
+          url: "/tools/learning-doing-audit",
+          icon: Calculator
+        },
+        {
+          name: "Accountability System Builder",
+          description: "Create structures that ensure follow-through",
+          url: "/tools/accountability-system",
+          icon: BookOpen
+        }
+      ]
+    },
+    statistic: {
+      primary: "The average person consumes 34GB of information daily but acts on less than 1%.",
+      secondary: "Information overload is the new procrastination.",
+      expandedContent: "The Success Gap has never been wider. We have access to more knowledge than any generation in history, yet rates of anxiety, depression, and feeling stuck are at all-time highs. The solution isn't more information – it's better implementation. The Success Gap framework helps you become someone who acts on what they learn.",
+      relatedTools: [
+        {
+          name: "Information Diet Planner",
+          description: "Optimize your learning for action",
+          url: "/tools/information-diet",
+          icon: BookOpen
+        },
+        {
+          name: "Implementation Score Calculator",
+          description: "Measure your action-to-knowledge ratio",
+          url: "/tools/implementation-score",
+          icon: Calculator
+        }
+      ]
+    }
+  }
+}
+
+export function EnhancedSectionHook({ section, hookVariation = 'question', className }: SectionHookProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [timeSpent, setTimeSpent] = useState(0)
+  const hookRef = useRef<HTMLDivElement>(null)
+  const { trackEngagement } = useEngagementTracking()
+
+  const hookContent = sectionHooks[section][hookVariation]
+
+  // Track visibility and time spent
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true)
+          trackEngagement({
+            type: 'hook_view',
+            section: `${section}-hook`,
+            hookVariation,
+            metadata: {
+              deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop'
+            }
+          })
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    if (hookRef.current) {
+      observer.observe(hookRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [section, hookVariation, isVisible, trackEngagement])
+
+  // Track time spent when expanded
+  useEffect(() => {
+    if (!isExpanded) return
+
     const startTime = Date.now()
-    trackEngagement({ 
-      type: 'hook_click', 
-      section: sectionId, 
-      hookVariation: variation?.id,
+    const interval = setInterval(() => {
+      setTimeSpent(Date.now() - startTime)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isExpanded])
+
+  const handleExpand = () => {
+    setIsExpanded(!isExpanded)
+    
+    trackEngagement({
+      type: 'hook_expand',
+      section: `${section}-hook`,
+      hookVariation,
       metadata: {
-        deviceType: typeof window !== 'undefined' ? (window.innerWidth < 768 ? 'mobile' : 'desktop') : 'unknown'
+        expanded: !isExpanded,
+        timeSpent: timeSpent / 1000
       }
     })
-    
-    if (!isExpanded) {
-      // Track hook expansion
-      trackEngagement({ 
-        type: 'hook_expand', 
-        section: sectionId, 
-        hookVariation: variation?.id,
-        metadata: {
-          timestamp: startTime
-        }
-      })
-    }
-    
-    setIsExpanded(!isExpanded)
   }
 
-  const handleLearnMoreClick = () => {
-    trackEngagement({ type: 'learn_more_click', section: sectionId, hookVariation: variation?.id })
-    window.open(`${questionLink}/learn-more`, '_blank')
+  const handleToolClick = (toolName: string, toolUrl: string) => {
+    trackEngagement({
+      type: 'cta_click',
+      section: `${section}-hook`,
+      hookVariation,
+      metadata: {
+        toolName,
+        toolUrl,
+        timeSpent: timeSpent / 1000
+      }
+    })
+
+    // Navigate to tool
+    window.location.href = toolUrl
   }
 
-  if (!variation) {
-    return (
-      <div className={className}>
-        <h2 
-          className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-growth-600)] transition-colors"
-          onClick={handleQuestionClick}
-        >
-          {question}
-        </h2>
-        {children}
-      </div>
-    )
-  }
+  const handleLearnMore = () => {
+    trackEngagement({
+      type: 'learn_more_click',
+      section: `${section}-hook`,
+      hookVariation,
+      metadata: {
+        timeSpent: timeSpent / 1000
+      }
+    })
 
-  const sectionData = getSectionData(sectionId)
+    // Navigate to section page
+    window.location.href = `/${section}/learn-more`
+  }
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {/* Main Question - Clickable */}
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-growth-600)] transition-colors group"
-        onClick={handleQuestionClick}
+    <motion.div
+      ref={hookRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={cn(
+        "bg-gradient-to-br from-card to-card/50 border border-border rounded-xl p-6 shadow-sm",
+        "hover:shadow-md transition-all duration-300",
+        className
+      )}
+    >
+      {/* Primary Hook */}
+      <motion.h3 
+        className="text-xl font-bold text-foreground mb-3 leading-tight cursor-pointer"
+        onClick={handleExpand}
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.2 }}
       >
-        {question}
-        <ExternalLink className="inline-block ml-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />
-      </motion.h2>
+        {hookContent.primary}
+      </motion.h3>
 
-      {/* Enhanced Hook - Clickable to expand */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="space-y-4"
+      {/* Secondary Hook */}
+      <p className="text-muted-foreground mb-4 leading-relaxed">
+        {hookContent.secondary}
+      </p>
+
+      {/* Expand/Collapse Button */}
+      <button
+        onClick={handleExpand}
+        className="flex items-center space-x-2 text-[var(--color-energy-600)] hover:text-[var(--color-energy-700)] transition-colors mb-4"
       >
-        <div 
-          className="cursor-pointer group"
-          onClick={handleHookClick}
+        <span className="text-sm font-medium">
+          {isExpanded ? 'Show Less' : 'Learn More'}
+        </span>
+        <motion.div
+          animate={{ rotate: isExpanded ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-[var(--color-growth-50)] to-[var(--color-energy-50)] dark:from-[var(--color-growth-900)] dark:to-[var(--color-energy-900)] rounded-lg border border-[var(--color-growth-200)] dark:border-[var(--color-growth-700)] hover:border-[var(--color-growth-400)] transition-all duration-300 hover:shadow-md">
-            <div className="flex-shrink-0 w-8 h-8 bg-[var(--color-growth-500)] rounded-full flex items-center justify-center">
-              <Lightbulb className="h-4 w-4 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-lg text-[var(--color-growth-700)] dark:text-[var(--color-growth-300)] font-medium leading-relaxed">
-                {variation.content.hook}
+          <ChevronDown className="h-4 w-4" />
+        </motion.div>
+      </button>
+
+      {/* Expanded Content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-border pt-4 mb-6">
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                {hookContent.expandedContent}
               </p>
-              <div className="flex items-center gap-2 mt-3 text-sm text-[var(--color-growth-600)] dark:text-[var(--color-growth-400)]">
-                <span className="font-medium">Click to discover why this matters for your growth</span>
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Progressive Disclosure of Benefits */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4 }}
-              className="overflow-hidden"
-            >
-              <div className="p-6 bg-white/70 dark:bg-gray-800/70 rounded-lg border border-[var(--color-growth-200)] dark:border-[var(--color-growth-700)] space-y-6 backdrop-blur-sm">
-                
-                {/* Primary Benefits */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="h-5 w-5 text-[var(--color-growth-600)]" />
-                    <h3 className="font-semibold text-[var(--color-growth-700)] dark:text-[var(--color-growth-300)]">
-                      What You'll Discover:
-                    </h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {variation.content.benefits.map((benefit, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="flex items-start gap-3"
-                      >
-                        <div className="w-2 h-2 bg-[var(--color-growth-500)] rounded-full mt-2 flex-shrink-0" />
-                        <p className="text-muted-foreground font-medium">{benefit}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Progressive Disclosure - Additional Value Props */}
-                <AnimatePresence>
-                  {showProgressiveDisclosure && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="space-y-4 pt-4 border-t border-[var(--color-growth-200)] dark:border-[var(--color-growth-700)]"
-                    >
-                      {/* Growth Impact */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3 p-3 bg-[var(--color-growth-50)] dark:bg-[var(--color-growth-900)] rounded-lg">
-                          <Star className="h-5 w-5 text-[var(--color-growth-600)]" />
-                          <div>
-                            <div className="font-medium text-sm">Growth Impact</div>
-                            <div className="text-xs text-muted-foreground">{sectionData.growthImpact}</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 bg-[var(--color-energy-50)] dark:bg-[var(--color-energy-900)] rounded-lg">
-                          <Clock className="h-5 w-5 text-[var(--color-energy-600)]" />
-                          <div>
-                            <div className="font-medium text-sm">Time Investment</div>
-                            <div className="text-xs text-muted-foreground">{sectionData.timeInvestment}</div>
-                          </div>
-                        </div>
+              {/* Related Tools */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-foreground mb-3">
+                  Try These Tools:
+                </h4>
+                {hookContent.relatedTools.map((tool, index) => (
+                  <motion.div
+                    key={tool.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="flex items-center justify-between p-3 bg-background border border-border rounded-lg hover:border-[var(--color-energy-500)] transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-[var(--color-energy-500)]/10 rounded-lg group-hover:bg-[var(--color-energy-500)]/20 transition-colors">
+                        <tool.icon className="h-4 w-4 text-[var(--color-energy-600)]" />
                       </div>
-
-                      {/* Success Stories Teaser */}
-                      <div className="p-3 bg-gradient-to-r from-[var(--color-transformation-50)] to-[var(--color-energy-50)] dark:from-[var(--color-transformation-900)] dark:to-[var(--color-energy-900)] rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Users className="h-4 w-4 text-[var(--color-transformation-600)]" />
-                          <span className="font-medium text-sm">Success Stories</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground italic">
-                          "{sectionData.successStoryTeaser}"
+                      <div>
+                        <h5 className="font-medium text-foreground">
+                          {tool.name}
+                        </h5>
+                        <p className="text-sm text-muted-foreground">
+                          {tool.description}
                         </p>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Impact Metrics */}
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--color-growth-200)] dark:border-[var(--color-growth-700)]">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-[var(--color-growth-600)]">
-                      {getSectionMetric(sectionId, 'success_rate')}%
                     </div>
-                    <div className="text-xs text-muted-foreground">Success Rate</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-[var(--color-energy-600)]">
-                      {getSectionMetric(sectionId, 'time_to_result')}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Time to Results</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-[var(--color-transformation-600)]">
-                      {getSectionMetric(sectionId, 'user_count')}+
-                    </div>
-                    <div className="text-xs text-muted-foreground">People Helped</div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleLearnMoreClick}
-                    className="group"
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Deep Dive Learning
-                    <ExternalLink className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Button>
-                  <Button
-                    variant="cta"
-                    onClick={() => {
-                      trackEngagement({ type: 'cta_click', section: sectionId, hookVariation: variation?.id })
-                      // Scroll to the main CTA of the section
-                      const ctaButton = document.querySelector(`[data-section="${sectionId}"] button[variant="cta"]`)
-                      if (ctaButton) {
-                        ctaButton.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      }
-                    }}
-                    className="group"
-                  >
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Start Your Journey
-                  </Button>
-                </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToolClick(tool.name, tool.url)}
+                      className="shrink-0"
+                    >
+                      Try Now
+                      <ChevronRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
 
-      {/* Original Content */}
-      <div data-section={sectionId}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-// Helper function to get section-specific data
-function getSectionData(sectionId: string) {
-  const sectionData: Record<string, {
-    growthImpact: string
-    timeInvestment: string
-    successStoryTeaser: string
-  }> = {
-    'success-gap': {
-      growthImpact: 'High - Foundation for all achievement',
-      timeInvestment: '15 min/day for 3 weeks',
-      successStoryTeaser: 'Sarah went from struggling entrepreneur to 6-figure business owner in 8 months using these exact success factors.'
-    },
-    'change-paradox': {
-      growthImpact: 'Transformational - Rewires habits',
-      timeInvestment: '10 min/day for 21 days',
-      successStoryTeaser: 'Michael finally quit smoking after 15 years by understanding his habit loops instead of fighting willpower.'
-    },
-    'vision-void': {
-      growthImpact: 'Life-changing - Provides direction',
-      timeInvestment: '30 min/week for 2 months',
-      successStoryTeaser: 'After feeling lost for years, Rahel created a crystal-clear 5-year vision and achieved her first major goal in 6 months.'
-    },
-    'leadership-lever': {
-      growthImpact: 'Multiplying - Amplifies all skills',
-      timeInvestment: '20 min/week ongoing',
-      successStoryTeaser: 'David discovered his leadership style and got promoted to team lead within 4 months of applying these insights.'
-    },
-    'decision-door': {
-      growthImpact: 'Immediate - Clarity for action',
-      timeInvestment: '5 minutes right now',
-      successStoryTeaser: 'This calculation helped Meron realize she was losing 2.5M ETB over 5 years by staying in her comfort zone.'
-    }
-  }
-
-  return sectionData[sectionId] || {
-    growthImpact: 'Significant - Personal development',
-    timeInvestment: '15-30 min/week',
-    successStoryTeaser: 'Thousands have transformed their lives using these proven strategies.'
-  }
-}
-
-// Helper function to get section-specific metrics
-function getSectionMetric(sectionId: string, metric: 'success_rate' | 'time_to_result' | 'user_count'): string | number {
-  const metrics: Record<string, Record<string, string | number>> = {
-    'success-gap': {
-      success_rate: 87,
-      time_to_result: '2-3 weeks',
-      user_count: '15K'
-    },
-    'change-paradox': {
-      success_rate: 92,
-      time_to_result: '21 days',
-      user_count: '23K'
-    },
-    'vision-void': {
-      success_rate: 78,
-      time_to_result: '1-2 months',
-      user_count: '8K'
-    },
-    'leadership-lever': {
-      success_rate: 84,
-      time_to_result: '3-4 weeks',
-      user_count: '12K'
-    },
-    'decision-door': {
-      success_rate: 95,
-      time_to_result: 'Immediate',
-      user_count: '50K'
-    }
-  }
-
-  return metrics[sectionId]?.[metric] || (
-    metric === 'success_rate' ? 85 : 
-    metric === 'time_to_result' ? '2-4 weeks' : 
-    '10K'
+              {/* Learn More CTA */}
+              <div className="mt-6 pt-4 border-t border-border">
+                <Button
+                  variant="cta"
+                  onClick={handleLearnMore}
+                  className="w-full"
+                >
+                  Explore {section.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')} Framework
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }

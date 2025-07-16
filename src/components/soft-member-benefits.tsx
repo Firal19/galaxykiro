@@ -1,468 +1,356 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import Link from 'next/link';
-
-interface Benefit {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  isActive: boolean;
-  unlockCondition?: string;
-}
-
-interface UpgradePathStep {
-  id: string;
-  title: string;
-  description: string;
-  benefits: string[];
-  cta: string;
-  ctaLink: string;
-  isCurrentLevel?: boolean;
-  isCompleted?: boolean;
-}
-
-const softMemberBenefits: Benefit[] = [
-  {
-    id: 'saved-results',
-    title: 'Saved Assessment Results',
-    description: 'All your assessment results are permanently saved and accessible anytime',
-    icon: '💾',
-    isActive: true
-  },
-  {
-    id: 'progress-tracking',
-    title: 'Progress Tracking',
-    description: 'Visual dashboard showing your growth journey and milestones',
-    icon: '📈',
-    isActive: true
-  },
-  {
-    id: 'personalized-recommendations',
-    title: 'Personalized Recommendations',
-    description: 'AI-powered content suggestions based on your interests and behavior',
-    icon: '🎯',
-    isActive: true
-  },
-  {
-    id: 'continuous-education',
-    title: 'Continuous Education',
-    description: 'Regular delivery of curated content through your preferred channels',
-    icon: '📚',
-    isActive: true
-  },
-  {
-    id: 'priority-access',
-    title: 'Priority Tool Access',
-    description: 'Get early access to new assessments and tools before general release',
-    icon: '⚡',
-    isActive: true
-  },
-  {
-    id: 'exclusive-webinars',
-    title: 'Exclusive Webinars',
-    description: 'Members-only webinars with deeper insights and Q&A sessions',
-    icon: '🎥',
-    isActive: true
-  },
-  {
-    id: 'community-access',
-    title: 'Community Access',
-    description: 'Connect with like-minded individuals on your growth journey',
-    icon: '👥',
-    isActive: true
-  },
-  {
-    id: 'achievement-badges',
-    title: 'Achievement System',
-    description: 'Earn badges and celebrate milestones as you progress',
-    icon: '🏆',
-    isActive: true
-  }
-];
-
-const upgradePathSteps: UpgradePathStep[] = [
-  {
-    id: 'browser',
-    title: 'Browser',
-    description: 'Exploring and discovering potential',
-    benefits: [
-      'Access to basic assessments',
-      'Limited content preview',
-      'Basic tool usage'
-    ],
-    cta: 'Become Engaged',
-    ctaLink: '/content-library',
-    isCompleted: true
-  },
-  {
-    id: 'engaged',
-    title: 'Engaged Visitor',
-    description: 'Actively using tools and consuming content',
-    benefits: [
-      'Full assessment access',
-      'Content library access',
-      'Webinar registration',
-      'Email updates'
-    ],
-    cta: 'Join Soft Membership',
-    ctaLink: '/membership/register',
-    isCompleted: true
-  },
-  {
-    id: 'soft-member',
-    title: 'Soft Member',
-    description: 'Committed to continuous growth and learning',
-    benefits: [
-      'All previous benefits',
-      'Saved results & progress tracking',
-      'Personalized recommendations',
-      'Continuous education delivery',
-      'Priority access to new tools',
-      'Exclusive member webinars'
-    ],
-    cta: 'Current Level',
-    ctaLink: '#',
-    isCurrentLevel: true
-  },
-  {
-    id: 'office-visit',
-    title: 'Office Visit',
-    description: 'Personal consultation and guidance',
-    benefits: [
-      'One-on-one consultation',
-      'Personalized action plan',
-      'Direct access to experts',
-      'Customized growth strategy',
-      'Follow-up support'
-    ],
-    cta: 'Schedule Visit',
-    ctaLink: '/office-visit-test'
-  },
-  {
-    id: 'program-member',
-    title: 'Program Member',
-    description: 'Full transformation program participation',
-    benefits: [
-      'Complete transformation program',
-      'Weekly coaching sessions',
-      'Accountability partner',
-      'Advanced tools and resources',
-      'Lifetime community access'
-    ],
-    cta: 'Apply for Program',
-    ctaLink: '/membership/register' // Will redirect to application
-  }
-];
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { 
+  Lock, 
+  Unlock, 
+  Star, 
+  TrendingUp, 
+  Users, 
+  BookOpen, 
+  Target, 
+  Gift,
+  ChevronRight,
+  Sparkles
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useSoftMembership } from "@/lib/hooks/use-soft-membership"
+import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
 
 interface SoftMemberBenefitsProps {
-  userProgress?: {
-    completedAssessments: number;
-    totalScore: number;
-    tier: string;
-    streakDays: number;
-  };
-  showUpgradePath?: boolean;
+  variant?: 'widget' | 'modal' | 'inline'
+  showProgress?: boolean
+  className?: string
 }
 
-export default function SoftMemberBenefits({ 
-  userProgress, 
-  showUpgradePath = true 
+const categoryIcons = {
+  tools: Target,
+  content: BookOpen,
+  community: Users,
+  insights: TrendingUp
+}
+
+const categoryColors = {
+  tools: 'var(--color-energy-500)',
+  content: 'var(--color-growth-500)',
+  community: 'var(--color-transformation-500)',
+  insights: 'var(--color-potential-500)'
+}
+
+export function SoftMemberBenefits({ 
+  variant = 'widget', 
+  showProgress = true,
+  className 
 }: SoftMemberBenefitsProps) {
-  const [activeTab, setActiveTab] = useState<'benefits' | 'upgrade'>('benefits');
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  
+  const {
+    membershipData,
+    benefits,
+    isLoading,
+    getNextBenefit,
+    getProgressToNextBenefit,
+    isSoftMember,
+    registerSoftMember,
+    updateEngagementScore
+  } = useSoftMembership()
 
-  const calculateProgressToNextLevel = () => {
-    if (!userProgress) return 0;
-    
-    // Progress from soft member (70+) to office visit readiness (100+)
-    const currentScore = userProgress.totalScore;
-    const nextLevelScore = 100;
-    const currentLevelScore = 70;
-    
-    if (currentScore >= nextLevelScore) return 100;
-    
-    const progress = ((currentScore - currentLevelScore) / (nextLevelScore - currentLevelScore)) * 100;
-    return Math.max(0, Math.min(100, progress));
-  };
+  const nextBenefitProgress = getProgressToNextBenefit()
+  const unlockedBenefits = benefits.filter(b => b.unlocked)
+  const lockedBenefits = benefits.filter(b => !b.unlocked)
 
-  return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      {showUpgradePath && (
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-          <button
-            onClick={() => setActiveTab('benefits')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'benefits'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Your Benefits
-          </button>
-          <button
-            onClick={() => setActiveTab('upgrade')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'upgrade'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Upgrade Path
-          </button>
+  const handleBenefitClick = (benefitId: string) => {
+    const benefit = benefits.find(b => b.id === benefitId)
+    if (!benefit) return
+
+    if (benefit.unlocked) {
+      // Navigate to benefit or trigger action
+      updateEngagementScore(5, `benefit-accessed-${benefitId}`)
+      
+      // Handle specific benefit actions
+      switch (benefitId) {
+        case 'tool-access':
+          window.location.href = '/tools'
+          break
+        case 'progress-tracking':
+          window.location.href = '/membership/dashboard'
+          break
+        case 'exclusive-content':
+          window.location.href = '/content-library'
+          break
+        case 'community-access':
+          window.location.href = '/community'
+          break
+        default:
+          console.log(`Accessing benefit: ${benefit.title}`)
+      }
+    } else {
+      // Show how to unlock
+      setIsModalOpen(true)
+    }
+  }
+
+  const handleUpgrade = () => {
+    updateEngagementScore(10, 'upgrade-interest')
+    window.location.href = '/membership/register?source=benefits-widget'
+  }
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-32 bg-muted rounded-lg"></div>
+      </div>
+    )
+  }
+
+  if (!isSoftMember() && variant === 'widget') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={cn(
+          "bg-gradient-to-br from-[var(--color-energy-500)] to-[var(--color-transformation-500)] text-white rounded-xl p-6 shadow-lg",
+          className
+        )}
+      >
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <Gift className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">Unlock Your Potential</h3>
+            <p className="text-white/90 text-sm">Join as a soft member - it's free!</p>
+          </div>
         </div>
-      )}
+        
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center space-x-2 text-sm">
+            <Star className="h-4 w-4" />
+            <span>Free assessment tools</span>
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <Star className="h-4 w-4" />
+            <span>Progress tracking</span>
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <Star className="h-4 w-4" />
+            <span>Personalized insights</span>
+          </div>
+        </div>
 
-      {/* Benefits Tab */}
-      {activeTab === 'benefits' && (
+        <Button
+          variant="secondary"
+          className="w-full bg-white text-[var(--color-energy-600)] hover:bg-white/90"
+          onClick={() => window.location.href = '/membership/register?source=benefits-widget'}
+        >
+          Join Free
+          <ChevronRight className="h-4 w-4 ml-2" />
+        </Button>
+      </motion.div>
+    )
+  }
+
+  if (variant === 'modal') {
+    return (
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-2xl">
         <div className="space-y-6">
-          {/* Current Status */}
-          {userProgress && (
-            <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Soft Member Status
-                  </h3>
-                  <p className="text-gray-600">
-                    You're making great progress on your growth journey!
-                  </p>
-                </div>
-                <Badge className="bg-green-100 text-green-800 text-lg px-4 py-2">
-                  Active
-                </Badge>
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[var(--color-energy-500)] to-[var(--color-transformation-500)] rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Your Soft Membership Benefits
+            </h2>
+            <p className="text-muted-foreground">
+              Unlock more benefits by staying engaged with our platform
+            </p>
+          </div>
+
+          {/* Progress to Next Benefit */}
+          {nextBenefitProgress && (
+            <div className="bg-card border border-border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-foreground">Next Unlock</h4>
+                <span className="text-sm text-muted-foreground">
+                  {nextBenefitProgress.pointsNeeded} points needed
+                </span>
               </div>
-              
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {userProgress.completedAssessments}
-                  </div>
-                  <div className="text-sm text-gray-600">Assessments</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {userProgress.totalScore}
-                  </div>
-                  <div className="text-sm text-gray-600">Engagement Score</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {userProgress.streakDays}
-                  </div>
-                  <div className="text-sm text-gray-600">Day Streak</div>
-                </div>
+              <div className="w-full bg-muted rounded-full h-2 mb-2">
+                <motion.div
+                  className="bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] h-2 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${nextBenefitProgress.progress}%` }}
+                  transition={{ duration: 0.5 }}
+                />
               </div>
-            </Card>
+              <p className="text-sm text-muted-foreground">
+                {nextBenefitProgress.benefit.title}: {nextBenefitProgress.benefit.description}
+              </p>
+            </div>
           )}
 
           {/* Benefits Grid */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {softMemberBenefits.map((benefit) => (
-              <Card 
-                key={benefit.id} 
-                className={`p-4 ${
-                  benefit.isActive 
-                    ? 'border-green-200 bg-green-50' 
-                    : 'border-gray-200 bg-gray-50'
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="text-2xl">{benefit.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">
-                        {benefit.title}
-                      </h4>
-                      {benefit.isActive ? (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
-                          Active
-                        </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {benefits.map((benefit, index) => {
+              const IconComponent = categoryIcons[benefit.category]
+              const isUnlocked = benefit.unlocked
+              
+              return (
+                <motion.div
+                  key={benefit.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className={cn(
+                    "p-4 border rounded-lg transition-all cursor-pointer",
+                    isUnlocked 
+                      ? "border-[var(--color-energy-500)] bg-[var(--color-energy-500)]/5 hover:bg-[var(--color-energy-500)]/10" 
+                      : "border-border bg-muted/50 hover:bg-muted"
+                  )}
+                  onClick={() => handleBenefitClick(benefit.id)}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={cn(
+                      "p-2 rounded-lg",
+                      isUnlocked ? "bg-[var(--color-energy-500)]/20" : "bg-muted"
+                    )}>
+                      {isUnlocked ? (
+                        <IconComponent className="h-5 w-5 text-[var(--color-energy-600)]" />
                       ) : (
-                        <Badge variant="outline">
-                          Locked
-                        </Badge>
+                        <Lock className="h-5 w-5 text-muted-foreground" />
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {benefit.description}
-                    </p>
-                    {benefit.unlockCondition && !benefit.isActive && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        Unlock: {benefit.unlockCondition}
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h5 className={cn(
+                          "font-medium",
+                          isUnlocked ? "text-foreground" : "text-muted-foreground"
+                        )}>
+                          {benefit.title}
+                        </h5>
+                        {isUnlocked && <Unlock className="h-4 w-4 text-[var(--color-growth-500)]" />}
+                      </div>
+                      <p className={cn(
+                        "text-sm",
+                        isUnlocked ? "text-muted-foreground" : "text-muted-foreground/70"
+                      )}>
+                        {benefit.description}
                       </p>
-                    )}
+                      {!isUnlocked && benefit.requiredScore && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Requires {benefit.requiredScore} engagement points
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </motion.div>
+              )
+            })}
           </div>
 
-          {/* Quick Actions */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Make the Most of Your Membership
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Link href="/content-library">
-                <Button variant="outline" className="w-full justify-start">
-                  📚 Explore Content Library
-                </Button>
-              </Link>
-              <Link href="/webinars">
-                <Button variant="outline" className="w-full justify-start">
-                  🎥 Join Next Webinar
-                </Button>
-              </Link>
-              <Link href="/membership/settings">
-                <Button variant="outline" className="w-full justify-start">
-                  ⚙️ Customize Preferences
-                </Button>
-              </Link>
-              <Link href="/office-visit-test">
-                <Button variant="outline" className="w-full justify-start">
-                  📅 Schedule Office Visit
-                </Button>
-              </Link>
-            </div>
-          </Card>
+          {/* Upgrade CTA */}
+          <div className="bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] text-white rounded-lg p-6 text-center">
+            <h4 className="font-bold text-lg mb-2">Want More Benefits?</h4>
+            <p className="text-white/90 mb-4">
+              Upgrade to full membership for unlimited access to all tools and premium content
+            </p>
+            <Button
+              variant="secondary"
+              className="bg-white text-[var(--color-energy-600)] hover:bg-white/90"
+              onClick={handleUpgrade}
+            >
+              Upgrade Membership
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // Widget variant (default)
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        "bg-card border border-border rounded-xl p-6 shadow-sm",
+        className
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-[var(--color-energy-500)]/10 rounded-lg">
+            <Star className="h-5 w-5 text-[var(--color-energy-600)]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Member Benefits</h3>
+            <p className="text-sm text-muted-foreground">
+              {membershipData?.engagementScore || 0} engagement points
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsModalOpen(true)}
+        >
+          View All
+        </Button>
+      </div>
+
+      {/* Progress to Next Benefit */}
+      {showProgress && nextBenefitProgress && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-foreground">
+              Next: {nextBenefitProgress.benefit.title}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {nextBenefitProgress.pointsNeeded} points needed
+            </span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <motion.div
+              className="bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${nextBenefitProgress.progress}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
         </div>
       )}
 
-      {/* Upgrade Path Tab */}
-      {activeTab === 'upgrade' && (
-        <div className="space-y-6">
-          {/* Progress to Next Level */}
-          {userProgress && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Your Progress to Next Level
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    Progress to Office Visit Readiness
-                  </span>
-                  <span className="text-sm font-medium">
-                    {Math.round(calculateProgressToNextLevel())}%
-                  </span>
-                </div>
-                <Progress value={calculateProgressToNextLevel()} className="h-2" />
-                <p className="text-sm text-gray-600">
-                  {userProgress.totalScore >= 100 
-                    ? "You're ready for an office visit! Schedule your consultation."
-                    : `${100 - userProgress.totalScore} more engagement points to unlock office visit benefits.`
-                  }
+      {/* Quick Benefits List */}
+      <div className="space-y-2">
+        {unlockedBenefits.slice(0, 3).map((benefit) => {
+          const IconComponent = categoryIcons[benefit.category]
+          return (
+            <div
+              key={benefit.id}
+              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+              onClick={() => handleBenefitClick(benefit.id)}
+            >
+              <div className="p-1 bg-[var(--color-energy-500)]/10 rounded">
+                <IconComponent className="h-4 w-4 text-[var(--color-energy-600)]" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">
+                  {benefit.title}
                 </p>
               </div>
-            </Card>
-          )}
-
-          {/* Upgrade Path Steps */}
-          <div className="space-y-4">
-            {upgradePathSteps.map((step, index) => (
-              <Card 
-                key={step.id} 
-                className={`p-6 ${
-                  step.isCurrentLevel 
-                    ? 'ring-2 ring-green-500 bg-green-50' 
-                    : step.isCompleted 
-                    ? 'bg-gray-50 border-gray-200' 
-                    : 'border-gray-200'
-                }`}
-              >
-                <div className="flex items-start space-x-4">
-                  {/* Step Number */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step.isCurrentLevel 
-                      ? 'bg-green-500 text-white' 
-                      : step.isCompleted 
-                      ? 'bg-gray-400 text-white' 
-                      : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {step.isCompleted ? '✓' : index + 1}
-                  </div>
-
-                  {/* Step Content */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-lg font-semibold text-gray-900">
-                        {step.title}
-                      </h4>
-                      {step.isCurrentLevel && (
-                        <Badge className="bg-green-100 text-green-800">
-                          Current Level
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <p className="text-gray-600 mb-4">
-                      {step.description}
-                    </p>
-
-                    {/* Benefits List */}
-                    <div className="mb-4">
-                      <h5 className="text-sm font-medium text-gray-900 mb-2">
-                        Benefits:
-                      </h5>
-                      <ul className="space-y-1">
-                        {step.benefits.map((benefit, benefitIndex) => (
-                          <li key={benefitIndex} className="flex items-center text-sm text-gray-600">
-                            <span className="text-green-500 mr-2">✓</span>
-                            {benefit}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* CTA Button */}
-                    {!step.isCurrentLevel && (
-                      <Link href={step.ctaLink}>
-                        <Button 
-                          variant={step.isCompleted ? "outline" : "default"}
-                          disabled={step.isCurrentLevel}
-                          className={step.isCompleted ? "opacity-60" : ""}
-                        >
-                          {step.cta}
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Upgrade Encouragement */}
-          <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Ready for the Next Step?
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Take your growth journey to the next level with personalized guidance and support.
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Link href="/office-visit-test">
-                  <Button>
-                    Schedule Office Visit
-                  </Button>
-                </Link>
-                <Link href="/webinars">
-                  <Button variant="outline">
-                    Join Webinar First
-                  </Button>
-                </Link>
-              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </div>
-          </Card>
-        </div>
-      )}
-    </div>
-  );
+          )
+        })}
+      </div>
+
+      {/* Modal */}
+      <SoftMemberBenefits variant="modal" />
+    </motion.div>
+  )
 }
