@@ -6,7 +6,7 @@ import { LeadScoresModel } from '../../src/lib/models/lead-scores'
 import { InteractionModel } from '../../src/lib/models/interaction'
 import { AssessmentSubmissionSchema } from '../../src/lib/validations'
 
-// Initialize Supabase client
+// Initialize Supabase client for real-time subscriptions and direct operations
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -203,6 +203,24 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
     const updatedToolUsage = await ToolUsageModel.findById(toolUsage.id)
     const leadScore = await LeadScoresModel.findByUserId(userId)
     const user = await UserModel.findById(userId)
+
+    // Trigger real-time updates via Supabase
+    await supabase
+      .channel('assessment-updates')
+      .send({
+        type: 'broadcast',
+        event: 'assessment-processed',
+        payload: {
+          userId,
+          toolId,
+          toolName,
+          scores,
+          insights,
+          isCompleted: (completionRate || 1.0) >= 1.0,
+          leadScore: leadScore?.toJSON(),
+          timestamp: new Date().toISOString()
+        }
+      })
 
     return {
       statusCode: 200,

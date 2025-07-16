@@ -5,7 +5,7 @@ import { InteractionModel } from '../../src/lib/models/interaction'
 import { LeadScoresModel } from '../../src/lib/models/lead-scores'
 import { validateProgressiveCapture } from '../../src/lib/validations'
 
-// Initialize Supabase client
+// Initialize Supabase client for real-time subscriptions and direct operations
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -171,6 +171,21 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
     // Get updated user data
     const updatedUser = await UserModel.findById(user.id)
     const leadScore = await LeadScoresModel.findByUserId(user.id)
+
+    // Trigger real-time updates via Supabase
+    await supabase
+      .channel('user-updates')
+      .send({
+        type: 'broadcast',
+        event: 'user-capture-update',
+        payload: {
+          userId: user.id,
+          captureLevel: level,
+          isNewUser,
+          leadScore: leadScore?.toJSON(),
+          timestamp: new Date().toISOString()
+        }
+      })
 
     return {
       statusCode: 200,

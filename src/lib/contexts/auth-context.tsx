@@ -1,156 +1,179 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { authService, AuthSession } from '../auth'
-import { UserModel } from '../models/user'
-import { trackingService } from '../tracking'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createClientComponentClient } from '../auth'
+import type { UserSession } from '../auth'
+import type { User } from '@supabase/supabase-js'
 
 interface AuthContextType {
-  user: UserModel | null
-  session: AuthSession | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  captureLevel: number
-  userTier: 'browser' | 'engaged' | 'soft-member'
-  canAccessLevel: (level: 1 | 2 | 3) => boolean
+  user: UserSession | null
+  supabaseUser: User | null
+  loading: boolean
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-interface AuthProviderProps {
-  children: ReactNode
-}
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<UserSession | null>(null)
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClientComponentClient()
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<UserModel | null>(null)
-  const [session, setSession] = useState<AuthSession | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Initialize auth state
-    initializeAuth()
-  }, [])
-
-  const initializeAuth = async () => {
+  const fetchUserProfile = async (authUser: User): Promise<UserSession | null> => {
     try {
-      setIsLoading(true)
-      
-      // Get current session
-      const currentSession = await authService.getSession()
-      setSession(currentSession)
+      const { data: userProfile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
 
-      if (currentSession) {
-        // Get current user
-        const currentUser = await authService.getCurrentUser()
-        setUser(currentUser)
+      if (error || !userProfile) {
+        console.error('Error fetching user profile:', error)
+        return null
+      }
 
-        // Update tracking with user ID
-        if (currentUser) {
-          trackingService.updateSessionWithUser(currentUser.id)
-        }
+      return {
+        id: userProfile.id,
+        email: userProfile.email,
+        captureLevel: userProfile.capture_level,
+        currentTier: userProfile.current_tier,
+        engagementScore: userProfile.engagement_score,
+        language: userProfile.language,
+        entryPoint: userProfile.entry_point,
       }
     } catch (error) {
-      console.error('Failed to initialize auth:', error)
-    } finally {
-      setIsLoading(false)
+      console.error('Error in fetchUserProfile:', error)
+      return null
     }
   }
 
   const refreshUser = async () => {
     try {
-      const currentUser = await authService.getCurrentUser()
-      setUser(currentUser)
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setSupabaseUser(session.user)
+        const userProfile = await fetchUserProfile(session.user)
+        setUser(userProfile)
+      } else {
+        setSupabaseUser(null)
+        setUser(null)
+      }
     } catch (error) {
-      console.error('Failed to refresh user:', error)
+      console.error('Error refreshing user:', error)
+      setSupabaseUser(null)
+      setUser(null)
+    }
+  }
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          setSupabaseUser(session.user)
+          const userProfile = await fetchUserProfile(session.user)
+          setUser(userProfile)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    getInitialSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
+        
+        if (session?.user) {
+          setSupabaseUser(session.user)
+          const userProfile = await fetchUserProfile(session.user)
+          setUser(userProfile)
+        } else {
+          setSupabaseUser(null)
+          setUser(null)
+        }
+        
+        setLoading(false)
+      }
+    )
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      return { error }
+    } catch (error) {
+      return { error: error as Error }
+    }
+  }
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+      
+      return { error }
+    } catch (error) {
+      return { error: error as Error }
     }
   }
 
   const signOut = async () => {
     try {
-      await authService.signOut()
-      setUser(null)
-      setSession(null)
+      await supabase.auth.signOut()
       
-      // Clear tracking data
-      trackingService.clearTrackingData()
+      // Clear local storage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('session_id')
+        localStorage.removeItem('attribution')
+      }
     } catch (error) {
-      console.error('Failed to sign out:', error)
+      console.error('Error signing out:', error)
     }
   }
 
-  const canAccessLevel = (level: 1 | 2 | 3): boolean => {
-    return user ? user.canAccessLevel(level) : false
-  }
-
-  const contextValue: AuthContextType = {
+  const value: AuthContextType = {
     user,
-    session,
-    isLoading,
-    isAuthenticated: !!user && !!session,
-    captureLevel: user?.captureLevel || 1,
-    userTier: user?.currentTier || 'browser',
-    canAccessLevel,
+    supabaseUser,
+    loading,
+    signIn,
+    signUp,
     signOut,
-    refreshUser
+    refreshUser,
   }
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth(): AuthContextType {
+export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
-}
-
-// Custom hooks for specific auth checks
-export function useRequireAuth() {
-  const { isAuthenticated, isLoading } = useAuth()
-  
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Redirect to sign in
-      window.location.href = '/auth/signin?returnTo=' + encodeURIComponent(window.location.pathname)
-    }
-  }, [isAuthenticated, isLoading])
-
-  return { isAuthenticated, isLoading }
-}
-
-export function useRequireLevel(requiredLevel: 1 | 2 | 3) {
-  const { user, canAccessLevel, isLoading } = useAuth()
-  
-  const hasAccess = canAccessLevel(requiredLevel)
-  
-  useEffect(() => {
-    if (!isLoading && user && !hasAccess) {
-      // Redirect to capture page
-      window.location.href = `/auth/capture?level=${requiredLevel}&returnTo=` + encodeURIComponent(window.location.pathname)
-    }
-  }, [user, hasAccess, isLoading, requiredLevel])
-
-  return { hasAccess, isLoading, currentLevel: user?.captureLevel || 1 }
-}
-
-export function useRequireTier(requiredTier: 'engaged' | 'soft-member') {
-  const { user, userTier, isLoading } = useAuth()
-  
-  const hasAccess = userTier === requiredTier || (requiredTier === 'engaged' && userTier === 'soft-member')
-  
-  useEffect(() => {
-    if (!isLoading && user && !hasAccess) {
-      // Redirect to upgrade page
-      window.location.href = `/upgrade?tier=${requiredTier}&returnTo=` + encodeURIComponent(window.location.pathname)
-    }
-  }, [user, hasAccess, isLoading, requiredTier])
-
-  return { hasAccess, isLoading, currentTier: userTier }
 }

@@ -1,9 +1,4 @@
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Authentication - GalaxyDreamTeam',
-  description: 'Sign in or register to access your personalized development journey',
-}
+import { AuthProvider } from '../../lib/contexts/auth-context'
 
 export default function AuthLayout({
   children,
@@ -11,10 +6,10 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         {children}
       </div>
-    </div>
+    </AuthProvider>
   )
 }

@@ -2,328 +2,281 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '../../../lib/contexts/auth-context'
-import { authService } from '../../../lib/auth'
-import { trackingService } from '../../../lib/tracking'
-import { Level2Schema, Level3Schema, Level2Data, Level3Data } from '../../../lib/validations'
-
-type CaptureLevel = 2 | 3
-type FormData = Level2Data | Level3Data
+import { createOrUpdateUser, getAttributionData, getOrCreateSessionId } from '../../../lib/auth'
+import { Button } from '../../../components/ui/button'
+import Link from 'next/link'
 
 export default function CapturePage() {
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [city, setCity] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  const { user, refreshUser } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, refreshUser } = useAuth()
   
-  const requiredLevel = parseInt(searchParams.get('level') || '2') as CaptureLevel
+  const level = parseInt(searchParams.get('level') || '1') as 1 | 2 | 3
   const returnTo = searchParams.get('returnTo') || '/'
-  
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-
-  // Redirect if user already has required level
-  useEffect(() => {
-    if (user && user.captureLevel >= requiredLevel) {
-      router.push(returnTo)
-    }
-  }, [user, requiredLevel, returnTo, router])
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!user) {
-      const signInUrl = new URL('/auth/signin', window.location.origin)
-      signInUrl.searchParams.set('returnTo', window.location.pathname + window.location.search)
-      router.push(signInUrl.toString())
-    }
-  }, [user, router])
-
-  const getSchemaAndDefaults = (level: CaptureLevel) => {
-    switch (level) {
-      case 2:
-        return { 
-          schema: Level2Schema, 
-          defaults: { 
-            email: user?.email || '', 
-            phone: user?.phone || '' 
-          } 
-        }
-      case 3:
-        return { 
-          schema: Level3Schema, 
-          defaults: { 
-            email: user?.email || '', 
-            phone: user?.phone || '',
-            fullName: user?.fullName || '',
-            city: user?.city || ''
-          } 
-        }
-    }
-  }
-
-  const { schema, defaults } = getSchemaAndDefaults(requiredLevel)
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: defaults
-  })
 
   useEffect(() => {
-    // Track page view
-    trackingService.trackPageView(user?.id, {
-      page: 'auth_capture',
-      level: requiredLevel,
-      returnTo
-    })
-  }, [user?.id, requiredLevel, returnTo])
+    // Pre-populate with existing user data if available
+    if (user) {
+      setEmail(user.email)
+      // We'd need to fetch additional user data here if available
+    }
+  }, [user])
 
-  const onSubmit = async (data: FormData) => {
-    if (!user) return
-
-    setIsLoading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
     setError(null)
-    setSuccess(null)
 
     try {
-      await authService.updateProfile(data)
+      // Get attribution data for tracking
+      const attribution = getAttributionData()
+      const sessionId = getOrCreateSessionId()
       
-      // Refresh user data
-      await refreshUser()
-
-      // Track successful capture
-      await trackingService.trackUserJourney({
-        userId: user.id,
-        eventType: 'capture_level_upgrade',
-        eventData: {
-          previousLevel: user.captureLevel,
-          newLevel: requiredLevel,
-          returnTo
+      // Prepare data based on capture level
+      const captureData: any = { email }
+      
+      if (level >= 2) {
+        if (!phone.trim()) {
+          setError('Phone number is required for this level')
+          setLoading(false)
+          return
         }
-      })
+        captureData.phone = phone
+      }
+      
+      if (level >= 3) {
+        if (!fullName.trim() || !city.trim()) {
+          setError('Full name and city are required for this level')
+          setLoading(false)
+          return
+        }
+        captureData.fullName = fullName
+        captureData.city = city
+      }
 
-      setSuccess('Profile updated successfully!')
+      // Add attribution data
+      captureData.entryPoint = attribution ? `${attribution.memberId}_${attribution.postId}` : 'direct'
+      captureData.language = 'en' // Default to English
 
-      // Redirect after a short delay
-      setTimeout(() => {
+      const result = await createOrUpdateUser(level, captureData, sessionId)
+
+      if (result) {
+        // Refresh user context
+        await refreshUser()
+        
+        // Show success message and redirect
         router.push(returnTo)
-      }, 1500)
-
+      } else {
+        setError('Failed to update your information')
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Update failed'
-      setError(errorMessage)
-      
-      // Track capture error
-      await trackingService.trackUserJourney({
-        userId: user?.id,
-        eventType: 'capture_level_error',
-        eventData: {
-          error: errorMessage,
-          level: requiredLevel
-        }
-      })
+      setError('An unexpected error occurred')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const getLevelDescription = (level: CaptureLevel) => {
+  const getStepTitle = () => {
     switch (level) {
-      case 2:
-        return 'Add your phone number to unlock intermediate assessments and personalized content'
-      case 3:
-        return 'Complete your profile to access all premium tools and features'
+      case 1: return 'Get Started'
+      case 2: return 'Stay Connected'
+      case 3: return 'Complete Your Profile'
+      default: return 'Update Information'
     }
   }
 
-  const getLevelBenefits = (level: CaptureLevel) => {
+  const getStepDescription = () => {
     switch (level) {
-      case 2:
-        return [
-          'Success Factor Calculator',
-          'Habit Strength Analyzer', 
-          'SMS notifications for important updates',
-          'Personalized content recommendations'
-        ]
-      case 3:
-        return [
-          'Future Self Visualizer',
-          'Leadership Style Identifier',
-          'Complete assessment suite',
-          'Full profile insights',
-          'Priority support access',
-          'Advanced analytics dashboard'
-        ]
+      case 1: return 'Enter your email to begin your transformation journey'
+      case 2: return 'Add your phone number to receive personalized insights'
+      case 3: return 'Complete your profile to unlock premium features'
+      default: return 'Update your information'
     }
   }
 
-  if (!user) {
-    return (
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+  const getRequiredFields = () => {
+    const fields = ['Email']
+    if (level >= 2) fields.push('Phone')
+    if (level >= 3) fields.push('Full Name', 'City')
+    return fields
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Unlock More Features
-        </h1>
-        <p className="text-gray-600">
-          {getLevelDescription(requiredLevel)}
-        </p>
-      </div>
-
-      {/* Current vs Required Level */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-md">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm font-medium text-blue-800">Current Level</p>
-            <p className="text-lg font-bold text-blue-900">Level {user.captureLevel}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <div className="flex justify-center mb-4">
+            <div className="flex space-x-2">
+              {[1, 2, 3].map((step) => (
+                <div
+                  key={step}
+                  className={`w-3 h-3 rounded-full ${
+                    step <= level
+                      ? 'bg-purple-600'
+                      : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-          <div className="text-blue-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-blue-800">Required Level</p>
-            <p className="text-lg font-bold text-blue-900">Level {requiredLevel}</p>
+          
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            {getStepTitle()}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {getStepDescription()}
+          </p>
+          
+          <div className="mt-4 text-xs text-gray-500">
+            Step {level} of 3 • Required: {getRequiredFields().join(', ')}
           </div>
         </div>
-      </div>
-
-      {/* Benefits */}
-      <div className="bg-green-50 rounded-md p-4 mb-6">
-        <h3 className="text-sm font-medium text-green-800 mb-2">What you&apos;ll unlock:</h3>
-        <ul className="text-sm text-green-700 space-y-1">
-          {getLevelBenefits(requiredLevel).map((benefit, index) => (
-            <li key={index} className="flex items-center">
-              <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              {benefit}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Email (read-only) */}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address
-          </label>
-          <input
-            {...register('email')}
-            type="email"
-            id="email"
-            readOnly
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
-          />
-        </div>
-
-        {/* Phone (Level 2+) */}
-        {requiredLevel >= 2 && (
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number *
-            </label>
-            <input
-              {...register('phone')}
-              type="tel"
-              id="phone"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="Enter your phone number"
-            />
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+        
+        <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            {/* Email - Always required */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email Address *
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Enter your email"
+              />
+            </div>
+            
+            {/* Phone - Level 2+ */}
+            {level >= 2 && (
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone Number *
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="Enter your phone number"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  We'll send you personalized insights and updates
+                </p>
+              </div>
+            )}
+            
+            {/* Full Name - Level 3+ */}
+            {level >= 3 && (
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                  Full Name *
+                </label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="Enter your full name"
+                />
+              </div>
+            )}
+            
+            {/* City - Level 3+ */}
+            {level >= 3 && (
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                  City *
+                </label>
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  autoComplete="address-level2"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="Enter your city"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Help us connect you with local opportunities
+                </p>
+              </div>
             )}
           </div>
-        )}
 
-        {/* Full Name and City (Level 3) */}
-        {requiredLevel >= 3 && (
-          <>
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name *
-              </label>
-              <input
-                {...register('fullName')}
-                type="text"
-                id="fullName"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Enter your full name"
-              />
-              {'fullName' in errors && errors.fullName && (
-                <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Saving...' : level === 3 ? 'Complete Profile' : 'Continue'}
+          </Button>
+
+          <div className="text-center space-y-2">
+            {level < 3 && (
+              <p className="text-sm text-gray-600">
+                You can complete this later in your profile
+              </p>
+            )}
+            
+            <div className="flex justify-center space-x-4 text-sm">
+              <Link 
+                href={returnTo}
+                className="font-medium text-gray-500 hover:text-gray-700"
+              >
+                Skip for now
+              </Link>
+              
+              {level > 1 && (
+                <Link 
+                  href={`/auth/capture?level=${level - 1}&returnTo=${encodeURIComponent(returnTo)}`}
+                  className="font-medium text-purple-600 hover:text-purple-500"
+                >
+                  Previous step
+                </Link>
               )}
             </div>
-
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                City *
-              </label>
-              <input
-                {...register('city')}
-                type="text"
-                id="city"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Enter your city"
-              />
-              {'city' in errors && errors.city && (
-                <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-              )}
-            </div>
-          </>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-sm text-red-600">{error}</p>
           </div>
-        )}
 
-        {success && (
-          <div className="bg-green-50 border border-green-200 rounded-md p-3">
-            <p className="text-sm text-green-600">{success}</p>
+          {/* Privacy notice */}
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              Your information is secure and will only be used to personalize your experience.{' '}
+              <Link href="/privacy" className="text-purple-600 hover:text-purple-500">
+                Privacy Policy
+              </Link>
+            </p>
           </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? 'Updating Profile...' : `Upgrade to Level ${requiredLevel}`}
-        </button>
-      </form>
-
-      <div className="mt-6 text-center">
-        <button
-          onClick={() => router.push('/')}
-          className="text-gray-600 hover:text-gray-700 text-sm"
-        >
-          Maybe later
-        </button>
-      </div>
-
-      <div className="mt-8 pt-6 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-center">
-          Your information is secure and used only to provide personalized experiences.
-          You can update your preferences anytime in your profile settings.
-        </p>
+        </form>
       </div>
     </div>
   )

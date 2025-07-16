@@ -1,437 +1,299 @@
-import { supabase } from '../../lib/supabase'
-import { UserModel } from './models/user'
-import { Level1Data, Level2Data, Level3Data, validateProgressiveCapture } from './validations'
-import { trackingService } from './tracking'
+import { createClient } from '@supabase/supabase-js'
 
-export interface AuthUser {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Client-side Supabase client
+export const createClientComponentClient = () => {
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
+
+// Note: Middleware client moved to separate middleware.ts file to avoid server/client conflicts
+
+// User session management
+export interface UserSession {
   id: string
   email: string
-  user_metadata?: Record<string, unknown>
-  app_metadata?: Record<string, unknown>
-}
-
-export interface AuthSession {
-  access_token: string
-  refresh_token: string
-  expires_in: number
-  expires_at?: number
-  token_type: string
-  user: AuthUser
-}
-
-export interface ProgressiveRegistrationData {
-  level: 1 | 2 | 3
-  data: Level1Data | Level2Data | Level3Data
+  captureLevel: number
+  currentTier: 'browser' | 'engaged' | 'soft-member'
+  engagementScore: number
+  language: 'en' | 'am'
   entryPoint?: string
-  memberUrl?: string
-  utmParams?: Record<string, string>
 }
 
-class AuthService {
-  private currentUser: UserModel | null = null
-  private currentSession: AuthSession | null = null
-
-  constructor() {
-    // Initialize auth state listener
-    this.initializeAuthListener()
-  }
-
-  private initializeAuthListener() {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        this.currentSession = session
-        await this.loadCurrentUser(session.user.id)
-      } else if (event === 'SIGNED_OUT') {
-        this.currentSession = null
-        this.currentUser = null
-      } else if (event === 'TOKEN_REFRESHED' && session) {
-        this.currentSession = session
-      }
-    })
-  }
-
-  private async loadCurrentUser(userId: string): Promise<void> {
-    try {
-      this.currentUser = await UserModel.findById(userId)
-    } catch (error) {
-      console.error('Failed to load current user:', error)
-      this.currentUser = null
-    }
-  }
-
-  // Get current session
-  async getSession(): Promise<AuthSession | null> {
-    if (this.currentSession) {
-      return this.currentSession
-    }
-
+export const getCurrentUser = async (): Promise<UserSession | null> => {
+  const supabase = createClientComponentClient()
+  
+  try {
     const { data: { session }, error } = await supabase.auth.getSession()
-    if (error) {
-      console.error('Failed to get session:', error)
+    
+    if (error || !session?.user) {
       return null
     }
 
-    this.currentSession = session
-    return session
-  }
+    // Get user profile from our users table
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
 
-  // Get current user
-  async getCurrentUser(): Promise<UserModel | null> {
-    if (this.currentUser) {
-      return this.currentUser
-    }
-
-    const session = await this.getSession()
-    if (!session) {
+    if (profileError || !userProfile) {
       return null
     }
 
-    await this.loadCurrentUser(session.user.id)
-    return this.currentUser
-  }
-
-  // Progressive registration with URL tracking
-  async progressiveRegister(registrationData: ProgressiveRegistrationData): Promise<{
-    user: UserModel
-    session: AuthSession
-    isNewUser: boolean
-  }> {
-    const { level, data, entryPoint, memberUrl, utmParams } = registrationData
-
-    // Validate data for the specified level
-    const validation = validateProgressiveCapture(level, data)
-    if (!validation.success) {
-      throw new Error(`Invalid data for level ${level}: ${validation.error.message}`)
+    return {
+      id: userProfile.id,
+      email: userProfile.email,
+      captureLevel: userProfile.capture_level,
+      currentTier: userProfile.current_tier,
+      engagementScore: userProfile.engagement_score,
+      language: userProfile.language,
+      entryPoint: userProfile.entry_point,
     }
+  } catch (error) {
+    console.error('Error getting current user:', error)
+    return null
+  }
+}
 
-    const validatedData = validation.data
+// Progressive user registration
+export interface ProgressiveRegistrationData {
+  email: string
+  phone?: string
+  fullName?: string
+  city?: string
+  entryPoint?: string
+  language?: 'en' | 'am'
+}
 
-    // Check if user already exists
-    const existingUser = await UserModel.findByEmail(validatedData.email)
+export const createOrUpdateUser = async (
+  level: 1 | 2 | 3,
+  data: ProgressiveRegistrationData,
+  sessionId: string
+): Promise<{ user: UserSession; isNewUser: boolean } | null> => {
+  const supabase = createClientComponentClient()
+  
+  try {
+    // Check if user exists by email
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', data.email)
+      .single()
+
+    let user: any
     let isNewUser = false
 
     if (existingUser) {
-      // Update existing user with new information
-      const updateData: Record<string, unknown> = {}
-      
-      if (level >= 2 && 'phone' in validatedData) {
-        updateData.phone = validatedData.phone
-      }
-      
-      if (level >= 3 && 'fullName' in validatedData && 'city' in validatedData) {
-        updateData.full_name = validatedData.fullName
-        updateData.city = validatedData.city
+      // Update existing user with new capture level
+      const updateData: any = {
+        capture_level: Math.max(existingUser.capture_level, level),
+        capture_timestamps: {
+          ...existingUser.capture_timestamps,
+          [`level${level}`]: new Date().toISOString()
+        },
+        last_activity: new Date().toISOString(),
       }
 
-      // Update capture level if higher
-      if (level > existingUser.captureLevel) {
-        await existingUser.updateCaptureLevel(level, updateData)
+      if (level >= 2 && data.phone) updateData.phone = data.phone
+      if (level >= 3) {
+        if (data.fullName) updateData.full_name = data.fullName
+        if (data.city) updateData.city = data.city
       }
+      if (data.language) updateData.language = data.language
 
-      // Track the registration event
-      await trackingService.trackUserJourney({
-        userId: existingUser.id,
-        eventType: 'progressive_registration',
-        eventData: {
-          level,
-          entryPoint,
-          memberUrl,
-          utmParams,
-          isReturningUser: true
-        }
-      })
+      const { data: updatedUser, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', existingUser.id)
+        .select()
+        .single()
 
-      // Get or create auth session
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: validatedData.email,
-        password: this.generateTemporaryPassword(validatedData.email)
-      })
-
-      if (authError) {
-        // If sign in fails, create new auth user
-        const { data: newAuthData, error: signUpError } = await supabase.auth.signUp({
-          email: validatedData.email,
-          password: this.generateTemporaryPassword(validatedData.email),
-          options: {
-            data: {
-              capture_level: level,
-              entry_point: entryPoint,
-              member_url: memberUrl,
-              utm_params: utmParams
-            }
-          }
-        })
-
-        if (signUpError) {
-          throw new Error(`Failed to create auth user: ${signUpError.message}`)
-        }
-
-        return {
-          user: existingUser,
-          session: newAuthData.session!,
-          isNewUser: false
-        }
-      }
-
-      return {
-        user: existingUser,
-        session: authData.session!,
-        isNewUser: false
-      }
+      if (error) throw error
+      user = updatedUser
     } else {
       // Create new user
-      isNewUser = true
-
-      // Parse member URL for tracking
-      const memberInfo = this.parseMemberUrl(memberUrl)
-
-      // Create auth user first
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: validatedData.email,
-        password: this.generateTemporaryPassword(validatedData.email),
-        options: {
-          data: {
-            capture_level: level,
-            entry_point: entryPoint,
-            member_url: memberUrl,
-            utm_params: utmParams,
-            member_id: memberInfo?.memberId,
-            post_id: memberInfo?.postId
-          }
-        }
-      })
-
-      if (authError) {
-        throw new Error(`Failed to create auth user: ${authError.message}`)
-      }
-
-      // Create user profile
-      const userCreateData: Record<string, unknown> = {
-        id: authData.user!.id,
-        email: validatedData.email,
+      const userData: any = {
+        email: data.email,
         capture_level: level,
-        entry_point: entryPoint || 'direct',
-        language: 'en',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        communication_preferences: {
-          email: true,
-          sms: level >= 2,
-          push: false,
-          frequency: 'weekly'
-        }
+        capture_timestamps: {
+          level1: level >= 1 ? new Date().toISOString() : null,
+          level2: level >= 2 ? new Date().toISOString() : null,
+          level3: level >= 3 ? new Date().toISOString() : null,
+        },
+        entry_point: data.entryPoint || 'direct',
+        language: data.language || 'en',
+        last_activity: new Date().toISOString(),
       }
 
-      if (level >= 2 && 'phone' in validatedData) {
-        userCreateData.phone = validatedData.phone
+      if (level >= 2 && data.phone) userData.phone = data.phone
+      if (level >= 3) {
+        if (data.fullName) userData.full_name = data.fullName
+        if (data.city) userData.city = data.city
       }
 
-      if (level >= 3 && 'fullName' in validatedData && 'city' in validatedData) {
-        userCreateData.full_name = validatedData.fullName
-        userCreateData.city = validatedData.city
-      }
-
-      const newUser = await UserModel.create(userCreateData)
-
-      // Track the registration event
-      await trackingService.trackUserJourney({
-        userId: newUser.id,
-        eventType: 'progressive_registration',
-        eventData: {
-          level,
-          entryPoint,
-          memberUrl,
-          utmParams,
-          memberInfo,
-          isNewUser: true
-        }
-      })
-
-      this.currentUser = newUser
-      this.currentSession = authData.session!
-
-      return {
-        user: newUser,
-        session: authData.session!,
-        isNewUser: true
-      }
-    }
-  }
-
-  // Sign in existing user
-  async signIn(email: string, password?: string): Promise<{
-    user: UserModel
-    session: AuthSession
-  }> {
-    const actualPassword = password || this.generateTemporaryPassword(email)
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: actualPassword
-    })
-
-    if (error) {
-      throw new Error(`Sign in failed: ${error.message}`)
-    }
-
-    const user = await UserModel.findById(data.user.id)
-    if (!user) {
-      throw new Error('User profile not found')
-    }
-
-    this.currentUser = user
-    this.currentSession = data.session
-
-    // Track sign in event
-    await trackingService.trackUserJourney({
-      userId: user.id,
-      eventType: 'sign_in',
-      eventData: {
-        method: 'email_password'
-      }
-    })
-
-    return {
-      user,
-      session: data.session
-    }
-  }
-
-  // Sign out
-  async signOut(): Promise<void> {
-    const currentUser = this.currentUser
-
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      throw new Error(`Sign out failed: ${error.message}`)
-    }
-
-    // Track sign out event
-    if (currentUser) {
-      await trackingService.trackUserJourney({
-        userId: currentUser.id,
-        eventType: 'sign_out',
-        eventData: {}
-      })
-    }
-
-    this.currentUser = null
-    this.currentSession = null
-  }
-
-  // Update user profile
-  async updateProfile(updates: Partial<Level3Data>): Promise<UserModel> {
-    const currentUser = await this.getCurrentUser()
-    if (!currentUser) {
-      throw new Error('No authenticated user')
-    }
-
-    // Validate updates
-    const currentLevel = currentUser.captureLevel
-    let newLevel = currentLevel
-
-    // Determine new capture level based on provided data
-    if (updates.fullName && updates.city && currentLevel < 3) {
-      newLevel = 3
-    } else if (updates.phone && currentLevel < 2) {
-      newLevel = 2
-    }
-
-    // Update user data
-    const updateData: Record<string, unknown> = {}
-    if (updates.phone) updateData.phone = updates.phone
-    if (updates.fullName) updateData.full_name = updates.fullName
-    if (updates.city) updateData.city = updates.city
-
-    if (newLevel > currentLevel) {
-      await currentUser.updateCaptureLevel(newLevel, updateData)
-    } else {
-      // Update without changing capture level
-      const { error } = await supabase
+      const { data: newUser, error } = await supabase
         .from('users')
-        .update({
-          ...updateData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', currentUser.id)
+        .insert(userData)
+        .select()
+        .single()
 
-      if (error) {
-        throw new Error(`Failed to update profile: ${error.message}`)
-      }
+      if (error) throw error
+      user = newUser
+      isNewUser = true
     }
 
-    // Reload user data
-    await this.loadCurrentUser(currentUser.id)
-
-    // Track profile update
-    await trackingService.trackUserJourney({
-      userId: currentUser.id,
-      eventType: 'profile_update',
-      eventData: {
-        previousLevel: currentLevel,
-        newLevel,
-        updatedFields: Object.keys(updateData)
-      }
+    // Track the registration interaction
+    await supabase.from('interactions').insert({
+      user_id: user.id,
+      session_id: sessionId,
+      event_type: 'progressive_capture',
+      event_data: {
+        level,
+        is_new_user: isNewUser,
+        fields_captured: Object.keys(data),
+      },
     })
 
-    return this.currentUser!
-  }
-
-  // Check if user can access specific level
-  async canAccessLevel(level: 1 | 2 | 3): Promise<boolean> {
-    const user = await this.getCurrentUser()
-    return user ? user.canAccessLevel(level) : false
-  }
-
-  // Get user tier
-  async getUserTier(): Promise<'browser' | 'engaged' | 'soft-member' | null> {
-    const user = await this.getCurrentUser()
-    return user ? user.currentTier : null
-  }
-
-  // Refresh session
-  async refreshSession(): Promise<AuthSession | null> {
-    const { data, error } = await supabase.auth.refreshSession()
-    if (error) {
-      console.error('Failed to refresh session:', error)
-      return null
-    }
-
-    this.currentSession = data.session
-    return data.session
-  }
-
-  // Helper methods
-  private generateTemporaryPassword(email: string): string {
-    // Generate a consistent temporary password based on email
-    // In production, you might want to use a more secure method
-    return `temp_${email.split('@')[0]}_${Date.now().toString().slice(-6)}`
-  }
-
-  private parseMemberUrl(memberUrl?: string): { memberId: string; postId: string } | null {
-    if (!memberUrl) return null
-
-    // Parse MEMBERID_POSTID format
-    const match = memberUrl.match(/([A-Z0-9]+)_([A-Z0-9]+)/)
-    if (!match) return null
-
     return {
-      memberId: match[1],
-      postId: match[2]
+      user: {
+        id: user.id,
+        email: user.email,
+        captureLevel: user.capture_level,
+        currentTier: user.current_tier,
+        engagementScore: user.engagement_score,
+        language: user.language,
+        entryPoint: user.entry_point,
+      },
+      isNewUser,
     }
-  }
-
-  // Check authentication status
-  async isAuthenticated(): Promise<boolean> {
-    const session = await this.getSession()
-    return !!session
-  }
-
-  // Get JWT token
-  async getAccessToken(): Promise<string | null> {
-    const session = await this.getSession()
-    return session?.access_token || null
+  } catch (error) {
+    console.error('Error creating/updating user:', error)
+    return null
   }
 }
 
-// Export singleton instance
-export const authService = new AuthService()
+// Session tracking utilities
+export const generateSessionId = (): string => {
+  return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+}
+
+export const getOrCreateSessionId = (): string => {
+  if (typeof window === 'undefined') return generateSessionId()
+  
+  let sessionId = localStorage.getItem('session_id')
+  if (!sessionId) {
+    sessionId = generateSessionId()
+    localStorage.setItem('session_id', sessionId)
+  }
+  return sessionId
+}
+
+// URL tracking for attribution (MEMBERID_POSTID format)
+export const parseTrackingUrl = (url: string): { memberId?: string; postId?: string } => {
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    
+    // Look for MEMBERID_POSTID pattern in URL
+    const trackingMatch = pathname.match(/\/([A-Z0-9]+)_([A-Z0-9]+)(?:\/|$)/)
+    
+    if (trackingMatch) {
+      return {
+        memberId: trackingMatch[1],
+        postId: trackingMatch[2],
+      }
+    }
+    
+    // Check query parameters as fallback
+    const memberId = urlObj.searchParams.get('mid') || urlObj.searchParams.get('member')
+    const postId = urlObj.searchParams.get('pid') || urlObj.searchParams.get('post')
+    
+    return {
+      memberId: memberId || undefined,
+      postId: postId || undefined,
+    }
+  } catch {
+    return {}
+  }
+}
+
+// Cookie-based attribution tracking (30-day)
+export const setAttributionCookie = (memberId: string, postId: string) => {
+  if (typeof document === 'undefined') return
+  
+  const attribution = { memberId, postId, timestamp: Date.now() }
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  
+  document.cookie = `attribution=${JSON.stringify(attribution)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`
+  
+  // Backup in localStorage
+  localStorage.setItem('attribution', JSON.stringify(attribution))
+}
+
+export const getAttributionData = (): { memberId?: string; postId?: string } | null => {
+  if (typeof document === 'undefined') return null
+  
+  try {
+    // Try cookie first
+    const cookieMatch = document.cookie.match(/attribution=([^;]+)/)
+    if (cookieMatch) {
+      const attribution = JSON.parse(decodeURIComponent(cookieMatch[1]))
+      // Check if within 30 days
+      if (Date.now() - attribution.timestamp < 30 * 24 * 60 * 60 * 1000) {
+        return { memberId: attribution.memberId, postId: attribution.postId }
+      }
+    }
+    
+    // Fallback to localStorage
+    const stored = localStorage.getItem('attribution')
+    if (stored) {
+      const attribution = JSON.parse(stored)
+      if (Date.now() - attribution.timestamp < 30 * 24 * 60 * 60 * 1000) {
+        return { memberId: attribution.memberId, postId: attribution.postId }
+      }
+    }
+  } catch (error) {
+    console.error('Error getting attribution data:', error)
+  }
+  
+  return null
+}
+
+// User tier detection and management
+export const getUserTierFromScore = (score: number): 'browser' | 'engaged' | 'soft-member' => {
+  if (score >= 70) return 'soft-member'
+  if (score >= 30) return 'engaged'
+  return 'browser'
+}
+
+export const getTierDisplayName = (tier: 'browser' | 'engaged' | 'soft-member'): string => {
+  switch (tier) {
+    case 'browser': return 'Explorer'
+    case 'engaged': return 'Seeker'
+    case 'soft-member': return 'Transformer'
+    default: return 'Explorer'
+  }
+}
+
+export const getTierColor = (tier: 'browser' | 'engaged' | 'soft-member'): string => {
+  switch (tier) {
+    case 'browser': return 'text-blue-600'
+    case 'engaged': return 'text-green-600'
+    case 'soft-member': return 'text-purple-600'
+    default: return 'text-gray-600'
+  }
+}
+
+// Authentication state management
+export const signOut = async (): Promise<void> => {
+  const supabase = createClientComponentClient()
+  await supabase.auth.signOut()
+  
+  // Clear local storage
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('session_id')
+    localStorage.removeItem('attribution')
+  }
+}
