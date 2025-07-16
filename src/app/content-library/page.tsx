@@ -5,6 +5,7 @@ import { ContentLibrary } from '../../components/content-library'
 import { ContentViewer } from '../../components/content-viewer'
 import { ContentModel } from '../../lib/models/content'
 import { UserModel } from '../../lib/models/user'
+import { GalaxyDreamTeamLogo } from '../../components/galaxy-dream-team-logo'
 
 // Mock user data for demonstration
 const createMockUser = (level: 1 | 2 | 3): UserModel => {
@@ -73,6 +74,23 @@ export default function ContentLibraryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <GalaxyDreamTeamLogo 
+              href="/"
+              variant="full"
+              size="medium"
+              className="transition-opacity hover:opacity-90"
+            />
+            <div className="text-sm text-gray-600">
+              Content Library
+            </div>
+          </div>
+        </div>
+      </header>
+      
       <div className="container mx-auto py-8">
         {/* Demo Controls */}
         <div className="mb-8 p-4 bg-white rounded-lg shadow-sm border">

@@ -4,6 +4,9 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { LeadCaptureModal } from "@/components/lead-capture-modal"
+import { OfficeVisitBooking } from "@/components/office-visit-booking"
+import { EnhancedSectionHook } from "@/components/enhanced-section-hook"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
 import { Crown, Users, TrendingUp, Target } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,9 +17,15 @@ interface LeadershipLeverSectionProps {
 export function LeadershipLeverSection({ className }: LeadershipLeverSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isIdentifierOpen, setIsIdentifierOpen] = useState(false)
+  const [isOfficeVisitOpen, setIsOfficeVisitOpen] = useState(false)
+  const [selectedOfficeLocation, setSelectedOfficeLocation] = useState<string>('')
+  const { trackEngagement } = useEngagementTracking()
 
   const handleOfficeLocationSubmit = async (data: { officeLocation: string }) => {
     try {
+      // Store the selected office location for later use
+      setSelectedOfficeLocation(data.officeLocation)
+      
       const sessionId = typeof window !== 'undefined' 
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
         : `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
@@ -63,35 +72,12 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
             viewport={{ once: true }}
             className="space-y-8"
           >
-            {/* Main Question */}
-            <div className="space-y-4">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-transformation-600)] transition-colors"
-                onClick={() => window.open('/leadership-lever', '_blank')}
-              >
-                Are you leading your life, or is life leading you?
-              </motion.h2>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="space-y-4"
-              >
-                <p className="text-lg text-[var(--color-transformation-600)] font-medium">
-                  Leadership isn&apos;t just about managing others—it&apos;s about mastering yourself first.
-                </p>
-                <p className="text-lg text-muted-foreground">
-                  Whether you&apos;re leading a team, a family, or just your own life, your leadership style determines your impact in every area of life, from career to relationships to personal growth.
-                </p>
-                <p className="text-base text-muted-foreground">
-                  Click below to discover your natural leadership patterns and learn how to maximize your influence in all areas of life.
-                </p>
-              </motion.div>
-            </div>
+            {/* Enhanced Section Hook */}
+            <EnhancedSectionHook
+              sectionId="leadership-lever"
+              question="Are you leading your life, or is life leading you?"
+              questionLink="/leadership-lever"
+            />
 
             {/* Leadership Stats */}
             <motion.div
@@ -145,7 +131,10 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
                 <Button
                   variant="cta"
                   size="lg"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => {
+                    trackEngagement({ type: 'cta_click', section: 'leadership-lever' })
+                    setIsModalOpen(true)
+                  }}
                   className="text-lg px-8 py-4 h-auto flex-1"
                 >
                   <Crown className="mr-2 h-5 w-5" />
@@ -154,7 +143,10 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => window.open('/leadership-lever/learn-more', '_blank')}
+                  onClick={() => {
+                    trackEngagement({ type: 'learn_more_click', section: 'leadership-lever' })
+                    window.open('/leadership-lever/learn-more', '_blank')
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   Learn More
@@ -195,6 +187,14 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
       <LeadershipStyleIdentifier
         isOpen={isIdentifierOpen}
         onClose={() => setIsIdentifierOpen(false)}
+      />
+
+      {/* Office Visit Booking Modal */}
+      <OfficeVisitBooking
+        isOpen={isOfficeVisitOpen}
+        onClose={() => setIsOfficeVisitOpen(false)}
+        bookingSource="leadership-lever-section"
+        preselectedLocation={selectedOfficeLocation}
       />
     </section>
   )
@@ -353,6 +353,7 @@ function LeadershipStyleIdentifier({ isOpen, onClose }: { isOpen: boolean; onClo
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<{ [key: string]: number }>({})
   const [showResults, setShowResults] = useState(false)
+  const [isOfficeVisitOpen, setIsOfficeVisitOpen] = useState(false)
 
   const questions = [
     {
@@ -592,13 +593,29 @@ function LeadershipStyleIdentifier({ isOpen, onClose }: { isOpen: boolean; onClo
                   <li>• Practice adapting your style to different situations</li>
                   <li>• Develop your secondary leadership styles</li>
                   <li>• Seek feedback on your leadership impact</li>
-                  <li>• Join our Leadership Development Program</li>
+                  <li>• Schedule a personal leadership consultation</li>
                 </ul>
               </div>
 
-              <Button onClick={onClose} className="w-full" variant="cta">
-                Continue Your Journey
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button 
+                  onClick={() => setIsOfficeVisitOpen(true)} 
+                  className="w-full" 
+                  variant="cta"
+                >
+                  Schedule Leadership Consultation
+                </Button>
+                <Button onClick={onClose} className="w-full" variant="outline">
+                  Continue Your Journey
+                </Button>
+              </div>
+
+              {/* Office Visit Booking Modal */}
+              <OfficeVisitBooking
+                isOpen={isOfficeVisitOpen}
+                onClose={() => setIsOfficeVisitOpen(false)}
+                bookingSource="leadership-lever-results"
+              />
             </div>
           </div>
         )}

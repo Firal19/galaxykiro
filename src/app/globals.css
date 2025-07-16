@@ -182,6 +182,161 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent zoom on iOS when focusing inputs */
+    -webkit-text-size-adjust: 100%;
+    /* Improve touch scrolling */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile-first responsive base styles */
+  html {
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+  }
+  
+  /* Touch optimization */
+  button, [role="button"], input[type="submit"], input[type="button"] {
+    /* Improve touch response */
+    touch-action: manipulation;
+    /* Remove tap highlight on iOS */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure minimum touch target size */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Safe area support for devices with notches */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Responsive typography */
+  .responsive-text-xs { @apply text-xs sm:text-sm; }
+  .responsive-text-sm { @apply text-sm sm:text-base; }
+  .responsive-text-base { @apply text-base sm:text-lg; }
+  .responsive-text-lg { @apply text-lg sm:text-xl; }
+  .responsive-text-xl { @apply text-xl sm:text-2xl; }
+  .responsive-text-2xl { @apply text-2xl sm:text-3xl; }
+  .responsive-text-3xl { @apply text-3xl sm:text-4xl; }
+  .responsive-text-4xl { @apply text-4xl sm:text-5xl; }
+  
+  /* Responsive spacing */
+  .responsive-p-sm { @apply p-4 sm:p-6 lg:p-8; }
+  .responsive-p-md { @apply p-6 sm:p-8 lg:p-12; }
+  .responsive-p-lg { @apply p-8 sm:p-12 lg:p-16; }
+  
+  .responsive-m-sm { @apply m-4 sm:m-6 lg:m-8; }
+  .responsive-m-md { @apply m-6 sm:m-8 lg:m-12; }
+  .responsive-m-lg { @apply m-8 sm:m-12 lg:m-16; }
+  
+  /* Responsive gaps */
+  .responsive-gap-sm { @apply gap-4 sm:gap-6 lg:gap-8; }
+  .responsive-gap-md { @apply gap-6 sm:gap-8 lg:gap-12; }
+  .responsive-gap-lg { @apply gap-8 sm:gap-12 lg:gap-16; }
+  
+  /* Mobile-first grid utilities */
+  .mobile-grid-1 { @apply grid-cols-1; }
+  .mobile-grid-2 { @apply grid-cols-1 sm:grid-cols-2; }
+  .mobile-grid-3 { @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3; }
+  .mobile-grid-4 { @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4; }
+  
+  /* Touch-friendly utilities */
+  .touch-friendly {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Swipe container */
+  .swipe-container {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* PWA utilities */
+  .pwa-safe-area {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Ethiopian design system utilities */
+  .ethiopian-gold { color: var(--color-ethiopian-gold); }
+  .ethiopian-green { color: var(--color-ethiopian-green); }
+  .ethiopian-red { color: var(--color-ethiopian-red); }
+  
+  .bg-ethiopian-gold { background-color: var(--color-ethiopian-gold); }
+  .bg-ethiopian-green { background-color: var(--color-ethiopian-green); }
+  .bg-ethiopian-red { background-color: var(--color-ethiopian-red); }
+  
+  /* Growth color utilities */
+  .text-growth { color: var(--color-growth-500); }
+  .bg-growth { background-color: var(--color-growth-500); }
+  .border-growth { border-color: var(--color-growth-500); }
+  
+  /* Thumb zone indicators (for development) */
+  .thumb-zone-easy { 
+    position: relative;
+  }
+  .thumb-zone-easy::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-growth-500);
+    opacity: 0.3;
+  }
+  
+  /* Mobile-first animations */
+  @keyframes slideInFromBottom {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-in-bottom {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInFromRight 0.3s ease-out;
   }
 }
 

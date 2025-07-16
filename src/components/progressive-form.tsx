@@ -226,7 +226,7 @@ export function ProgressiveForm({
   const getValidationSchema = useCallback(() => {
     if (specialFields) {
       const fields = SPECIAL_FIELD_CONFIGS[specialFields]
-      if (!fields) return Level1Schema
+      if (!fields || !Array.isArray(fields)) return Level1Schema
       
       const schemaFields: Record<string, z.ZodTypeAny> = {}
       fields.forEach(field => {
@@ -317,18 +317,23 @@ export function ProgressiveForm({
 
   // Real-time validation
   useEffect(() => {
-    const currentData = { ...formData, ...watchedValues }
-    const validation = validateProgressiveCapture(currentLevel as 1 | 2 | 3, currentData)
-    
-    if (!validation.success) {
-      const newErrors: Record<string, string> = {}
-      validation.error.errors.forEach(error => {
-        if (error.path.length > 0) {
-          newErrors[error.path[0]] = error.message
-        }
-      })
-      setValidationErrors(newErrors)
-    } else {
+    try {
+      const currentData = { ...formData, ...watchedValues }
+      const validation = validateProgressiveCapture(currentLevel as 1 | 2 | 3, currentData)
+      
+      if (!validation.success && validation.error?.issues) {
+        const newErrors: Record<string, string> = {}
+        validation.error.issues.forEach((issue: any) => {
+          if (issue.path && issue.path.length > 0) {
+            newErrors[issue.path[0]] = issue.message
+          }
+        })
+        setValidationErrors(newErrors)
+      } else {
+        setValidationErrors({})
+      }
+    } catch (error) {
+      console.error('Validation error:', error)
       setValidationErrors({})
     }
   }, [watchedValues, currentLevel, formData])
@@ -514,7 +519,7 @@ export function ProgressiveForm({
     )
   }
 
-  const fields = getFieldConfig()
+  const fields = getFieldConfig() || []
 
   return (
     <div className={cn("w-full max-w-md mx-auto", className)}>
@@ -579,7 +584,13 @@ export function ProgressiveForm({
                 transition={{ duration: 0.3 }}
                 className="space-y-4"
               >
-                {fields.map(field => renderField(field))}
+                {fields && fields.length > 0 ? (
+                  fields.map(field => renderField(field))
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground">
+                    No form fields configured
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div

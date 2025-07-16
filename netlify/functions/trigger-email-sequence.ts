@@ -82,7 +82,7 @@ const EMAIL_SEQUENCES = {
     },
     {
       id: 'next_tool_suggestion',
-      subject: 'Ready for Your Next Breakthrough?',
+      subject: 'Ready for Your Next Transformation?',
       delay: 1440, // 24 hours
       content: 'next_tool_template'
     },

@@ -3,8 +3,11 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { EnhancedSectionHook } from "@/components/enhanced-section-hook"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
 import { Calculator, Package, Video, MapPin, DollarSign, Clock, TrendingDown, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+
 
 interface DecisionDoorSectionProps {
   className?: string
@@ -12,39 +15,34 @@ interface DecisionDoorSectionProps {
 
 export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
+  const { trackEngagement } = useEngagementTracking()
 
   return (
     <section className={cn("py-20 bg-gradient-to-br from-[var(--color-energy-50)] to-[var(--color-transformation-50)] dark:from-[var(--color-energy-900)] dark:to-[var(--color-transformation-900)]", className)}>
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center space-y-12">
           
-          {/* Main Question */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="space-y-6"
+          {/* Enhanced Section Hook */}
+          <EnhancedSectionHook
+            sectionId="decision-door"
+            question="You're standing at the Decision Door"
+            questionLink="/decision-door"
           >
-            <h2 
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-energy-600)] transition-colors"
-              onClick={() => window.open('/decision-door', '_blank')}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="space-y-4 mt-6"
             >
-              You&apos;re standing at the Decision Door
-            </h2>
-            <div className="space-y-4">
-              <p className="text-lg text-[var(--color-energy-600)] font-medium">
-                Every moment of inaction has a cost. Every day you wait, the gap between where you are and where you could be grows wider.
-              </p>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 You&apos;ve discovered insights about your potential, habits, vision, and leadership. 
                 Now comes the moment that separates dreamers from achievers.
               </p>
               <p className="text-lg text-muted-foreground">
-                The question isn&apos;t whether you can afford to invest in yourself—it&apos;s whether you can afford not to. Click below to calculate what staying where you are will actually cost you.
+                Click below to calculate what staying where you are will actually cost you.
               </p>
-            </div>
-          </motion.div>
+            </motion.div>
+          </EnhancedSectionHook>
 
           {/* Cost of Inaction Calculator */}
           <motion.div
@@ -68,7 +66,10 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
                 <Button
                   variant="cta"
                   size="lg"
-                  onClick={() => setIsCalculatorOpen(true)}
+                  onClick={() => {
+                    trackEngagement({ type: 'cta_click', section: 'decision-door' })
+                    setIsCalculatorOpen(true)
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   <Calculator className="mr-2 h-5 w-5" />
@@ -77,7 +78,10 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => window.open('/decision-door/learn-more', '_blank')}
+                  onClick={() => {
+                    trackEngagement({ type: 'learn_more_click', section: 'decision-door' })
+                    window.open('/decision-door/learn-more', '_blank')
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   Learn More
@@ -134,7 +138,7 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
                   
                   <div className="pt-4">
                     <div className="text-2xl font-bold text-[var(--color-growth-600)] mb-2">FREE</div>
-                    <Button className="w-full" variant="outline" onClick={() => window.open('/register', '_blank')}>
+                    <Button className="w-full" variant="outline" onClick={() => window.open('/membership/register?source=starter-pack', '_blank')}>
                       Get Starter Pack
                     </Button>
                   </div>
@@ -182,7 +186,7 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
                   
                   <div className="pt-4">
                     <div className="text-2xl font-bold text-[var(--color-energy-600)] mb-2">FREE</div>
-                    <Button className="w-full" variant="cta" onClick={() => window.open('/register', '_blank')}>
+                    <Button className="w-full" variant="cta" onClick={() => window.open('/membership/register?source=masterclass', '_blank')}>
                       Reserve My Seat
                     </Button>
                   </div>
@@ -224,8 +228,8 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
                   </div>
                   
                   <div className="pt-4">
-                    <div className="text-2xl font-bold text-[var(--color-transformation-600)] mb-2">Book Now</div>
-                    <Button className="w-full" variant="outline" onClick={() => window.open('/register', '_blank')}>
+                    <div className="text-2xl font-bold text-[var(--color-transformation-600)] mb-2">FREE</div>
+                    <Button className="w-full" variant="outline" onClick={() => window.open('/membership/register?source=office-visit', '_blank')}>
                       Schedule Visit
                     </Button>
                   </div>
@@ -260,6 +264,8 @@ export function DecisionDoorSection({ className }: DecisionDoorSectionProps) {
         isOpen={isCalculatorOpen}
         onClose={() => setIsCalculatorOpen(false)}
       />
+
+
     </section>
   )
 }
@@ -612,13 +618,13 @@ function CostResults({ costs, onClose }: CostResultsProps) {
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
-          <Button variant="outline" className="w-full" onClick={() => window.open('/register', '_blank')}>
+          <Button variant="outline" className="w-full" onClick={() => window.open('/membership/register?source=starter-pack', '_blank')}>
             Get Starter Pack
           </Button>
-          <Button variant="cta" className="w-full" onClick={() => window.open('/register', '_blank')}>
+          <Button variant="cta" className="w-full" onClick={() => window.open('/membership/register?source=masterclass', '_blank')}>
             Join Free Masterclass
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => window.open('/register', '_blank')}>
+          <Button variant="outline" className="w-full" onClick={() => window.open('/membership/register?source=office-visit', '_blank')}>
             Schedule Office Visit
           </Button>
         </div>
@@ -627,6 +633,8 @@ function CostResults({ costs, onClose }: CostResultsProps) {
           Close Calculator
         </Button>
       </div>
+
+
     </>
   )
 }

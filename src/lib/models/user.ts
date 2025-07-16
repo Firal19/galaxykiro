@@ -1,11 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../../../lib/supabase'
 import type { Database } from '../../../lib/supabase'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-// Use service role for server-side operations
-const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey)
 
 export interface UserData {
   id: string

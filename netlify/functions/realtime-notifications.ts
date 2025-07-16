@@ -335,7 +335,7 @@ async function processAssessmentCompleteNotification(
   const toolDisplayNames: Record<string, string> = {
     'potential-quotient-calculator': 'Potential Quotient Calculator',
     'limiting-belief-identifier': 'Limiting Belief Identifier',
-    'breakthrough-readiness-score': 'Breakthrough Readiness Score',
+    'transformation-readiness-score': 'Transformation Readiness Score',
     'success-factor-calculator': 'Success Factor Calculator',
     'habit-strength-analyzer': 'Habit Strength Analyzer'
   }

@@ -1,5 +1,6 @@
 import { supabase } from '../../lib/supabase'
 import { InteractionCreateData } from './validations'
+import { scoreTracker, ScoreAction } from './score-tracking'
 
 export interface UserJourneyEvent {
   userId?: string
@@ -205,8 +206,36 @@ class TrackingService {
       if (error) {
         console.error('Failed to track user journey:', error)
       }
+
+      // Track for lead scoring if applicable
+      this.trackForLeadScoring(event.eventType, event.eventData, event.userId)
+
     } catch (error) {
       console.error('Error tracking user journey:', error)
+    }
+  }
+
+  // Map tracking events to lead scoring actions
+  private trackForLeadScoring(eventType: string, eventData: Record<string, unknown>, userId?: string): void {
+    if (!userId) return
+
+    const scoreActionMap: Record<string, ScoreAction> = {
+      'page_view': 'page_view',
+      'tool_usage': eventData.action === 'complete' ? 'tool_complete' : 'tool_start',
+      'content_engagement': eventData.engagementType === 'download' ? 'content_download' : 'page_view',
+      'cta_click': 'cta_click',
+      'form_submission': 'form_submit',
+      'ab_test_conversion': 'webinar_register', // Assuming conversions are often webinar registrations
+      'engagement_milestone': 'session_extend'
+    }
+
+    const scoreAction = scoreActionMap[eventType]
+    if (scoreAction) {
+      scoreTracker.trackAction({
+        action: scoreAction,
+        userId,
+        metadata: eventData
+      })
     }
   }
 
@@ -319,6 +348,214 @@ class TrackingService {
   // Get user session from cookie
   getUserSessionId(): string | null {
     return this.getCookie('gdt_user_session')
+  }
+
+  // Track A/B test impression
+  async trackABTestImpression(testId: string, variantId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'ab_test_impression',
+      eventData: {
+        testId,
+        variantId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track A/B test click
+  async trackABTestClick(testId: string, variantId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'ab_test_click',
+      eventData: {
+        testId,
+        variantId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track A/B test conversion
+  async trackABTestConversion(testId: string, variantId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'ab_test_conversion',
+      eventData: {
+        testId,
+        variantId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track psychological trigger display
+  async trackPsychologicalTrigger(triggerType: string, intensity: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'psychological_trigger_display',
+      eventData: {
+        triggerType,
+        intensity,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track psychological trigger interaction
+  async trackTriggerInteraction(triggerType: string, action: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'psychological_trigger_interaction',
+      eventData: {
+        triggerType,
+        action,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track CTA optimization metrics
+  async trackCTAOptimization(ctaId: string, optimizationType: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'cta_optimization',
+      eventData: {
+        ctaId,
+        optimizationType,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track engagement milestone
+  async trackEngagementMilestone(milestone: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'engagement_milestone',
+      eventData: {
+        milestone,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track conversion funnel step
+  async trackConversionFunnelStep(step: string, funnelId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'conversion_funnel_step',
+      eventData: {
+        step,
+        funnelId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track user behavior pattern
+  async trackBehaviorPattern(pattern: string, confidence: number, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'behavior_pattern',
+      eventData: {
+        pattern,
+        confidence,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track personalization event
+  async trackPersonalization(personalizationType: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'personalization',
+      eventData: {
+        personalizationType,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track office visit booking
+  async trackOfficeVisitBooking(officeLocation: string, appointmentDate: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'office_visit_booked',
+      eventData: {
+        officeLocation,
+        appointmentDate,
+        bookingSource: additionalData?.bookingSource || 'direct',
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track office visit confirmation
+  async trackOfficeVisitConfirmation(appointmentId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'office_visit_confirmed',
+      eventData: {
+        appointmentId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track office visit completion
+  async trackOfficeVisitCompletion(appointmentId: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'office_visit_completed',
+      eventData: {
+        appointmentId,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track office visit cancellation
+  async trackOfficeVisitCancellation(appointmentId: string, reason: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'office_visit_cancelled',
+      eventData: {
+        appointmentId,
+        reason,
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
+  }
+
+  // Track conversion from engagement to office visit
+  async trackEngagementToOfficeVisitConversion(engagementScore: number, userTier: string, userId?: string, additionalData?: Record<string, unknown>): Promise<void> {
+    await this.trackUserJourney({
+      userId,
+      eventType: 'engagement_to_office_visit_conversion',
+      eventData: {
+        engagementScore,
+        userTier,
+        conversionPath: additionalData?.conversionPath || 'unknown',
+        timestamp: new Date().toISOString(),
+        ...additionalData
+      }
+    })
   }
 }
 

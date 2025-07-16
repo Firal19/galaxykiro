@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import createIntlMiddleware from 'next-intl/middleware'
+import { locales } from './i18n'
 
 // Initialize Supabase client for middleware
 const supabase = createClient(
@@ -8,8 +10,39 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+// Create the internationalization middleware
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale: 'en',
+  localeDetection: true
+})
+
 export async function middleware(request: NextRequest) {
+  // Handle internationalization first
+  const pathname = request.nextUrl.pathname
+  
+  // Check if the pathname is missing a locale
+  const pathnameIsMissingLocale = locales.every(
+    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  )
+
+  // If missing locale, let next-intl handle the redirect
+  if (pathnameIsMissingLocale) {
+    return intlMiddleware(request)
+  }
+
+  // Extract locale from pathname
+  const locale = pathname.split('/')[1] as string
+  
+  // Validate locale
+  if (!locales.includes(locale as any)) {
+    return intlMiddleware(request)
+  }
+
   const response = NextResponse.next()
+  
+  // Add locale to headers for use in components
+  response.headers.set('x-locale', locale)
   
   // Get session from request cookies
   const sessionCookie = request.cookies.get('sb-access-token')
@@ -49,8 +82,8 @@ export async function middleware(request: NextRequest) {
   response.headers.set('x-capture-level', captureLevel.toString())
   response.headers.set('x-is-authenticated', user ? 'true' : 'false')
 
-  // Handle protected routes
-  const pathname = request.nextUrl.pathname
+  // Remove locale from pathname for route checking
+  const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'
 
   // Routes that require authentication
   const protectedRoutes = [
@@ -68,29 +101,29 @@ export async function middleware(request: NextRequest) {
   const engagedRoutes = ['/content/premium']
   const softMemberRoutes = ['/community', '/coaching']
 
-  // Check if route is protected
-  if (protectedRoutes.some(route => pathname.startsWith(route))) {
+  // Check if route is protected (using path without locale)
+  if (protectedRoutes.some(route => pathWithoutLocale.startsWith(route))) {
     if (!user) {
-      // Redirect to sign-in with return URL
-      const signInUrl = new URL('/auth/signin', request.url)
+      // Redirect to sign-in with return URL (preserve locale)
+      const signInUrl = new URL(`/${locale}/auth/signin`, request.url)
       signInUrl.searchParams.set('returnTo', pathname)
       return NextResponse.redirect(signInUrl)
     }
   }
 
   // Check capture level requirements
-  if (level2Routes.some(route => pathname.startsWith(route))) {
+  if (level2Routes.some(route => pathWithoutLocale.startsWith(route))) {
     if (!user || captureLevel < 2) {
-      const captureUrl = new URL('/auth/capture', request.url)
+      const captureUrl = new URL(`/${locale}/auth/capture`, request.url)
       captureUrl.searchParams.set('level', '2')
       captureUrl.searchParams.set('returnTo', pathname)
       return NextResponse.redirect(captureUrl)
     }
   }
 
-  if (level3Routes.some(route => pathname.startsWith(route))) {
+  if (level3Routes.some(route => pathWithoutLocale.startsWith(route))) {
     if (!user || captureLevel < 3) {
-      const captureUrl = new URL('/auth/capture', request.url)
+      const captureUrl = new URL(`/${locale}/auth/capture`, request.url)
       captureUrl.searchParams.set('level', '3')
       captureUrl.searchParams.set('returnTo', pathname)
       return NextResponse.redirect(captureUrl)
@@ -98,18 +131,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check tier requirements
-  if (engagedRoutes.some(route => pathname.startsWith(route))) {
+  if (engagedRoutes.some(route => pathWithoutLocale.startsWith(route))) {
     if (!user || (userTier !== 'engaged' && userTier !== 'soft-member')) {
-      const upgradeUrl = new URL('/upgrade', request.url)
+      const upgradeUrl = new URL(`/${locale}/upgrade`, request.url)
       upgradeUrl.searchParams.set('tier', 'engaged')
       upgradeUrl.searchParams.set('returnTo', pathname)
       return NextResponse.redirect(upgradeUrl)
     }
   }
 
-  if (softMemberRoutes.some(route => pathname.startsWith(route))) {
+  if (softMemberRoutes.some(route => pathWithoutLocale.startsWith(route))) {
     if (!user || userTier !== 'soft-member') {
-      const upgradeUrl = new URL('/upgrade', request.url)
+      const upgradeUrl = new URL(`/${locale}/upgrade`, request.url)
       upgradeUrl.searchParams.set('tier', 'soft-member')
       upgradeUrl.searchParams.set('returnTo', pathname)
       return NextResponse.redirect(upgradeUrl)

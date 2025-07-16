@@ -1,0 +1,164 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "tools": "Tools",
+    "content": "Content Library",
+    "webinars": "Webinars",
+    "contact": "Contact",
+    "language": "Language"
+  },
+  "hero": {
+    "title": "What if you're only using 10% of your true potential?",
+    "subtitle": "Discover the hidden 90% that could transform your life",
+    "description": "Most people live their entire lives without discovering what they're truly capable of. Our transformational assessment reveals the hidden 90% that's waiting to transform your life.",
+    "cta": "Discover Your Hidden 90%",
+    "videoAlt": "Success story testimonial",
+    "badge": "Unlock Your Hidden Potential",
+    "freeAssessment": "Free 5-minute assessment • Instant personalized results",
+    "stats": {
+      "livesTransformed": "Lives Transformed",
+      "successRate": "Success Rate", 
+      "yearsExperience": "Years Experience"
+    }
+  },
+  "sections": {
+    "successGap": {
+      "question": "Why do some people achieve their dreams while others just dream?",
+      "hook": "Understanding success factors is the difference between dreaming and achieving. Most people focus on motivation, but research shows it's actually about specific, measurable habits that compound over time.",
+      "learnMore": "Learn More",
+      "toolName": "Success Factor Calculator"
+    },
+    "changeParadox": {
+      "question": "You know what to do. So why aren't you doing it?",
+      "hook": "The gap between knowing and doing isn't about willpower—it's about understanding how your brain's automatic systems work. Once you master this, lasting change becomes inevitable.",
+      "learnMore": "Learn More",
+      "toolName": "Habit Strength Analyzer"
+    },
+    "visionVoid": {
+      "question": "Can you describe your life 5 years from now in detail?",
+      "hook": "Vision clarity is the foundation of all achievement. Without it, you're like a ship without a compass—you might be moving, but you're not going anywhere meaningful. Clear vision transforms everything.",
+      "learnMore": "Learn More",
+      "toolName": "Future Self Visualizer"
+    },
+    "leadershipLever": {
+      "question": "Are you leading your life, or is life leading you?",
+      "hook": "Leadership isn't just about managing others—it's about mastering yourself first. Your leadership style determines your impact in every area of life, from career to relationships to personal growth.",
+      "learnMore": "Learn More",
+      "toolName": "Leadership Style Identifier"
+    },
+    "decisionDoor": {
+      "question": "You're standing at the Decision Door",
+      "hook": "Every moment of inaction has a cost. Every day you wait, the gap between where you are and where you could be grows wider. The question isn't whether you can afford to invest in yourself—it's whether you can afford not to.",
+      "learnMore": "Learn More",
+      "toolName": "Cost of Inaction Calculator"
+    }
+  },
+  "forms": {
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "fullName": "Full Name",
+    "city": "City",
+    "officeLocation": "Preferred Office Location",
+    "emailPlaceholder": "Enter your email address",
+    "phonePlaceholder": "Enter your phone number",
+    "namePlaceholder": "Enter your full name",
+    "cityPlaceholder": "Enter your city",
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidPhone": "Please enter a valid phone number"
+  },
+  "cta": {
+    "getStarterPack": "Get Starter Pack",
+    "joinMasterclass": "Join Free Masterclass",
+    "scheduleVisit": "Schedule Office Visit",
+    "calculateNow": "Calculate Now",
+    "seeYourScore": "See Your Score",
+    "getAnswer": "Get the Answer",
+    "saveForLater": "Save for Later",
+    "getPersonalizedReport": "Get Your Personalized Report",
+    "joinFreeWebinar": "Join Free Webinar",
+    "downloadGuide": "Download the Guide",
+    "startChallenge": "Start Your 7-Day Challenge"
+  },
+  "assessment": {
+    "title": "Assessment Tool",
+    "progress": "Progress: {current} of {total}",
+    "complete": "Assessment Complete",
+    "results": "Your Results",
+    "insights": "Personalized Insights",
+    "recommendations": "Recommendations",
+    "shareResults": "Share Results",
+    "retakeAssessment": "Retake Assessment"
+  },
+  "content": {
+    "categories": {
+      "untappedYou": "The Untapped You",
+      "dreamsToReality": "Dreams to Reality",
+      "dailyEdge": "The Daily Edge",
+      "innerGame": "The Inner Game",
+      "multiplierEffect": "The Multiplier Effect"
+    },
+    "depthLevels": {
+      "surface": "Surface",
+      "medium": "Medium",
+      "deepDive": "Deep Dive"
+    },
+    "readTime": "Read time: {minutes} min",
+    "watchTime": "Watch time: {minutes} min"
+  },
+  "webinars": {
+    "title": "Upcoming Webinars",
+    "register": "Register Now",
+    "registered": "Registered",
+    "full": "Full",
+    "free": "Free",
+    "duration": "{minutes} minutes",
+    "attendees": "{count} registered"
+  },
+  "office": {
+    "locations": {
+      "addisAbaba": "Addis Ababa",
+      "bahirDar": "Bahir Dar",
+      "mekelle": "Mekelle",
+      "hawassa": "Hawassa",
+      "jimma": "Jimma"
+    },
+    "contact": {
+      "phone": "+251-11-XXX-XXXX",
+      "email": "info@galaxydreamteam.com",
+      "address": "Galaxy Dream Team Office"
+    }
+  },
+  "membership": {
+    "softMember": "Soft Member",
+    "benefits": "Member Benefits",
+    "savedResults": "Saved Assessment Results",
+    "continuousEducation": "Continuous Education",
+    "personalizedContent": "Personalized Content",
+    "subscriptionOptions": "Subscription Options",
+    "emailUpdates": "Email Updates",
+    "smsUpdates": "SMS Updates",
+    "telegramUpdates": "Telegram Updates"
+  },
+  "errors": {
+    "networkError": "Network error. Please check your connection and try again.",
+    "serverError": "Server error. Please try again later.",
+    "validationError": "Please check your input and try again.",
+    "sessionExpired": "Your session has expired. Please refresh the page."
+  }
+}

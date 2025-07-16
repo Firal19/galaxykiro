@@ -1,0 +1,164 @@
+{
+  "common": {
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት ተከስቷል",
+    "retry": "እንደገና ሞክር",
+    "save": "አስቀምጥ",
+    "cancel": "ሰርዝ",
+    "continue": "ቀጥል",
+    "back": "ተመለስ",
+    "next": "ቀጣይ",
+    "submit": "አስገባ",
+    "close": "ዝጋ",
+    "yes": "አዎ",
+    "no": "አይ"
+  },
+  "navigation": {
+    "home": "መነሻ",
+    "about": "ስለ እኛ",
+    "tools": "መሳሪያዎች",
+    "content": "የይዘት ቤተ-መጽሐፍት",
+    "webinars": "ዌቢናሮች",
+    "contact": "ያግኙን",
+    "language": "ቋንቋ"
+  },
+  "hero": {
+    "title": "የእርስዎ እውነተኛ አቅም 10% ብቻ እየተጠቀሙ ከሆነ ምን ይሆን?",
+    "subtitle": "ህይወትዎን ሊለውጥ የሚችለውን የተደበቀ 90% ያግኙ",
+    "description": "አብዛኞቹ ሰዎች በእውነት ምን ማድረግ እንደሚችሉ ሳያውቁ ህይወታቸውን ሙሉ ያሳልፋሉ። የእኛ ብሬክ ትሩ ግምገማ ህይወትዎን ለመለወጥ የሚጠብቀውን የተደበቀ 90% ያሳያል።",
+    "cta": "የተደበቀውን 90% ያግኙ",
+    "videoAlt": "የስኬት ታሪክ ምስክርነት",
+    "badge": "የተደበቀ አቅምዎን ይክፈቱ",
+    "freeAssessment": "ነፃ የ5-ደቂቃ ግምገማ • ፈጣን የግል ውጤቶች",
+    "stats": {
+      "livesTransformed": "የተለወጡ ህይወቶች",
+      "successRate": "የስኬት መጠን",
+      "yearsExperience": "የዓመታት ልምድ"
+    }
+  },
+  "sections": {
+    "successGap": {
+      "question": "አንዳንድ ሰዎች ህልማቸውን ለምን ያሳካሉ ሌሎች ግን ህልም ብቻ ይቀራሉ?",
+      "hook": "የስኬት ምክንያቶችን መረዳት በህልም እና በማሳካት መካከል ያለው ልዩነት ነው። አብዛኞቹ ሰዎች በተነሳሽነት ላይ ያተኩራሉ፣ ነገር ግን ምርምር እንደሚያሳየው በጊዜ ሂደት የሚጨምሩ ልዩ እና ሊለኩ የሚችሉ ልማዶች ናቸው።",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "toolName": "የስኬት ምክንያት ካልኩሌተር"
+    },
+    "changeParadox": {
+      "question": "ምን ማድረግ እንዳለብዎ ያውቃሉ። ታዲያ ለምን አያደርጉትም?",
+      "hook": "በማወቅ እና በማድረግ መካከል ያለው ክፍተት ስለ ፍላጎት ሃይል አይደለም - የአንጎልዎ አውቶማቲክ ሲስተሞች እንዴት እንደሚሰሩ መረዳት ነው። ይህንን ከተቆጣጠሩ፣ ዘላቂ ለውጥ የማይቀር ይሆናል።",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "toolName": "የልማድ ጥንካሬ መተንተኛ"
+    },
+    "visionVoid": {
+      "question": "ከ5 ዓመት በኋላ ህይወትዎን በዝርዝር መግለጽ ይችላሉ?",
+      "hook": "የራዕይ ግልጽነት የሁሉም ስኬት መሰረት ነው። ያለ እሱ፣ ኮምፓስ ከሌለው መርከብ ጋር ተመሳሳይ ነዎት - ምናልባት እየተንቀሳቀሱ ሊሆኑ ይችላሉ፣ ነገር ግን ትርጉም ያለው ቦታ አይሄዱም። ግልጽ ራዕይ ሁሉንም ነገር ይለውጣል።",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "toolName": "የወደፊት ራስ ምስላዊ"
+    },
+    "leadershipLever": {
+      "question": "ህይወትዎን እየመሩ ነው ወይስ ህይወት እርስዎን እየመራ ነው?",
+      "hook": "አመራር ሌሎችን ማስተዳደር ብቻ አይደለም - መጀመሪያ እራስዎን መቆጣጠር ነው። የእርስዎ የአመራር ዘይቤ ከስራ እስከ ግንኙነት እስከ ግላዊ እድገት ድረስ በሁሉም የህይወት ዘርፍ ላይ ያለዎትን ተጽእኖ ይወስናል።",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "toolName": "የአመራር ዘይቤ መለያ"
+    },
+    "decisionDoor": {
+      "question": "በውሳኔ በር ላይ ቆመዋል",
+      "hook": "እያንዳንዱ የእርምጃ አለመውሰድ ጊዜ ዋጋ አለው። የምትጠብቁት እያንዳንዱ ቀን፣ በምትሆኑበት እና ሊሆኑ በሚችሉበት መካከል ያለው ክፍተት እየሰፋ ይሄዳል። ጥያቄው በራስዎ ላይ ኢንቨስት ማድረግ መቻል አለመቻልዎ አይደለም - አለማድረግዎን መቻል አለመቻልዎ ነው።",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "toolName": "የእርምጃ አለመውሰድ ዋጋ ካልኩሌተር"
+    }
+  },
+  "forms": {
+    "email": "የኢሜይል አድራሻ",
+    "phone": "ስልክ ቁጥር",
+    "fullName": "ሙሉ ስም",
+    "city": "ከተማ",
+    "officeLocation": "የሚመረጥ የቢሮ አካባቢ",
+    "emailPlaceholder": "የኢሜይል አድራሻዎን ያስገቡ",
+    "phonePlaceholder": "ስልክ ቁጥርዎን ያስገቡ",
+    "namePlaceholder": "ሙሉ ስምዎን ያስገቡ",
+    "cityPlaceholder": "ከተማዎን ያስገቡ",
+    "required": "ይህ መስክ ያስፈልጋል",
+    "invalidEmail": "እባክዎ ትክክለኛ ኢሜይል አድራሻ ያስገቡ",
+    "invalidPhone": "እባክዎ ትክክለኛ ስልክ ቁጥር ያስገቡ"
+  },
+  "cta": {
+    "getStarterPack": "መጀመሪያ ፓኬጅ ያግኙ",
+    "joinMasterclass": "ነፃ ማስተር ክላስ ይቀላቀሉ",
+    "scheduleVisit": "የቢሮ ጉብኝት ያስይዙ",
+    "calculateNow": "አሁን ያስሉ",
+    "seeYourScore": "ውጤትዎን ይመልከቱ",
+    "getAnswer": "መልሱን ያግኙ",
+    "saveForLater": "ለኋላ አስቀምጥ",
+    "getPersonalizedReport": "የግል ሪፖርትዎን ያግኙ",
+    "joinFreeWebinar": "ነፃ ዌቢናር ይቀላቀሉ",
+    "downloadGuide": "መመሪያውን አውርድ",
+    "startChallenge": "የ7-ቀን ፈተናዎን ይጀምሩ"
+  },
+  "assessment": {
+    "title": "የግምገማ መሳሪያ",
+    "progress": "ሂደት: {current} ከ {total}",
+    "complete": "ግምገማ ተጠናቋል",
+    "results": "ውጤቶችዎ",
+    "insights": "የግል ግንዛቤዎች",
+    "recommendations": "ምክሮች",
+    "shareResults": "ውጤቶች አጋራ",
+    "retakeAssessment": "ግምገማ እንደገና ውሰድ"
+  },
+  "content": {
+    "categories": {
+      "untappedYou": "ያልተጠቀመው እርስዎ",
+      "dreamsToReality": "ህልሞች ወደ እውነታ",
+      "dailyEdge": "የዕለት ተዕለት ጥቅም",
+      "innerGame": "የውስጥ ጨዋታ",
+      "multiplierEffect": "የማባዛት ተጽእኖ"
+    },
+    "depthLevels": {
+      "surface": "ወለል",
+      "medium": "መካከለኛ",
+      "deepDive": "ጥልቅ ጥናት"
+    },
+    "readTime": "የንባብ ጊዜ: {minutes} ደቂቃ",
+    "watchTime": "የመመልከት ጊዜ: {minutes} ደቂቃ"
+  },
+  "webinars": {
+    "title": "የሚመጡ ዌቢናሮች",
+    "register": "አሁን ይመዝገቡ",
+    "registered": "ተመዝግቧል",
+    "full": "ሙሉ",
+    "free": "ነፃ",
+    "duration": "{minutes} ደቂቃዎች",
+    "attendees": "{count} ተመዝግበዋል"
+  },
+  "office": {
+    "locations": {
+      "addisAbaba": "አዲስ አበባ",
+      "bahirDar": "ባህር ዳር",
+      "mekelle": "መቀሌ",
+      "hawassa": "ሐዋሳ",
+      "jimma": "ጅማ"
+    },
+    "contact": {
+      "phone": "+251-11-XXX-XXXX",
+      "email": "info@galaxydreamteam.com",
+      "address": "ጋላክሲ ድሪም ቲም ቢሮ"
+    }
+  },
+  "membership": {
+    "softMember": "ሶፍት አባል",
+    "benefits": "የአባልነት ጥቅሞች",
+    "savedResults": "የተቀመጡ የግምገማ ውጤቶች",
+    "continuousEducation": "ቀጣይ ትምህርት",
+    "personalizedContent": "የግል ይዘት",
+    "subscriptionOptions": "የደንበኝነት አማራጮች",
+    "emailUpdates": "የኢሜይል ዝማኔዎች",
+    "smsUpdates": "የኤስኤምኤስ ዝማኔዎች",
+    "telegramUpdates": "የቴሌግራም ዝማኔዎች"
+  },
+  "errors": {
+    "networkError": "የኔትወርክ ስህተት። እባክዎ ግንኙነትዎን ይፈትሹ እና እንደገና ይሞክሩ።",
+    "serverError": "የሰርቨር ስህተት። እባክዎ ቆይተው እንደገና ይሞክሩ።",
+    "validationError": "እባክዎ ግቤትዎን ይፈትሹ እና እንደገና ይሞክሩ።",
+    "sessionExpired": "ክፍለ ጊዜዎ አልቋል። እባክዎ ገጹን ያድሱ።"
+  }
+}

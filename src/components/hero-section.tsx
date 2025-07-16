@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { useTranslations } from 'next-intl'
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { VideoPlayer } from "@/components/ui/video-player"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,8 @@ export function HeroSection({ className }: HeroSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  
+  const t = useTranslations('hero')
 
   const handleEmailSubmit = async (email: string) => {
     try {
@@ -123,7 +126,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-energy-500)]/10 rounded-full text-[var(--color-energy-700)] dark:text-[var(--color-energy-300)] text-sm font-medium"
               >
                 <Sparkles className="h-4 w-4" />
-                Unlock Your Hidden Potential
+                {t('badge')}
               </motion.div>
               
               <motion.h1
@@ -132,22 +135,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight"
               >
-                What if you&apos;re only using{" "}
-                <span className="relative">
-                  <AnimatedCounter
-                    from={0}
-                    to={10}
-                    suffix="%"
-                    className="text-[var(--color-energy-600)] dark:text-[var(--color-energy-400)]"
-                  />
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.8, delay: 1.5 }}
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] origin-left"
-                  />
-                </span>{" "}
-                of your true potential?
+                {t('title')}
               </motion.h1>
               
               <motion.p
@@ -156,8 +144,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-lg text-muted-foreground max-w-2xl"
               >
-                Most people live their entire lives without discovering what they&apos;re truly capable of. 
-                Our breakthrough assessment reveals the hidden 90% that&apos;s waiting to transform your life.
+                {t('description')}
               </motion.p>
             </div>
 
@@ -175,7 +162,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={50000} suffix="+" />
                 </div>
-                <div className="text-sm text-muted-foreground">Lives Transformed</div>
+                <div className="text-sm text-muted-foreground">{t('stats.livesTransformed')}</div>
               </div>
               
               <div className="text-center">
@@ -185,7 +172,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={90} suffix="%" />
                 </div>
-                <div className="text-sm text-muted-foreground">Success Rate</div>
+                <div className="text-sm text-muted-foreground">{t('stats.successRate')}</div>
               </div>
               
               <div className="text-center">
@@ -195,7 +182,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={15} suffix="+" />
                 </div>
-                <div className="text-sm text-muted-foreground">Years Experience</div>
+                <div className="text-sm text-muted-foreground">{t('stats.yearsExperience')}</div>
               </div>
             </motion.div>
 
@@ -212,10 +199,10 @@ export function HeroSection({ className }: HeroSectionProps) {
                 className="text-lg px-8 py-4 h-auto"
               >
                 <Sparkles className="mr-2 h-5 w-5" />
-                Discover Your Hidden 90%
+                {t('cta')}
               </Button>
               <p className="text-sm text-muted-foreground mt-2">
-                Free 5-minute assessment • Instant personalized results
+                {t('freeAssessment')}
               </p>
             </motion.div>
           </motion.div>
@@ -232,7 +219,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               poster="/testimonial-poster.jpg" // Placeholder - would be replaced with actual poster
               autoplay={true}
               muted={true}
-              testimonialText="This assessment completely changed how I see myself. I discovered strengths I never knew I had and finally understand why I was stuck. Within 3 months, I doubled my income and found my true purpose."
+              testimonialText="This assessment completely changed how I see myself. I discovered strengths I never knew I had and finally understand what was holding me back. Within 3 months, I doubled my income and found my true purpose."
               authorName="Sarah Chen"
               authorTitle="Marketing Director, Addis Ababa"
               className="w-full max-w-md mx-auto"
@@ -252,7 +239,7 @@ export function HeroSection({ className }: HeroSectionProps) {
         onSubmit={handleEmailSubmit}
         onStartAssessment={handleStartAssessment}
         title="Discover Your Hidden 90%"
-        description="Get instant access to your personalized Potential Assessment. Discover the hidden strengths, untapped abilities, and breakthrough opportunities that could transform your life."
+        description="Get instant access to your personalized Potential Assessment. Discover the hidden strengths, untapped abilities, and transformational opportunities that could transform your life."
         ctaText="Get My Free Assessment"
       />
 

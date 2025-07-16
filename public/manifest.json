@@ -1,7 +1,7 @@
 {
-  "name": "GalaxyDreamTeam Progressive Engagement",
-  "short_name": "GalaxyDream",
-  "description": "Discover your hidden potential with interactive tools and assessments",
+  "name": "Galaxy Dream Team - Progressive Engagement",
+  "short_name": "Galaxy Dream Team",
+  "description": "Discover your hidden potential with Galaxy Dream Team's interactive tools and assessments",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

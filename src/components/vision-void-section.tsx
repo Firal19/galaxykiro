@@ -4,6 +4,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { LeadCaptureModal } from "@/components/lead-capture-modal"
+import { EnhancedSectionHook } from "@/components/enhanced-section-hook"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
 import { Eye, Compass, Star, Heart, Briefcase, Users, Home, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +16,7 @@ interface VisionVoidSectionProps {
 export function VisionVoidSection({ className }: VisionVoidSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false)
+  const { trackEngagement } = useEngagementTracking()
 
   const handleFullProfileSubmit = async (data: Record<string, string>) => {
     try {
@@ -74,35 +77,12 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            {/* Main Question */}
-            <div className="space-y-4">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-energy-600)] transition-colors"
-                onClick={() => window.open('/vision-void', '_blank')}
-              >
-                Can you describe your life 5 years from now in detail?
-              </motion.h2>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="space-y-4"
-              >
-                <p className="text-lg text-[var(--color-energy-600)] font-medium">
-                  Vision clarity is the foundation of all achievement.
-                </p>
-                <p className="text-lg text-muted-foreground">
-                  Most people can&apos;t. That&apos;s why they&apos;re stuck. Without a clear vision, you&apos;re like a ship without a compass—you might be moving, but you&apos;re not going anywhere meaningful. Clear vision transforms everything.
-                </p>
-                <p className="text-base text-muted-foreground">
-                  Click below to create your personalized 5-year vision and discover the roadmap to get there.
-                </p>
-              </motion.div>
-            </div>
+            {/* Enhanced Section Hook */}
+            <EnhancedSectionHook
+              sectionId="vision-void"
+              question="Can you describe your life 5 years from now in detail?"
+              questionLink="/vision-void"
+            />
 
             {/* Stats */}
             <motion.div
@@ -156,7 +136,10 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
                 <Button
                   variant="cta"
                   size="lg"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => {
+                    trackEngagement({ type: 'cta_click', section: 'vision-void' })
+                    setIsModalOpen(true)
+                  }}
                   className="text-lg px-8 py-4 h-auto flex-1"
                 >
                   <Eye className="mr-2 h-5 w-5" />
@@ -165,7 +148,10 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => window.open('/vision-void/learn-more', '_blank')}
+                  onClick={() => {
+                    trackEngagement({ type: 'learn_more_click', section: 'vision-void' })
+                    window.open('/vision-void/learn-more', '_blank')
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   Learn More

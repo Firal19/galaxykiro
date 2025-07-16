@@ -4,6 +4,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { LeadCaptureModal } from "@/components/lead-capture-modal"
+import { EnhancedSectionHook } from "@/components/enhanced-section-hook"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
 import { Brain, Zap, RefreshCw, Target, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +16,7 @@ interface ChangeParadoxSectionProps {
 export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false)
+  const { trackEngagement } = useEngagementTracking()
 
   const handleNameCitySubmit = async (data: { name: string; city: string }) => {
     try {
@@ -63,35 +66,12 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            {/* Main Question */}
-            <div className="space-y-4">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-transformation-600)] transition-colors"
-                onClick={() => window.open('/change-paradox', '_blank')}
-              >
-                You know what to do. So why aren&apos;t you doing it?
-              </motion.h2>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="space-y-4"
-              >
-                <p className="text-lg text-[var(--color-transformation-600)] font-medium">
-                  The gap between knowing and doing isn&apos;t about willpower—it&apos;s about understanding how your brain&apos;s automatic systems work.
-                </p>
-                <p className="text-lg text-muted-foreground">
-                  Scientists discovered the real reason change is hard... It&apos;s not willpower. It&apos;s not motivation. It&apos;s your brain&apos;s automatic habit loops that run 95% of your daily actions. Once you master this, lasting change becomes inevitable.
-                </p>
-                <p className="text-base text-muted-foreground">
-                  Click below to analyze your habit patterns and discover which habits are helping or hurting your progress.
-                </p>
-              </motion.div>
-            </div>
+            {/* Enhanced Section Hook */}
+            <EnhancedSectionHook
+              sectionId="change-paradox"
+              question="You know what to do. So why aren't you doing it?"
+              questionLink="/change-paradox"
+            />
 
             {/* Value Snippets */}
             <motion.div
@@ -125,7 +105,10 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
                 <Button
                   variant="cta"
                   size="lg"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => {
+                    trackEngagement({ type: 'cta_click', section: 'change-paradox' })
+                    setIsModalOpen(true)
+                  }}
                   className="text-lg px-8 py-4 h-auto flex-1"
                 >
                   <Brain className="mr-2 h-5 w-5" />
@@ -134,7 +117,10 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => window.open('/change-paradox/learn-more', '_blank')}
+                  onClick={() => {
+                    trackEngagement({ type: 'learn_more_click', section: 'change-paradox' })
+                    window.open('/change-paradox/learn-more', '_blank')
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   Learn More
@@ -165,7 +151,7 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleNameCitySubmit}
         title="Analyze Your Habit Strength"
-        description="Get your personalized Habit Strength Analysis. We'll show you which habits are working for you and which ones are keeping you stuck."
+        description="Get your personalized Habit Strength Analysis. We'll show you which habits are working for you and which ones are holding you back from your full potential."
         ctaText="Get My Habit Analysis"
         level={2}
         fields={['name', 'city']}

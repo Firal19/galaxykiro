@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { ChevronRight, ChevronLeft, BarChart3, Target, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { GalaxyDreamTeamLogo } from "./galaxy-dream-team-logo"
 
 // Assessment questions schema
 const assessmentSchema = z.object({
@@ -74,7 +75,7 @@ const questions: Question[] = [
     options: [
       { value: "transforming", label: "I'm actively transforming my life", score: 4 },
       { value: "improving", label: "I'm making steady improvements", score: 3 },
-      { value: "stuck", label: "I feel somewhat stuck but hopeful", score: 2 },
+      { value: "exploring", label: "I feel like I'm exploring my options", score: 2 },
       { value: "frustrated", label: "I'm frustrated with my lack of progress", score: 1 },
     ]
   },
@@ -134,7 +135,7 @@ export function PotentialAssessment({ isOpen, onClose, userEmail }: PotentialAss
       level = "Untapped Potential"
       insights = [
         "You have significant unrealized potential waiting to be unlocked",
-        "You're at a perfect stage for breakthrough transformation",
+        "You're at a perfect stage for transformational growth",
         "Focus on identifying and overcoming limiting beliefs and patterns"
       ]
     } else {
@@ -379,11 +380,29 @@ export function PotentialAssessment({ isOpen, onClose, userEmail }: PotentialAss
             </div>
 
             <div className="space-y-3">
-              <Button variant="cta" size="lg" className="w-full">
+              <Button 
+                variant="cta" 
+                size="lg" 
+                className="w-full"
+                onClick={() => window.open('/membership/register?source=assessment-complete', '_blank')}
+              >
                 Get My Complete Potential Report
               </Button>
               <p className="text-xs text-muted-foreground">
-                Detailed analysis and personalized action plan sent to {userEmail}
+                Join as a soft member to save your results and get detailed analysis sent to {userEmail}
+              </p>
+            </div>
+
+            {/* Galaxy Dream Team Attribution */}
+            <div className="border-t border-border pt-4 mt-6">
+              <div className="flex items-center justify-center space-x-2">
+                <GalaxyDreamTeamLogo variant="compact" size="small" />
+                <span className="text-xs text-muted-foreground">
+                  Assessment by Galaxy Dream Team
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-1">
+                Ethiopia's premier personal development platform
               </p>
             </div>
           </motion.div>

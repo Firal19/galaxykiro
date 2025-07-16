@@ -32,13 +32,13 @@ const ASSESSMENT_CONFIGS = {
       low: 'You have relatively few limiting beliefs affecting your progress.'
     }
   },
-  'breakthrough-readiness-score': {
+  'transformation-readiness-score': {
     maxScore: 100,
     categories: ['motivation', 'commitment', 'resources', 'support'],
     insights: {
-      high: 'You are highly ready for breakthrough and transformation.',
+      high: 'You are highly ready for growth and transformation.',
       medium: 'You are moderately ready with some preparation needed.',
-      low: 'You need more preparation before attempting major breakthroughs.'
+      low: 'You need more preparation before attempting major transformations.'
     }
   },
   'success-factor-calculator': {

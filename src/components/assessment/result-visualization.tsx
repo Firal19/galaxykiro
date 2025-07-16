@@ -36,6 +36,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AssessmentResult, VisualizationData, PersonalizedInsight } from '@/lib/assessment-engine'
+import { GalaxyDreamTeamLogo } from '../galaxy-dream-team-logo'
 
 interface ResultVisualizationProps {
   result: AssessmentResult
@@ -181,6 +182,23 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
       {showSharing && (
         <SharingOptions result={result} />
       )}
+
+      {/* Galaxy Dream Team Attribution */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center space-x-3 border-t border-border pt-4">
+            <GalaxyDreamTeamLogo variant="compact" size="small" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-foreground">
+                Assessment by Galaxy Dream Team
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Ethiopia's premier personal development platform
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

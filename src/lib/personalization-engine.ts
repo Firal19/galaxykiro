@@ -138,7 +138,7 @@ const CONTENT_LIBRARY: ContentItem[] = [
     targetBehaviorPattern: ['explorer', 'action-taker'],
     targetEngagementLevel: ['medium', 'high'],
     personalityMatch: ['achievement', 'mastery'],
-    relatedContent: ['limiting-beliefs-guide', 'breakthrough-readiness'],
+    relatedContent: ['limiting-beliefs-guide', 'transformation-readiness'],
     conversionGoal: 'capture',
     priority: 15
   },
@@ -156,7 +156,7 @@ const CONTENT_LIBRARY: ContentItem[] = [
     targetEngagementLevel: ['high', 'very-high'],
     personalityMatch: ['mastery', 'purpose'],
     prerequisites: ['potential-assessment'],
-    relatedContent: ['breakthrough-readiness', 'mindset-mastery'],
+    relatedContent: ['transformation-readiness', 'mindset-mastery'],
     conversionGoal: 'conversion',
     priority: 20
   },
@@ -164,7 +164,7 @@ const CONTENT_LIBRARY: ContentItem[] = [
   // Dreams to Reality - Surface Level
   {
     id: 'goal-setting-mistakes',
-    title: 'Why 92% of Goals Fail (And How to Be in the 8%)',
+    title: 'Why 8% of Goals Succeed (And How to Join Them)',
     description: 'The science-backed approach to goal achievement',
     category: CONTENT_CATEGORIES[1],
     depthLevel: 'surface',

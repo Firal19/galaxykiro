@@ -1,1 +1,318 @@
-if(!self.define){let e,s={};const a=(a,c)=>(a=new URL(a+".js",c).href,s[a]||new Promise(s=>{if("document"in self){const e=document.createElement("script");e.src=a,e.onload=s,document.head.appendChild(e)}else e=a,importScripts(a),s()}).then(()=>{let e=s[a];if(!e)throw new Error(`Module ${a} didn’t register its module`);return e}));self.define=(c,i)=>{const n=e||("document"in self?document.currentScript.src:"")||location.href;if(s[n])return;let t={};const f=e=>a(e,n),d={module:{uri:n},exports:t,require:f};s[n]=Promise.all(c.map(e=>d[e]||f(e))).then(e=>(i(...e),t))}}define(["./workbox-4754cb34"],function(e){"use strict";importScripts(),self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"/_next/app-build-manifest.json",revision:"33e14389391c405c22670eb9c352ce34"},{url:"/_next/static/chunks/4bd1b696-2385f465b218746f.js",revision:"2385f465b218746f"},{url:"/_next/static/chunks/63-e830d34011207317.js",revision:"e830d34011207317"},{url:"/_next/static/chunks/964-cb8adfbca15d1653.js",revision:"cb8adfbca15d1653"},{url:"/_next/static/chunks/app/_not-found/page-984800c2da129973.js",revision:"984800c2da129973"},{url:"/_next/static/chunks/app/layout-895f9841ed37cc28.js",revision:"895f9841ed37cc28"},{url:"/_next/static/chunks/app/page-7bca59d429d79c9b.js",revision:"7bca59d429d79c9b"},{url:"/_next/static/chunks/framework-768692517470e708.js",revision:"768692517470e708"},{url:"/_next/static/chunks/main-5eecbbaedc7ed35e.js",revision:"5eecbbaedc7ed35e"},{url:"/_next/static/chunks/main-app-01b0a2983ae515ca.js",revision:"01b0a2983ae515ca"},{url:"/_next/static/chunks/pages/_app-0a0020ddd67f79cf.js",revision:"0a0020ddd67f79cf"},{url:"/_next/static/chunks/pages/_error-03529f2c21436739.js",revision:"03529f2c21436739"},{url:"/_next/static/chunks/polyfills-42372ed130431b0a.js",revision:"846118c33b2c0e922d7b3a7676f81f6f"},{url:"/_next/static/chunks/webpack-f96457289c70583b.js",revision:"f96457289c70583b"},{url:"/_next/static/css/6bd6dcb1373fbe03.css",revision:"6bd6dcb1373fbe03"},{url:"/_next/static/media/1d8a05b60287ae6c-s.woff2",revision:"dd2952a08bbf942e1ed616905cab12f1"},{url:"/_next/static/media/26a46d62cd723877-s.woff2",revision:"befd9c0fdfa3d8a645d5f95717ed6420"},{url:"/_next/static/media/55c55f0601d81cf3-s.woff2",revision:"43828e14271c77b87e3ed582dbff9f74"},{url:"/_next/static/media/569ce4b8f30dc480-s.p.woff2",revision:"ef6cefb32024deac234e82f932a95cbd"},{url:"/_next/static/media/581909926a08bbc8-s.woff2",revision:"f0b86e7c24f455280b8df606b89af891"},{url:"/_next/static/media/636a5ac981f94f8b-s.p.woff2",revision:"52d04440a9faae0db9adc6cdc844099b"},{url:"/_next/static/media/6f22fce21a7c433c-s.woff2",revision:"db4848d96b0e30ee12d7b0a924cf3b24"},{url:"/_next/static/media/6fe53d21e6e7ebd8-s.woff2",revision:"2591db816b61d44b6e87ba79d13622b2"},{url:"/_next/static/media/747892c23ea88013-s.woff2",revision:"a0761690ccf4441ace5cec893b82d4ab"},{url:"/_next/static/media/77c207b095007c34-s.woff2",revision:"cd3472cf160eaa52572441cf930a93a4"},{url:"/_next/static/media/82ef96de0e8f4d8c-s.woff2",revision:"ddf8cb57367a47414aa2d47aab4041bc"},{url:"/_next/static/media/8d697b304b401681-s.woff2",revision:"cc728f6c0adb04da0dfcb0fc436a8ae5"},{url:"/_next/static/media/8e9860b6e62d6359-s.woff2",revision:"01ba6c2a184b8cba08b0d57167664d75"},{url:"/_next/static/media/8ebc6e9dde468c4a-s.woff2",revision:"196acbb650c75807ea2f0ef36edbd186"},{url:"/_next/static/media/93f479601ee12b01-s.p.woff2",revision:"da83d5f06d825c5ae65b7cca706cb312"},{url:"/_next/static/media/9610d9e46709d722-s.woff2",revision:"7b7c0ef93df188a852344fc272fc096b"},{url:"/_next/static/media/97e0cb1ae144a2a9-s.woff2",revision:"e360c61c5bd8d90639fd4503c829c2dc"},{url:"/_next/static/media/a6ecd16fa044d500-s.woff2",revision:"e63dd45b3f5d159b8ec974a3b183c060"},{url:"/_next/static/media/ba015fad6dcf6784-s.woff2",revision:"8ea4f719af3312a055caf09f34c89a77"},{url:"/_next/static/media/bd82c78e5b7b3fe9-s.woff2",revision:"9aee894ca91b94bee65c84906578850d"},{url:"/_next/static/media/c32c8052c071fc42-s.woff2",revision:"01b4a8bff3ad7fca1e516fd6e45f0794"},{url:"/_next/static/media/c4250770ab8708b6-s.p.woff2",revision:"4f069f9eb2ee449610e0e52a075b48ae"},{url:"/_next/static/media/df0a9ae256c0569c-s.woff2",revision:"d54db44de5ccb18886ece2fda72bdfe0"},{url:"/_next/static/media/e4af272ccee01ff0-s.p.woff2",revision:"65850a373e258f1c897a2b3d75eb74de"},{url:"/_next/static/media/ef64ecae5e1bff42-s.woff2",revision:"c25b6715e7ff9251f02f3bad2537cd4d"},{url:"/_next/static/vYlV2KP24ogfVpsWnuuvA/_buildManifest.js",revision:"d40f7ccd4d43f191f8a7acf78aa441c0"},{url:"/_next/static/vYlV2KP24ogfVpsWnuuvA/_ssgManifest.js",revision:"b6652df95db52feb4daf4eca35380933"},{url:"/file.svg",revision:"d09f95206c3fa0bb9bd9fefabfd0ea71"},{url:"/globe.svg",revision:"2aaafa6a49b6563925fe440891e32717"},{url:"/icon-192x192.png",revision:"8e061864f388b47f33a1c3780831193e"},{url:"/icon-512x512.png",revision:"8e061864f388b47f33a1c3780831193e"},{url:"/manifest.json",revision:"86342c5465e4ac999e1fcb3398bda7ed"},{url:"/next.svg",revision:"8e061864f388b47f33a1c3780831193e"},{url:"/vercel.svg",revision:"c0af2f507b369b085b35ef4bbe3bcf1e"},{url:"/window.svg",revision:"a2760511c65806022ad20adf74370ff3"}],{ignoreURLParametersMatching:[]}),e.cleanupOutdatedCaches(),e.registerRoute("/",new e.NetworkFirst({cacheName:"start-url",plugins:[{cacheWillUpdate:async({request:e,response:s,event:a,state:c})=>s&&"opaqueredirect"===s.type?new Response(s.body,{status:200,statusText:"OK",headers:s.headers}):s}]}),"GET"),e.registerRoute(/^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,new e.CacheFirst({cacheName:"google-fonts-webfonts",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:31536e3})]}),"GET"),e.registerRoute(/^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,new e.StaleWhileRevalidate({cacheName:"google-fonts-stylesheets",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:604800})]}),"GET"),e.registerRoute(/\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,new e.StaleWhileRevalidate({cacheName:"static-font-assets",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:604800})]}),"GET"),e.registerRoute(/\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,new e.StaleWhileRevalidate({cacheName:"static-image-assets",plugins:[new e.ExpirationPlugin({maxEntries:64,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\/_next\/image\?url=.+$/i,new e.StaleWhileRevalidate({cacheName:"next-image",plugins:[new e.ExpirationPlugin({maxEntries:64,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:mp3|wav|ogg)$/i,new e.CacheFirst({cacheName:"static-audio-assets",plugins:[new e.RangeRequestsPlugin,new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:mp4)$/i,new e.CacheFirst({cacheName:"static-video-assets",plugins:[new e.RangeRequestsPlugin,new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:js)$/i,new e.StaleWhileRevalidate({cacheName:"static-js-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:css|less)$/i,new e.StaleWhileRevalidate({cacheName:"static-style-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\/_next\/data\/.+\/.+\.json$/i,new e.StaleWhileRevalidate({cacheName:"next-data",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:json|xml|csv)$/i,new e.NetworkFirst({cacheName:"static-data-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(({url:e})=>{if(!(self.origin===e.origin))return!1;const s=e.pathname;return!s.startsWith("/api/auth/")&&!!s.startsWith("/api/")},new e.NetworkFirst({cacheName:"apis",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:16,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(({url:e})=>{if(!(self.origin===e.origin))return!1;return!e.pathname.startsWith("/api/")},new e.NetworkFirst({cacheName:"others",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(({url:e})=>!(self.origin===e.origin),new e.NetworkFirst({cacheName:"cross-origin",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:3600})]}),"GET")});
+// Progressive Web App Service Worker
+// Provides offline functionality and caching for the engagement platform
+
+const CACHE_NAME = 'galaxy-dream-team-v1';
+const STATIC_CACHE = 'static-v1';
+const DYNAMIC_CACHE = 'dynamic-v1';
+
+// Assets to cache immediately
+const STATIC_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  // Add critical CSS and JS files
+  '/_next/static/css/',
+  '/_next/static/js/',
+];
+
+// Routes to cache dynamically
+const CACHEABLE_ROUTES = [
+  '/',
+  '/content-library',
+  '/webinars',
+  '/auth/signin',
+  '/auth/register'
+];
+
+// API endpoints to cache
+const CACHEABLE_APIS = [
+  '/api/webinars',
+  '/api/content',
+  '/.netlify/functions/process-assessment'
+];
+
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
+  
+  event.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then((cache) => {
+        console.log('Service Worker: Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
+      })
+      .then(() => {
+        console.log('Service Worker: Static assets cached');
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('Service Worker: Failed to cache static assets', error);
+      })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating...');
+  
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+              console.log('Service Worker: Deleting old cache', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log('Service Worker: Activated');
+        return self.clients.claim();
+      })
+  );
+});
+
+// Fetch event - serve from cache or network
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Skip chrome-extension and other non-http requests
+  if (!request.url.startsWith('http')) {
+    return;
+  }
+
+  // Handle different types of requests
+  if (isStaticAsset(request.url)) {
+    event.respondWith(cacheFirst(request));
+  } else if (isAPIRequest(request.url)) {
+    event.respondWith(networkFirst(request));
+  } else if (isCacheableRoute(request.url)) {
+    event.respondWith(staleWhileRevalidate(request));
+  } else {
+    event.respondWith(networkFirst(request));
+  }
+});
+
+// Cache strategies
+async function cacheFirst(request) {
+  try {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.error('Cache first strategy failed:', error);
+    return new Response('Offline content not available', { status: 503 });
+  }
+}
+
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('Network failed, trying cache:', error);
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // Return offline page for navigation requests
+    if (request.mode === 'navigate') {
+      return caches.match('/') || new Response('Offline', { status: 503 });
+    }
+    
+    return new Response('Content not available offline', { status: 503 });
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(DYNAMIC_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  const networkResponsePromise = fetch(request).then((networkResponse) => {
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  }).catch(() => null);
+  
+  return cachedResponse || await networkResponsePromise || 
+    new Response('Content not available', { status: 503 });
+}
+
+// Helper functions
+function isStaticAsset(url) {
+  return url.includes('/_next/static/') || 
+         url.includes('/icon-') || 
+         url.includes('/manifest.json') ||
+         url.endsWith('.css') ||
+         url.endsWith('.js') ||
+         url.endsWith('.png') ||
+         url.endsWith('.jpg') ||
+         url.endsWith('.svg');
+}
+
+function isAPIRequest(url) {
+  return url.includes('/api/') || 
+         url.includes('/.netlify/functions/') ||
+         url.includes('supabase.co');
+}
+
+function isCacheableRoute(url) {
+  return CACHEABLE_ROUTES.some(route => {
+    if (route === '/') {
+      return url.endsWith('/') || url.split('/').length === 3;
+    }
+    return url.includes(route);
+  });
+}
+
+// Background sync for offline form submissions
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'assessment-submission') {
+    event.waitUntil(syncAssessmentSubmissions());
+  } else if (event.tag === 'user-data-sync') {
+    event.waitUntil(syncUserData());
+  }
+});
+
+async function syncAssessmentSubmissions() {
+  try {
+    // Get pending submissions from IndexedDB
+    const pendingSubmissions = await getPendingSubmissions();
+    
+    for (const submission of pendingSubmissions) {
+      try {
+        const response = await fetch('/.netlify/functions/process-assessment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(submission.data)
+        });
+        
+        if (response.ok) {
+          await removePendingSubmission(submission.id);
+          console.log('Synced assessment submission:', submission.id);
+        }
+      } catch (error) {
+        console.error('Failed to sync submission:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Background sync failed:', error);
+  }
+}
+
+async function syncUserData() {
+  try {
+    // Sync user progress and engagement data
+    const pendingData = await getPendingUserData();
+    
+    for (const data of pendingData) {
+      try {
+        const response = await fetch('/.netlify/functions/track-user-journey', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data.payload)
+        });
+        
+        if (response.ok) {
+          await removePendingUserData(data.id);
+          console.log('Synced user data:', data.id);
+        }
+      } catch (error) {
+        console.error('Failed to sync user data:', error);
+      }
+    }
+  } catch (error) {
+    console.error('User data sync failed:', error);
+  }
+}
+
+// IndexedDB helpers for offline storage
+async function getPendingSubmissions() {
+  // Implementation would use IndexedDB to store offline submissions
+  return [];
+}
+
+async function removePendingSubmission(id) {
+  // Implementation would remove from IndexedDB
+}
+
+async function getPendingUserData() {
+  // Implementation would get pending user data from IndexedDB
+  return [];
+}
+
+async function removePendingUserData(id) {
+  // Implementation would remove from IndexedDB
+}
+
+// Push notification handling
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+  
+  const data = event.data.json();
+  const options = {
+    body: data.body,
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
+    vibrate: [200, 100, 200],
+    data: data.data,
+    actions: data.actions || []
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification click handling
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  const urlToOpen = event.notification.data?.url || '/';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if there's already a window/tab open with the target URL
+        for (const client of clientList) {
+          if (client.url === urlToOpen && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        
+        // If not, open a new window/tab
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+
+console.log('Service Worker: Loaded');

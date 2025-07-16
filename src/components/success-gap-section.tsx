@@ -4,6 +4,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { LeadCaptureModal } from "@/components/lead-capture-modal"
+import { EnhancedSectionHook } from "@/components/enhanced-section-hook"
+import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
 import { TrendingUp, Clock, Target, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +16,7 @@ interface SuccessGapSectionProps {
 export function SuccessGapSection({ className }: SuccessGapSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
+  const { trackEngagement } = useEngagementTracking()
 
   const handlePhoneSubmit = async (data: { phone: string }) => {
     try {
@@ -76,7 +79,7 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
                 </div>
                 <h3 className="font-semibold text-muted-foreground mb-2">The Dreamers</h3>
                 <p className="text-sm text-muted-foreground">
-                  Always planning, rarely executing. Stuck in the same patterns year after year.
+                  Always planning, rarely executing. Repeating the same patterns year after year.
                 </p>
               </motion.div>
 
@@ -118,35 +121,12 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            {/* Main Question */}
-            <div className="space-y-4">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-3xl md:text-4xl font-bold text-foreground leading-tight cursor-pointer hover:text-[var(--color-growth-600)] transition-colors"
-                onClick={() => window.open('/success-gap', '_blank')}
-              >
-                Why do some people achieve their dreams while others just dream?
-              </motion.h2>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="space-y-4"
-              >
-                <p className="text-lg text-[var(--color-growth-600)] font-medium">
-                  Understanding success factors is the difference between dreaming and achieving.
-                </p>
-                <p className="text-lg text-muted-foreground">
-                  Most people focus on motivation, but research shows it&apos;s actually about specific, measurable habits that compound over time. The difference isn&apos;t talent, luck, or connections—it&apos;s knowing the exact success factors that separate achievers from dreamers.
-                </p>
-                <p className="text-base text-muted-foreground">
-                  Click below to discover which side of the gap you&apos;re on and learn the proven strategies that will help you bridge it.
-                </p>
-              </motion.div>
-            </div>
+            {/* Enhanced Section Hook */}
+            <EnhancedSectionHook
+              sectionId="success-gap"
+              question="Why do some people achieve their dreams while others just dream?"
+              questionLink="/success-gap"
+            />
 
             {/* Content Teasers */}
             <motion.div
@@ -197,7 +177,10 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
                 <Button
                   variant="cta"
                   size="lg"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => {
+                    trackEngagement({ type: 'cta_click', section: 'success-gap' })
+                    setIsModalOpen(true)
+                  }}
                   className="text-lg px-8 py-4 h-auto flex-1"
                 >
                   <TrendingUp className="mr-2 h-5 w-5" />
@@ -206,7 +189,10 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => window.open('/success-gap/learn-more', '_blank')}
+                  onClick={() => {
+                    trackEngagement({ type: 'learn_more_click', section: 'success-gap' })
+                    window.open('/success-gap/learn-more', '_blank')
+                  }}
                   className="text-lg px-8 py-4 h-auto"
                 >
                   Learn More

@@ -304,6 +304,153 @@ export type Database = {
           updated_at?: string
         }
       }
+      webinars: {
+        Row: {
+          id: string
+          title: string
+          description?: string
+          presenter_name?: string
+          presenter_bio?: string
+          scheduled_at: string
+          duration_minutes: number
+          max_attendees?: number
+          registration_deadline?: string
+          webinar_url?: string
+          recording_url?: string
+          status: string
+          tags?: string[]
+          thumbnail_url?: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string
+          presenter_name?: string
+          presenter_bio?: string
+          scheduled_at: string
+          duration_minutes?: number
+          max_attendees?: number
+          registration_deadline?: string
+          webinar_url?: string
+          recording_url?: string
+          status?: string
+          tags?: string[]
+          thumbnail_url?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          presenter_name?: string
+          presenter_bio?: string
+          scheduled_at?: string
+          duration_minutes?: number
+          max_attendees?: number
+          registration_deadline?: string
+          webinar_url?: string
+          recording_url?: string
+          status?: string
+          tags?: string[]
+          thumbnail_url?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      webinar_registrations: {
+        Row: {
+          id: string
+          webinar_id: string
+          user_id: string
+          registration_source?: string
+          registration_data: Record<string, unknown>
+          attended: boolean
+          attendance_duration_minutes: number
+          engagement_score: number
+          feedback_rating?: number
+          feedback_comment?: string
+          no_show_follow_up_sent: boolean
+          recording_accessed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          webinar_id: string
+          user_id: string
+          registration_source?: string
+          registration_data?: Record<string, unknown>
+          attended?: boolean
+          attendance_duration_minutes?: number
+          engagement_score?: number
+          feedback_rating?: number
+          feedback_comment?: string
+          no_show_follow_up_sent?: boolean
+          recording_accessed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          webinar_id?: string
+          user_id?: string
+          registration_source?: string
+          registration_data?: Record<string, unknown>
+          attended?: boolean
+          attendance_duration_minutes?: number
+          engagement_score?: number
+          feedback_rating?: number
+          feedback_comment?: string
+          no_show_follow_up_sent?: boolean
+          recording_accessed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      webinar_email_sequences: {
+        Row: {
+          id: string
+          registration_id: string
+          sequence_type: string
+          email_subject?: string
+          email_content?: string
+          scheduled_at?: string
+          sent_at?: string
+          opened_at?: string
+          clicked_at?: string
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          registration_id: string
+          sequence_type: string
+          email_subject?: string
+          email_content?: string
+          scheduled_at?: string
+          sent_at?: string
+          opened_at?: string
+          clicked_at?: string
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          registration_id?: string
+          sequence_type?: string
+          email_subject?: string
+          email_content?: string
+          scheduled_at?: string
+          sent_at?: string
+          opened_at?: string
+          clicked_at?: string
+          status?: string
+          created_at?: string
+        }
+      }
     }
     Functions: {
       calculate_lead_score: {

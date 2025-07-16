@@ -7,7 +7,8 @@ import { Badge } from './ui/badge'
 import { useAppStore, useUser } from '../lib/store'
 import { engagementEngine, type UserBehavior, type EngagementLevel } from '../lib/engagement-engine'
 import { trackingService } from '../lib/tracking'
-// import { useDynamicPersonalization, useCTAOptimization } from '../lib/hooks/use-dynamic-personalization'
+import { useABTest, abTestingService } from '../lib/ab-testing-framework'
+import { usePsychologicalTriggers, psychologicalTriggersService } from '../lib/psychological-triggers'
 
 // CTA hierarchy types
 export type CTACommitmentLevel = 'micro' | 'midi' | 'macro'
@@ -179,7 +180,7 @@ const CTA_CONFIGS: CTAConfig[] = [
   {
     id: 'start-7-day-challenge',
     text: 'Start Your 7-Day Challenge',
-    description: 'Daily actions for breakthrough results',
+    description: 'Daily actions for transformational results',
     commitmentLevel: 'midi',
     triggers: ['urgency', 'social-proof'],
     action: 'join-challenge',
@@ -197,8 +198,8 @@ const CTA_CONFIGS: CTAConfig[] = [
 
   // Macro CTAs (High Commitment)
   {
-    id: 'book-breakthrough-session',
-    text: 'Book Your Breakthrough Session',
+    id: 'book-transformation-session',
+    text: 'Book Your Transformation Session',
     description: 'Personal 1-on-1 consultation',
     commitmentLevel: 'macro',
     triggers: ['personalization', 'scarcity'],
