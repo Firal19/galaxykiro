@@ -321,7 +321,7 @@ export function GoalAchievementPredictor() {
         options: [
           {
             id: 'r2-1',
-            text: 'I lack most of the necessary resources and don\'t know how to get them',
+            text: "I lack most of the necessary resources and don&apos;t know how to get them",
             value: 1,
             score: 1
           },
@@ -558,7 +558,7 @@ export function GoalAchievementPredictor() {
           </div>
           
           <div className="bg-muted/50 p-4 rounded-lg">
-            <h3 className="font-medium mb-2">What You'll Discover:</h3>
+            <h3 className="font-medium mb-2">What You&apos;ll Discover:</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <span className="bg-primary/20 text-primary rounded-full p-1 mt-0.5">✓</span>

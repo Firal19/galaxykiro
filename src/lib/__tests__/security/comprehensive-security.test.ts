@@ -18,26 +18,26 @@ describe('Comprehensive Security Testing', () => {
   describe('Input Validation and Sanitization', () => {
     test('should validate email addresses correctly', () => {
       // Valid emails
-      expect(validateEmail('test@example.com')).toBe(true);
-      expect(validateEmail('user.name+tag@domain.co.uk')).toBe(true);
+      expect(validateEmail('test@example.com')).to.equal(true);
+      expect(validateEmail('user.name+tag@domain.co.uk')).to.equal(true);
       
       // Invalid emails
-      expect(validateEmail('invalid-email')).toBe(false);
-      expect(validateEmail('test@')).toBe(false);
-      expect(validateEmail('@example.com')).toBe(false);
-      expect(validateEmail('test..test@example.com')).toBe(false);
+      expect(validateEmail('invalid-email')).to.equal(false);
+      expect(validateEmail('test@')).to.equal(false);
+      expect(validateEmail('@example.com')).to.equal(false);
+      expect(validateEmail('test..test@example.com')).to.equal(false);
     });
 
     test('should validate phone numbers correctly', () => {
       // Valid phone numbers
-      expect(validatePhone('+1234567890')).toBe(true);
-      expect(validatePhone('+251911123456')).toBe(true); // Ethiopian format
-      expect(validatePhone('(555) 123-4567')).toBe(true);
+      expect(validatePhone('+1234567890')).to.equal(true);
+      expect(validatePhone('+251911123456')).to.equal(true); // Ethiopian format
+      expect(validatePhone('(555) 123-4567')).to.equal(true);
       
       // Invalid phone numbers
-      expect(validatePhone('123')).toBe(false);
-      expect(validatePhone('abc123def')).toBe(false);
-      expect(validatePhone('')).toBe(false);
+      expect(validatePhone('123')).to.equal(false);
+      expect(validatePhone('abc123def')).to.equal(false);
+      expect(validatePhone('')).to.equal(false);
     });
 
     test('should sanitize user inputs to prevent XSS', () => {
@@ -52,11 +52,11 @@ describe('Comprehensive Security Testing', () => {
 
       maliciousInputs.forEach(input => {
         const sanitized = sanitizeInput(input);
-        expect(sanitized).not.toContain('<script>');
-        expect(sanitized).not.toContain('javascript:');
-        expect(sanitized).not.toContain('onerror');
-        expect(sanitized).not.toContain('onload');
-        expect(sanitized).not.toContain('onclick');
+        expect(sanitized).not.to.contain('<script>');
+        expect(sanitized).not.to.contain('javascript:');
+        expect(sanitized).not.to.contain('onerror');
+        expect(sanitized).not.to.contain('onload');
+        expect(sanitized).not.to.contain('onclick');
       });
     });
 
@@ -71,7 +71,7 @@ describe('Comprehensive Security Testing', () => {
 
       safeInputs.forEach(input => {
         const sanitized = sanitizeInput(input);
-        expect(sanitized).toBe(input);
+        expect(sanitized).to.equal(input);
       });
     });
   });
@@ -88,10 +88,10 @@ describe('Comprehensive Security Testing', () => {
 
       xssPayloads.forEach(payload => {
         const cleaned = DOMPurify.sanitize(payload);
-        expect(cleaned).not.toContain('<script>');
-        expect(cleaned).not.toContain('onerror');
-        expect(cleaned).not.toContain('onload');
-        expect(cleaned).not.toContain('javascript:');
+        expect(cleaned).not.to.contain('<script>');
+        expect(cleaned).not.to.contain('onerror');
+        expect(cleaned).not.to.contain('onload');
+        expect(cleaned).not.to.contain('javascript:');
       });
     });
 
@@ -106,9 +106,9 @@ describe('Comprehensive Security Testing', () => {
       maliciousUrls.forEach(url => {
         const hash = url.substring(1);
         const sanitized = DOMPurify.sanitize(hash);
-        expect(sanitized).not.toContain('<script>');
-        expect(sanitized).not.toContain('javascript:');
-        expect(sanitized).not.toContain('onerror');
+        expect(sanitized).not.to.contain('<script>');
+        expect(sanitized).not.to.contain('javascript:');
+        expect(sanitized).not.to.contain('onerror');
       });
     });
   });
@@ -122,8 +122,8 @@ describe('Comprehensive Security Testing', () => {
       };
 
       const encrypted = encryptSensitiveData(JSON.stringify(sensitiveData));
-      expect(encrypted).not.toBe(JSON.stringify(sensitiveData));
-      expect(encrypted).toMatch(/^[A-Za-z0-9+/]+=*$/); // Base64 pattern
+      expect(encrypted).not.to.equal(JSON.stringify(sensitiveData));
+      expect(encrypted).to.match(/^[A-Za-z0-9+/]+=*$/); // Base64 pattern
     });
 
     test('should decrypt data correctly', () => {
@@ -136,13 +136,13 @@ describe('Comprehensive Security Testing', () => {
       const decrypted = decryptSensitiveData(encrypted);
       const parsedData = JSON.parse(decrypted);
 
-      expect(parsedData).toEqual(originalData);
+      expect(parsedData).to.deep.equal(originalData);
     });
 
     test('should handle encryption errors gracefully', () => {
       expect(() => {
         decryptSensitiveData('invalid-encrypted-data');
-      }).not.toThrow();
+      }).not.to.throw();
     });
   });
 
@@ -172,11 +172,11 @@ describe('Comprehensive Security Testing', () => {
 
       // Should allow first 5 attempts
       for (let i = 0; i < 5; i++) {
-        expect(rateLimiter.isAllowed()).toBe(true);
+        expect(rateLimiter.isAllowed()).to.equal(true);
       }
 
       // Should block 6th attempt
-      expect(rateLimiter.isAllowed()).toBe(false);
+      expect(rateLimiter.isAllowed()).to.equal(false);
     });
 
     test('should prevent rapid form submissions', () => {
@@ -192,12 +192,12 @@ describe('Comprehensive Security Testing', () => {
         return true;
       };
 
-      expect(canSubmit()).toBe(true);
-      expect(canSubmit()).toBe(false); // Too soon
+      expect(canSubmit()).to.equal(true);
+      expect(canSubmit()).to.equal(false); // Too soon
       
       // Wait and try again
       lastSubmission = Date.now() - minInterval - 1;
-      expect(canSubmit()).toBe(true);
+      expect(canSubmit()).to.equal(true);
     });
   });
 
@@ -223,12 +223,12 @@ describe('Comprehensive Security Testing', () => {
 
       // Valid token structure
       const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjo5OTk5OTk5OTk5fQ.signature';
-      expect(validateJWT(validToken)).toBe(true);
+      expect(validateJWT(validToken)).to.equal(true);
 
       // Invalid tokens
-      expect(validateJWT('')).toBe(false);
-      expect(validateJWT('invalid')).toBe(false);
-      expect(validateJWT('a.b')).toBe(false);
+      expect(validateJWT('')).to.equal(false);
+      expect(validateJWT('invalid')).to.equal(false);
+      expect(validateJWT('a.b')).to.equal(false);
     });
 
     test('should handle session management securely', () => {
@@ -261,10 +261,10 @@ describe('Comprehensive Security Testing', () => {
       };
 
       const sessionId = sessionManager.createSession('user123');
-      expect(sessionManager.validateSession(sessionId)).toBe(true);
+      expect(sessionManager.validateSession(sessionId)).to.equal(true);
       
       sessionManager.destroySession(sessionId);
-      expect(sessionManager.validateSession(sessionId)).toBe(false);
+      expect(sessionManager.validateSession(sessionId)).to.equal(false);
     });
   });
 
@@ -278,11 +278,11 @@ describe('Comprehensive Security Testing', () => {
       };
 
       // Should allow valid origins
-      expect(corsConfig.origin.includes('https://galaxydreamteam.com')).toBe(true);
+      expect(corsConfig.origin.includes('https://galaxydreamteam.com')).to.equal(true);
       
       // Should not allow dangerous methods
-      expect(corsConfig.methods.includes('TRACE')).toBe(false);
-      expect(corsConfig.methods.includes('CONNECT')).toBe(false);
+      expect(corsConfig.methods.includes('TRACE')).to.equal(false);
+      expect(corsConfig.methods.includes('CONNECT')).to.equal(false);
     });
 
     test('should implement security headers', () => {
@@ -294,16 +294,16 @@ describe('Comprehensive Security Testing', () => {
         'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
       };
 
-      expect(securityHeaders['X-Frame-Options']).toBe('DENY');
-      expect(securityHeaders['X-Content-Type-Options']).toBe('nosniff');
-      expect(securityHeaders['Content-Security-Policy']).toContain("default-src 'self'");
+      expect(securityHeaders['X-Frame-Options']).to.equal('DENY');
+      expect(securityHeaders['X-Content-Type-Options']).to.equal('nosniff');
+      expect(securityHeaders['Content-Security-Policy']).to.contain("default-src 'self'");
     });
   });
 
   describe('SQL Injection Prevention', () => {
     test('should use parameterized queries', () => {
       // Mock database query function
-      const executeQuery = (query: string, params: any[]): boolean => {
+      const executeQuery = (query: string, _params: unknown[]): boolean => {
         // Check if query uses parameterized format
         const parameterizedPattern = /\$\d+|\?/g;
         const hasParameters = parameterizedPattern.test(query);
@@ -323,11 +323,11 @@ describe('Comprehensive Security Testing', () => {
 
       // Safe parameterized query
       const safeQuery = 'SELECT * FROM users WHERE email = $1 AND id = $2';
-      expect(executeQuery(safeQuery, ['user@example.com', 123])).toBe(true);
+      expect(executeQuery(safeQuery, ['user@example.com', 123])).to.equal(true);
 
       // Dangerous query
       const dangerousQuery = "SELECT * FROM users WHERE email = 'user@example.com' OR '1'='1'";
-      expect(executeQuery(dangerousQuery, [])).toBe(false);
+      expect(executeQuery(dangerousQuery, [])).to.equal(false);
     });
   });
 
@@ -352,12 +352,12 @@ describe('Comprehensive Security Testing', () => {
       };
 
       // Valid files
-      expect(validateFile({ name: 'image.jpg', size: 1024000, type: 'image/jpeg' })).toBe(true);
-      expect(validateFile({ name: 'document.pdf', size: 2048000, type: 'application/pdf' })).toBe(true);
+      expect(validateFile({ name: 'image.jpg', size: 1024000, type: 'image/jpeg' })).to.equal(true);
+      expect(validateFile({ name: 'document.pdf', size: 2048000, type: 'application/pdf' })).to.equal(true);
 
       // Invalid files
-      expect(validateFile({ name: 'script.js', size: 1024, type: 'application/javascript' })).toBe(false);
-      expect(validateFile({ name: 'large.jpg', size: 10 * 1024 * 1024, type: 'image/jpeg' })).toBe(false);
+      expect(validateFile({ name: 'script.js', size: 1024, type: 'application/javascript' })).to.equal(false);
+      expect(validateFile({ name: 'large.jpg', size: 10 * 1024 * 1024, type: 'image/jpeg' })).to.equal(false);
     });
   });
 
@@ -369,8 +369,8 @@ describe('Comprehensive Security Testing', () => {
         return `${anonymizedLocal}@${domain}`;
       };
 
-      expect(anonymizeEmail('john.doe@example.com')).toBe('j*****e@example.com');
-      expect(anonymizeEmail('a@example.com')).toBe('a@example.com'); // Short emails
+      expect(anonymizeEmail('john.doe@example.com')).to.equal('j*****e@example.com');
+      expect(anonymizeEmail('a@example.com')).to.equal('a@example.com'); // Short emails
     });
 
     test('should implement data retention policies', () => {
@@ -393,9 +393,9 @@ describe('Comprehensive Security Testing', () => {
       const oneDayAgo = now - (24 * 60 * 60 * 1000);
       const oneYearAgo = now - (365 * 24 * 60 * 60 * 1000);
 
-      expect(dataRetentionManager.shouldRetain('userSessions', oneDayAgo)).toBe(false);
-      expect(dataRetentionManager.shouldRetain('assessmentResults', oneDayAgo)).toBe(true);
-      expect(dataRetentionManager.shouldRetain('assessmentResults', oneYearAgo)).toBe(false);
+      expect(dataRetentionManager.shouldRetain('userSessions', oneDayAgo)).to.equal(false);
+      expect(dataRetentionManager.shouldRetain('assessmentResults', oneDayAgo)).to.equal(true);
+      expect(dataRetentionManager.shouldRetain('assessmentResults', oneYearAgo)).to.equal(false);
     });
   });
 });

@@ -2,8 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '../lib/utils';
-import { title } from 'process';
-import { title } from 'process';
+// Import necessary modules
 
 interface SuccessStory {
   id: string;
@@ -64,7 +63,7 @@ export function EthiopianSuccessStories({
       title: 'Healthcare Administrator',
       location: 'Gondar',
       testimonial: 'የእኛ ሆስፒታል አሁን በአካባቢው ምርጥ የጤና አገልግሎት ሰጪ ተብሎ ይታወቃል። ይህ የተሳካው የሰው ሃይል አመራር ስልጠናውን ከወሰድን በኋላ ነው።',
-      achievement: 'Transformed her hospital into the region's top-rated healthcare provider after implementing the team management training.',
+      achievement: "Transformed her hospital into the region&apos;s top-rated healthcare provider after implementing the team management training.",
       imageSrc: '/testimonial-poster.jpg'
     },
     {

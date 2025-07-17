@@ -365,8 +365,8 @@ export function LifeWheelDiagnostic() {
         // Determine lowest and highest areas
         const areaEntries = Object.entries(areaScores)
         const sortedAreas = [...areaEntries].sort((a, b) => a[1] - b[1])
-        const lowestAreas = sortedAreas.filter(([_, score]) => score <= 4).map(([area]) => formatAreaName(area))
-        const highestAreas = sortedAreas.filter(([_, score]) => score >= 8).map(([area]) => formatAreaName(area))
+        const lowestAreas = sortedAreas.filter(([, score]) => score <= 4).map(([area]) => formatAreaName(area))
+        const highestAreas = sortedAreas.filter(([, score]) => score >= 8).map(([area]) => formatAreaName(area))
         
         // Get focus area
         let focusArea = ''
@@ -421,7 +421,7 @@ export function LifeWheelDiagnostic() {
             recommendations: [
               "Start with small, consistent improvements in your lowest-scoring area",
               "Create boundaries to protect time for neglected life dimensions",
-              "Consider whether you're overinvesting in certain areas at the expense of others",
+              "Consider whether you&apos;re overinvesting in certain areas at the expense of others",
               "Develop a comprehensive life balance plan with specific goals for each area"
             ]
           }
@@ -519,7 +519,7 @@ export function LifeWheelDiagnostic() {
           </div>
           
           <div className="bg-muted/50 p-4 rounded-lg">
-            <h3 className="font-medium mb-2">What You'll Discover:</h3>
+            <h3 className="font-medium mb-2">What You&apos;ll Discover:</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <span className="bg-primary/20 text-primary rounded-full p-1 mt-0.5">✓</span>
