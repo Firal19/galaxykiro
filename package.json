@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 9080",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,7 +16,7 @@
     "test:perf": "jest --testPathPattern=performance",
     "setup:monitoring": "node scripts/setup-monitoring.js",
     "setup:backups": "node scripts/setup-supabase-backups.js",
-    "health:check": "curl -f http://localhost:3000/api/health || exit 1",
+    "health:check": "curl -f http://localhost:9080/api/health || exit 1",
     "deploy:staging": "netlify deploy --dir=.next --functions=netlify/functions",
     "deploy:production": "netlify deploy --dir=.next --functions=netlify/functions --prod"
   },
