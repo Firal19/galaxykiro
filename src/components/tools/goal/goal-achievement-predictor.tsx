@@ -369,25 +369,25 @@ export function GoalAchievementPredictor() {
         options: [
           {
             id: 'h2-1',
-            text: 'I\'ve consistently failed to achieve similar goals',
+            text: "I've consistently failed to achieve similar goals",
             value: 1,
             score: 1
           },
           {
             id: 'h2-2',
-            text: 'I've had mixed results, with more failures than successes',
+            text: "I've had mixed results, with more failures than successes",
             value: 2,
             score: 3
           },
           {
             id: 'h2-3',
-            text: 'I've had mixed results, with more successes than failures',
+            text: "I've had mixed results, with more successes than failures",
             value: 3,
             score: 7
           },
           {
             id: 'h2-4',
-            text: 'I've consistently succeeded with similar goals',
+            text: "I've consistently succeeded with similar goals",
             value: 4,
             score: 10
           }
@@ -473,7 +473,7 @@ export function GoalAchievementPredictor() {
             'Redefine your goal to be more specific and measurable',
             'Break down your goal into smaller, more achievable milestones',
             'Develop a detailed implementation plan with specific action steps',
-            'Identify resources and support systems you'll need',
+            "Identify resources and support systems you'll need",
             'Consider adjusting your timeline to be more realistic'
           ]
         },
