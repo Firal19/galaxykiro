@@ -247,4 +247,69 @@ export class SessionManager {
       }
     }
   }
+}/**
+ * 
+Apply security headers to a response
+ * @param response NextResponse object
+ * @returns NextResponse with security headers
+ */
+export function applySecurityHeaders(response: any): any {
+  const headers = getSecurityHeaders();
+  
+  Object.entries(headers).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  
+  return response;
+}
+
+/**
+ * Apply CORS headers to a response
+ * @param response NextResponse object
+ * @returns NextResponse with CORS headers
+ */
+export function applyCorsHeaders(response: any): any {
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Max-Age', '86400');
+  
+  return response;
+}
+
+/**
+ * Rate limiting middleware
+ * @param request NextRequest object
+ * @returns NextResponse if rate limit is exceeded, null otherwise
+ */
+export function rateLimit(request: any): any | null {
+  // Simple in-memory rate limiting
+  // In production, use a more robust solution like Redis
+  const ip = request.ip || '127.0.0.1';
+  const now = Date.now();
+  
+  // Store would be replaced with Redis or similar in production
+  const rateLimitStore: Map<string, { count: number, resetTime: number }> = new Map();
+  
+  // Get current rate limit data for this IP
+  const rateData = rateLimitStore.get(ip) || { count: 0, resetTime: now + 60000 }; // 1 minute window
+  
+  // Reset if window has expired
+  if (now > rateData.resetTime) {
+    rateData.count = 0;
+    rateData.resetTime = now + 60000;
+  }
+  
+  // Increment request count
+  rateData.count++;
+  rateLimitStore.set(ip, rateData);
+  
+  // Check if rate limit exceeded (100 requests per minute)
+  if (rateData.count > 100) {
+    const response = new Response('Rate limit exceeded', { status: 429 });
+    response.headers.set('Retry-After', '60');
+    return response;
+  }
+  
+  return null;
 }
