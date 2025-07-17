@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Set the server to listen on port 9000
+  serverOptions: {
+    port: 9000,
+  },
 };
 
 export default withNextIntl(nextConfig);
