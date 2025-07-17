@@ -34,7 +34,7 @@ interface ActiveSubscription {
   channel: RealtimeChannel;
   table: string;
   filter?: string;
-  callback: (payload: any) => void;
+  callback: (payload: unknown) => void;
   lastEvent?: number;
   eventCount: number;
 }
@@ -334,7 +334,7 @@ class SupabaseCache {
   }
   
   // Setup real-time subscription management with optimized approach
-  setupRealtimeSubscriptions(userId: string, onUserUpdate: (data: any) => void) {
+  setupRealtimeSubscriptions(userId: string, onUserUpdate: (data: unknown) => void) {
     const subscriptionId = `user-updates-${userId}`;
     
     // Check if subscription already exists
@@ -386,7 +386,7 @@ class SupabaseCache {
   setupMultiTableSubscription(
     userId: string, 
     tables: string[], 
-    callbacks: Record<string, (data: any) => void>
+    callbacks: Record<string, (data: unknown) => void>
   ) {
     const subscriptionId = `multi-table-${userId}`;
     

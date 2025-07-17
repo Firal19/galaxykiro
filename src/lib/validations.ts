@@ -99,7 +99,7 @@ export const level3Schema = z.object({
  * @param level Capture level (1, 2, or 3)
  * @returns Validation result with success flag and optional errors
  */
-export function validateFormData(data: any, level: 1 | 2 | 3) {
+export function validateFormData(data: unknown, level: 1 | 2 | 3) {
   let schema;
   
   switch (level) {

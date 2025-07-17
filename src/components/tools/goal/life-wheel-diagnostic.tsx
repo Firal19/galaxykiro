@@ -382,15 +382,15 @@ export function LifeWheelDiagnostic() {
             label: 'Harmonious Life',
             description: 'You have strong satisfaction and balance across most life areas.',
             insights: [
-              'You've achieved good satisfaction across most life dimensions',
-              'Your life shows strong overall balance with few neglected areas',
-              'You have a solid foundation for continued growth and fulfillment'
+              "You've achieved good satisfaction across most life dimensions",
+              "Your life shows strong overall balance with few neglected areas",
+              "You have a solid foundation for continued growth and fulfillment"
             ],
             recommendations: [
-              'Focus on maintaining your current balance while pursuing excellence',
-              'Consider how you can leverage strengths in high-scoring areas to further improve lower areas',
-              'Develop systems to ensure continued balance as life circumstances change',
-              'Share your approach to life balance with others who might benefit'
+              "Focus on maintaining your current balance while pursuing excellence",
+              "Consider how you can leverage strengths in high-scoring areas to further improve lower areas",
+              "Develop systems to ensure continued balance as life circumstances change",
+              "Share your approach to life balance with others who might benefit"
             ]
           }
         } else if (totalScore >= 60 || balanceScore >= 60) {
@@ -398,15 +398,15 @@ export function LifeWheelDiagnostic() {
             label: 'Partially Balanced Life',
             description: 'You have moderate satisfaction with some areas of imbalance.',
             insights: [
-              'You have good satisfaction in several key life areas',
-              'Some areas are significantly stronger than others',
-              'Addressing your lower-scoring areas would improve overall life quality'
+              "You have good satisfaction in several key life areas",
+              "Some areas are significantly stronger than others",
+              "Addressing your lower-scoring areas would improve overall life quality"
             ],
             recommendations: [
-              'Create a 90-day plan to improve your lowest-scoring life area',
-              'Schedule regular time for your most neglected areas',
-              'Consider how improvements in one area might positively impact others',
-              'Reassess your life wheel quarterly to track progress toward better balance'
+              "Create a 90-day plan to improve your lowest-scoring life area",
+              "Schedule regular time for your most neglected areas",
+              "Consider how improvements in one area might positively impact others",
+              "Reassess your life wheel quarterly to track progress toward better balance"
             ]
           }
         } else {
@@ -414,15 +414,15 @@ export function LifeWheelDiagnostic() {
             label: 'Opportunity for Balance',
             description: 'You have significant room for improvement in satisfaction and balance.',
             insights: [
-              'Several life areas are currently showing low satisfaction',
-              'There are notable imbalances across your life dimensions',
-              'Focused attention on key areas could significantly improve your overall wellbeing'
+              "Several life areas are currently showing low satisfaction",
+              "There are notable imbalances across your life dimensions",
+              "Focused attention on key areas could significantly improve your overall wellbeing"
             ],
             recommendations: [
-              'Start with small, consistent improvements in your lowest-scoring area',
-              'Create boundaries to protect time for neglected life dimensions',
-              'Consider whether you're overinvesting in certain areas at the expense of others',
-              'Develop a comprehensive life balance plan with specific goals for each area'
+              "Start with small, consistent improvements in your lowest-scoring area",
+              "Create boundaries to protect time for neglected life dimensions",
+              "Consider whether you're overinvesting in certain areas at the expense of others",
+              "Develop a comprehensive life balance plan with specific goals for each area"
             ]
           }
         }

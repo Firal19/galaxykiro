@@ -1,4 +1,4 @@
-import { AssessmentEngine, AssessmentConfig, Question, QuestionResponse } from '../../assessment-engine';
+// Unused import removed
 
 // Mock localStorage
 const localStorageMock = {

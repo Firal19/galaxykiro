@@ -11,7 +11,7 @@ import crypto from 'crypto';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-for-development-only-change-in-prod';
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // For AES, this is always 16 bytes
-const AUTH_TAG_LENGTH = 16;
+// const AUTH_TAG_LENGTH = ...; // Unused
 const SALT_LENGTH = 64;
 
 /**

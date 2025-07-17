@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function triggerAppointmentConfirmation(appointment: any) {
+async function triggerAppointmentConfirmation(appointment: unknown) {
   try {
     // This would typically trigger an email service
     // For now, we'll just update the confirmation timestamp

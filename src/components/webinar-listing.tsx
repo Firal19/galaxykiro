@@ -193,7 +193,7 @@ export function WebinarListing({
             
             {webinar.thumbnailUrl && (
               <div className="lg:w-48 lg:h-32 w-full h-48 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                <img 
+                <Image 
                   src={webinar.thumbnailUrl} 
                   alt={webinar.title}
                   className="w-full h-full object-cover"
