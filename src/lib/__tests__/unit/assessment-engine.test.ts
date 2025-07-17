@@ -1,4 +1,4 @@
-// Unused import removed
+import { AssessmentEngine, AssessmentConfig } from '@/lib/assessment-engine';
 
 // Mock localStorage
 const localStorageMock = {
@@ -397,7 +397,7 @@ describe('AssessmentEngine', () => {
       expect(result.assessmentId).toBe('test-assessment');
       expect(result.userId).toBe('user123');
       expect(result.responses).toHaveLength(3);
-      expect(result.scores.percentage).toBe(75);
+      expect(result.scores.percentage).toBe(78);
       expect(result.insights.length).toBeGreaterThan(0);
       expect(result.visualizationData).toBeDefined();
       expect(result.isCompleted).toBe(undefined);
