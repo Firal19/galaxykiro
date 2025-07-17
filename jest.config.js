@@ -6,12 +6,16 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/cypress/'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-intl|use-intl)/)',
+  ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
         jsx: 'react-jsx',
       },
     }],
+    '^.+\\.(js|jsx)$': ['babel-jest'],
   },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
