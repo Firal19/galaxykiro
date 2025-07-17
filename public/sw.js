@@ -1,9 +1,11 @@
 // Progressive Web App Service Worker
 // Provides offline functionality and caching for the engagement platform
 
-const CACHE_NAME = 'galaxy-dream-team-v1';
-const STATIC_CACHE = 'static-v1';
-const DYNAMIC_CACHE = 'dynamic-v1';
+const CACHE_NAME = 'galaxy-dream-team-v2';
+const STATIC_CACHE = 'static-v2';
+const DYNAMIC_CACHE = 'dynamic-v2';
+const TOOL_CACHE = 'tools-v1';
+const IMAGE_CACHE = 'images-v1';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -11,6 +13,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/icon-192x192.png',
   '/icon-512x512.png',
+  '/offline.html',
   // Add critical CSS and JS files
   '/_next/static/css/',
   '/_next/static/js/',
@@ -22,33 +25,60 @@ const CACHEABLE_ROUTES = [
   '/content-library',
   '/webinars',
   '/auth/signin',
-  '/auth/register'
+  '/auth/register',
+  '/membership/dashboard',
+  '/success-gap',
+  '/change-paradox',
+  '/vision-void',
+  '/leadership-lever',
+  '/decision-door'
 ];
 
 // API endpoints to cache
 const CACHEABLE_APIS = [
   '/api/webinars',
   '/api/content',
+  '/api/office-locations',
   '/.netlify/functions/process-assessment'
 ];
 
-// Install event - cache static assets
+// Assessment tools to cache for offline use
+const CACHEABLE_TOOLS = [
+  '/api/tools/potential-quotient-calculator',
+  '/api/tools/success-factor-calculator',
+  '/api/tools/habit-strength-analyzer',
+  '/api/tools/future-self-visualizer',
+  '/api/tools/leadership-style-identifier',
+  '/api/tools/cost-of-inaction-calculator'
+];
+
+// Install event - cache static assets and tools
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('Service Worker: Static assets cached');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('Service Worker: Failed to cache static assets', error);
-      })
+    Promise.all([
+      // Cache static assets
+      caches.open(STATIC_CACHE)
+        .then((cache) => {
+          console.log('Service Worker: Caching static assets');
+          return cache.addAll(STATIC_ASSETS);
+        }),
+      
+      // Pre-cache tool templates and data
+      caches.open(TOOL_CACHE)
+        .then((cache) => {
+          console.log('Service Worker: Caching assessment tools');
+          return cache.addAll(CACHEABLE_TOOLS);
+        })
+    ])
+    .then(() => {
+      console.log('Service Worker: Assets cached');
+      return self.skipWaiting();
+    })
+    .catch((error) => {
+      console.error('Service Worker: Failed to cache assets', error);
+    })
   );
 });
 
@@ -61,7 +91,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+            if (![STATIC_CACHE, DYNAMIC_CACHE, TOOL_CACHE, IMAGE_CACHE].includes(cacheName)) {
               console.log('Service Worker: Deleting old cache', cacheName);
               return caches.delete(cacheName);
             }
@@ -75,7 +105,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache or network
+// Fetch event - serve from cache or network with specialized handling
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -92,18 +122,22 @@ self.addEventListener('fetch', (event) => {
 
   // Handle different types of requests
   if (isStaticAsset(request.url)) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+  } else if (isImageAsset(request.url)) {
+    event.respondWith(cacheFirst(request, IMAGE_CACHE));
+  } else if (isToolRequest(request.url)) {
+    event.respondWith(toolCacheStrategy(request));
   } else if (isAPIRequest(request.url)) {
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkFirst(request, DYNAMIC_CACHE));
   } else if (isCacheableRoute(request.url)) {
-    event.respondWith(staleWhileRevalidate(request));
+    event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
   } else {
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkFirst(request, DYNAMIC_CACHE));
   }
 });
 
 // Cache strategies
-async function cacheFirst(request) {
+async function cacheFirst(request, cacheName = STATIC_CACHE) {
   try {
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -112,7 +146,7 @@ async function cacheFirst(request) {
     
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
-      const cache = await caches.open(STATIC_CACHE);
+      const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
@@ -122,11 +156,11 @@ async function cacheFirst(request) {
   }
 }
 
-async function networkFirst(request) {
+async function networkFirst(request, cacheName = DYNAMIC_CACHE) {
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
-      const cache = await caches.open(DYNAMIC_CACHE);
+      const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
@@ -139,15 +173,15 @@ async function networkFirst(request) {
     
     // Return offline page for navigation requests
     if (request.mode === 'navigate') {
-      return caches.match('/') || new Response('Offline', { status: 503 });
+      return caches.match('/offline.html') || caches.match('/') || new Response('Offline', { status: 503 });
     }
     
     return new Response('Content not available offline', { status: 503 });
   }
 }
 
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(DYNAMIC_CACHE);
+async function staleWhileRevalidate(request, cacheName = DYNAMIC_CACHE) {
+  const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
   
   const networkResponsePromise = fetch(request).then((networkResponse) => {
@@ -161,20 +195,120 @@ async function staleWhileRevalidate(request) {
     new Response('Content not available', { status: 503 });
 }
 
+// Special strategy for assessment tools to ensure offline functionality
+async function toolCacheStrategy(request) {
+  try {
+    // Check tool cache first
+    const toolCache = await caches.open(TOOL_CACHE);
+    const cachedResponse = await toolCache.match(request);
+    
+    if (cachedResponse) {
+      // If we have a cached version, use it but update in background
+      fetch(request)
+        .then(networkResponse => {
+          if (networkResponse.ok) {
+            toolCache.put(request, networkResponse);
+          }
+        })
+        .catch(err => console.log('Background tool update failed:', err));
+      
+      return cachedResponse;
+    }
+    
+    // If not in cache, get from network and cache
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      toolCache.put(request, networkResponse.clone());
+      return networkResponse;
+    }
+    
+    throw new Error('Tool not available');
+  } catch (error) {
+    console.error('Tool cache strategy failed:', error);
+    
+    // For tool requests, return a simplified offline version if possible
+    const offlineToolResponse = await getOfflineToolVersion(request.url);
+    if (offlineToolResponse) {
+      return offlineToolResponse;
+    }
+    
+    return new Response(JSON.stringify({
+      error: 'This tool is not available offline',
+      offlineMode: true,
+      message: 'Please reconnect to use this assessment tool'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Helper function to provide simplified offline versions of tools
+async function getOfflineToolVersion(url) {
+  // Extract tool name from URL
+  const toolMatch = url.match(/\/api\/tools\/([^\/]+)/);
+  if (!toolMatch) return null;
+  
+  const toolName = toolMatch[1];
+  
+  // Return basic offline version based on tool type
+  const offlineTools = {
+    'potential-quotient-calculator': {
+      name: 'Potential Quotient Calculator',
+      offlineMode: true,
+      questions: [
+        { id: 'q1', text: 'Rate your growth mindset (1-10)', type: 'scale' },
+        { id: 'q2', text: 'How often do you try new approaches?', type: 'multiple-choice' }
+      ],
+      message: 'Limited offline version available. Your responses will be saved and processed when you reconnect.'
+    },
+    'success-factor-calculator': {
+      name: 'Success Factor Calculator',
+      offlineMode: true,
+      questions: [
+        { id: 'q1', text: 'Do you have a morning routine?', type: 'yes-no' },
+        { id: 'q2', text: 'Rate your consistency (1-10)', type: 'scale' }
+      ],
+      message: 'Limited offline version available. Your responses will be saved and processed when you reconnect.'
+    }
+    // Add other tools as needed
+  };
+  
+  const offlineTool = offlineTools[toolName];
+  if (!offlineTool) return null;
+  
+  return new Response(JSON.stringify(offlineTool), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 // Helper functions
 function isStaticAsset(url) {
   return url.includes('/_next/static/') || 
          url.includes('/icon-') || 
          url.includes('/manifest.json') ||
          url.endsWith('.css') ||
-         url.endsWith('.js') ||
-         url.endsWith('.png') ||
+         url.endsWith('.js');
+}
+
+function isImageAsset(url) {
+  return url.endsWith('.png') ||
          url.endsWith('.jpg') ||
-         url.endsWith('.svg');
+         url.endsWith('.jpeg') ||
+         url.endsWith('.webp') ||
+         url.endsWith('.svg') ||
+         url.endsWith('.gif') ||
+         url.includes('/_next/image');
+}
+
+function isToolRequest(url) {
+  return url.includes('/api/tools/') || 
+         CACHEABLE_TOOLS.some(tool => url.includes(tool));
 }
 
 function isAPIRequest(url) {
-  return url.includes('/api/') || 
+  return (url.includes('/api/') && !isToolRequest(url)) || 
          url.includes('/.netlify/functions/') ||
          url.includes('supabase.co');
 }

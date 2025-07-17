@@ -21,10 +21,10 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
   const [selectedOfficeLocation, setSelectedOfficeLocation] = useState<string>('')
   const { trackEngagement } = useEngagementTracking()
 
-  const handleOfficeLocationSubmit = async (data: { officeLocation: string }) => {
+  const handleOfficeLocationSubmit = async (data: Record<string, unknown>) => {
     try {
       // Store the selected office location for later use
-      setSelectedOfficeLocation(data.officeLocation)
+      setSelectedOfficeLocation(data.officeLocation as string)
       
       const sessionId = typeof window !== 'undefined' 
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`

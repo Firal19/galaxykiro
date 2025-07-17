@@ -373,3 +373,145 @@
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
+/* Ethiopian Cultural Patterns and Symbols */
+.pattern-ethiopian-cross {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M10,2 L10,18 M2,10 L18,10' stroke='currentColor' stroke-width='2' /%3E%3Ccircle cx='10' cy='10' r='3' fill='none' stroke='currentColor' stroke-width='1' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.pattern-lalibela {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect x='0' y='0' width='40' height='40' fill='none' /%3E%3Cpath d='M0,20 L40,20 M20,0 L20,40 M0,0 L40,40 M40,0 L0,40' stroke='currentColor' stroke-width='1' stroke-dasharray='2,2' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.pattern-axum {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Crect x='10' y='5' width='10' height='50' rx='2' stroke='currentColor' fill='none' /%3E%3Crect x='30' y='10' width='8' height='40' rx='2' stroke='currentColor' fill='none' /%3E%3Crect x='45' y='15' width='6' height='30' rx='2' stroke='currentColor' fill='none' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.pattern-telsem {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke='currentColor' /%3E%3Cpath d='M25,5 L25,45 M5,25 L45,25 M10,10 L40,40 M40,10 L10,40' stroke='currentColor' stroke-width='1' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.pattern-adbar {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='7' fill='none' stroke='currentColor' /%3E%3Ccircle cx='15' cy='15' r='12' fill='none' stroke='currentColor' stroke-dasharray='2,2' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.pattern-meskel {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20,5 L20,35 M5,20 L35,20' stroke='currentColor' stroke-width='2' /%3E%3Cpath d='M20,5 L5,20 L20,35 L35,20 Z' fill='none' stroke='currentColor' stroke-width='1' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Ethiopian Cultural Symbol Classes */
+.symbol-lion-of-judah svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-gold);
+}
+
+.symbol-coffee-ceremony svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-green);
+}
+
+.symbol-meskel-daisy svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-gold);
+}
+
+.symbol-lalibela-cross svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-red);
+}
+
+.symbol-timket svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-green);
+}
+
+.symbol-adbar svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-ethiopian-gold);
+}
+
+/* Ethiopian Font Utilities */
+.font-ethiopic {
+  font-family: var(--font-ethiopic), sans-serif;
+}
+
+/* Ethiopian Cultural Border Styles */
+.border-ethiopian-pattern {
+  border-style: solid;
+  border-width: 4px;
+  border-image: linear-gradient(to right, var(--color-ethiopian-green), var(--color-ethiopian-gold), var(--color-ethiopian-red)) 1;
+}
+
+.border-ethiopian-cross {
+  border-style: solid;
+  border-width: 2px;
+  border-image: repeating-linear-gradient(45deg, var(--color-ethiopian-green), var(--color-ethiopian-green) 10px, var(--color-ethiopian-gold) 10px, var(--color-ethiopian-gold) 20px) 1;
+}
+
+/* Ethiopian Cultural Background Gradients */
+.bg-ethiopian-gradient {
+  background: linear-gradient(135deg, var(--color-ethiopian-green), var(--color-ethiopian-gold), var(--color-ethiopian-red));
+}
+
+.bg-ethiopian-subtle {
+  background: linear-gradient(135deg, rgba(7, 137, 48, 0.1), rgba(255, 215, 0, 0.1), rgba(218, 18, 26, 0.1));
+}
+
+/* Ethiopian Cultural Card Styles */
+.card-ethiopian {
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-ethiopian::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--color-ethiopian-green), var(--color-ethiopian-gold), var(--color-ethiopian-red));
+}
+
+/* Ethiopian Cultural Button Styles */
+.btn-ethiopian {
+  background-color: var(--color-ethiopian-green);
+  color: white;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-ethiopian:hover {
+  background-color: color-mix(in srgb, var(--color-ethiopian-green), white 10%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-ethiopian-green), white 50%);
+}
+
+.btn-ethiopian-gold {
+  background-color: var(--color-ethiopian-gold);
+  color: black;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-ethiopian-gold:hover {
+  background-color: color-mix(in srgb, var(--color-ethiopian-gold), black 10%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-ethiopian-gold), white 50%);
+}

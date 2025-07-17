@@ -18,7 +18,7 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
   const { trackEngagement } = useEngagementTracking()
 
-  const handlePhoneSubmit = async (data: { phone: string }) => {
+  const handlePhoneSubmit = async (data: Record<string, unknown>) => {
     try {
       const sessionId = typeof window !== 'undefined' 
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`

@@ -5,24 +5,70 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
+  NEXT_TELEMETRY_DISABLED = "1"
+  
+# Enable Next.js Image Optimization with Netlify
+[build.processing]
+  skip_processing = false
+
+[build.processing.images]
+  compress = true
+
+# Environment-specific settings
+[context.production.environment]
+  NODE_ENV = "production"
+  NEXT_PUBLIC_SITE_URL = "https://galaxydreamteam.com"
+  NEXT_PUBLIC_SENTRY_ENVIRONMENT = "production"
+  NEXT_PUBLIC_ANALYTICS_ENABLED = "true"
+
+[context.staging.environment]
+  NODE_ENV = "production"
+  NEXT_PUBLIC_SITE_URL = "https://staging.galaxydreamteam.com"
+  NEXT_PUBLIC_SENTRY_ENVIRONMENT = "staging"
+  NEXT_PUBLIC_ANALYTICS_ENABLED = "true"
+
+[context.development.environment]
+  NODE_ENV = "development"
+  NEXT_PUBLIC_SITE_URL = "https://dev.galaxydreamteam.com"
+  NEXT_PUBLIC_SENTRY_ENVIRONMENT = "development"
+  NEXT_PUBLIC_ANALYTICS_ENABLED = "false"
+
+# Build optimization settings
+[build.optimization]
+  bundle = true
+  minify = true
+  compress = true
+
+# Enable Netlify Edge Functions for global distribution
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["src/lib/**"]
+
+# Edge handlers for improved performance
+[edge_handlers]
+  directory = "netlify/edge-handlers"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
 [[headers]]
   for = "/*"
   [headers.values]
+    # Security Headers
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), interest-cohort=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://res.cloudinary.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; connect-src 'self' https://*.supabase.co; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
+    # Enable Brotli/Gzip compression for all assets
+    Content-Encoding = "br,gzip"
+    # Enable HTTP/2 Server Push
+    Link = "</styles.css>; rel=preload; as=style, </main.js>; rel=preload; as=script"
 
 [[headers]]
   for = "/manifest.json"

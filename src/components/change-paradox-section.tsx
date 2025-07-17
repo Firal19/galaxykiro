@@ -18,7 +18,7 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
   const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false)
   const { trackEngagement } = useEngagementTracking()
 
-  const handleNameCitySubmit = async (data: { name: string; city: string }) => {
+  const handleNameCitySubmit = async (data: Record<string, unknown>) => {
     try {
       const sessionId = typeof window !== 'undefined' 
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`

@@ -1,16 +1,20 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, ChevronRight, Play, BookOpen, Calculator, Target } from "lucide-react"
+import { ChevronDown, ChevronRight, Play, BookOpen, Calculator, Target, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEngagementTracking } from "@/lib/hooks/use-engagement-tracking"
+import { useABTesting } from "@/lib/hooks/use-ab-testing"
 import { Button } from "@/components/ui/button"
 
-interface SectionHookProps {
-  section: 'decision-door' | 'leadership-lever' | 'vision-void' | 'change-paradox' | 'success-gap'
+interface EnhancedSectionHookProps {
+  sectionId: 'decision-door' | 'leadership-lever' | 'vision-void' | 'change-paradox' | 'success-gap'
+  question: string
+  questionLink: string
   hookVariation?: 'question' | 'statement' | 'story' | 'statistic'
   className?: string
+  children?: ReactNode
 }
 
 interface HookContent {
@@ -60,7 +64,7 @@ interface HookContent {
   }
 }
 
-const sectionHooks: Record<SectionHookProps['section'], HookContent> = {
+const sectionHooks: Record<EnhancedSectionHookProps['sectionId'], HookContent> = {
   'decision-door': {
     question: {
       primary: "What if every 'maybe later' is actually a 'no' in disguise?",
@@ -453,14 +457,26 @@ const sectionHooks: Record<SectionHookProps['section'], HookContent> = {
   }
 }
 
-export function EnhancedSectionHook({ section, hookVariation = 'question', className }: SectionHookProps) {
+export function EnhancedSectionHook({ 
+  sectionId, 
+  question, 
+  questionLink, 
+  hookVariation = 'question', 
+  className,
+  children 
+}: EnhancedSectionHookProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [timeSpent, setTimeSpent] = useState(0)
+  const [showBenefits, setShowBenefits] = useState(false)
+  const [benefitsVisible, setBenefitsVisible] = useState(false)
   const hookRef = useRef<HTMLDivElement>(null)
   const { trackEngagement } = useEngagementTracking()
+  const { getVariation, trackVariationExposure } = useABTesting()
 
-  const hookContent = sectionHooks[section][hookVariation]
+  // Get A/B test variation for this section
+  const variation = getVariation(sectionId)
+  const hookContent = sectionHooks[sectionId][hookVariation]
 
   // Track visibility and time spent
   useEffect(() => {
@@ -470,12 +486,17 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
           setIsVisible(true)
           trackEngagement({
             type: 'hook_view',
-            section: `${section}-hook`,
+            section: `${sectionId}-hook`,
             hookVariation,
             metadata: {
               deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop'
             }
           })
+          
+          // Track A/B test exposure
+          if (variation) {
+            trackVariationExposure(sectionId)
+          }
         }
       },
       { threshold: 0.5 }
@@ -486,7 +507,7 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
     }
 
     return () => observer.disconnect()
-  }, [section, hookVariation, isVisible, trackEngagement])
+  }, [sectionId, hookVariation, isVisible, trackEngagement, variation, trackVariationExposure])
 
   // Track time spent when expanded
   useEffect(() => {
@@ -500,29 +521,58 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
     return () => clearInterval(interval)
   }, [isExpanded])
 
+  // Progressive disclosure of benefits
+  useEffect(() => {
+    if (isVisible && !benefitsVisible) {
+      const timer = setTimeout(() => {
+        setShowBenefits(true)
+        setBenefitsVisible(true)
+        trackEngagement({
+          type: 'progressive_disclosure_view',
+          section: `${sectionId}-hook`,
+          metadata: {
+            disclosureType: 'benefits'
+          }
+        })
+      }, 3000) // Show benefits after 3 seconds of visibility
+      
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible, benefitsVisible, sectionId, trackEngagement])
+
   const handleExpand = () => {
     setIsExpanded(!isExpanded)
     
     trackEngagement({
       type: 'hook_expand',
-      section: `${section}-hook`,
+      section: `${sectionId}-hook`,
       hookVariation,
       metadata: {
-        expanded: !isExpanded,
-        timeSpent: timeSpent / 1000
+        expandDuration: timeSpent / 1000
       }
     })
+  }
+
+  const handleQuestionClick = () => {
+    trackEngagement({
+      type: 'question_click',
+      section: `${sectionId}-hook`,
+      metadata: {
+        destination: questionLink
+      }
+    })
+    
+    // Navigate to the question's dedicated page
+    window.location.href = questionLink
   }
 
   const handleToolClick = (toolName: string, toolUrl: string) => {
     trackEngagement({
       type: 'cta_click',
-      section: `${section}-hook`,
-      hookVariation,
+      section: `${sectionId}-hook`,
       metadata: {
-        toolName,
-        toolUrl,
-        timeSpent: timeSpent / 1000
+        ctaType: 'tool',
+        destination: toolUrl
       }
     })
 
@@ -533,15 +583,24 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
   const handleLearnMore = () => {
     trackEngagement({
       type: 'learn_more_click',
-      section: `${section}-hook`,
-      hookVariation,
+      section: `${sectionId}-hook`,
       metadata: {
-        timeSpent: timeSpent / 1000
+        destination: `/${sectionId}/learn-more`
       }
     })
 
     // Navigate to section page
-    window.location.href = `/${section}/learn-more`
+    window.location.href = `/${sectionId}/learn-more`
+  }
+  
+  const handleBenefitInteraction = (benefitIndex: number) => {
+    trackEngagement({
+      type: 'benefit_interaction',
+      section: `${sectionId}-hook`,
+      metadata: {
+        benefitIndex
+      }
+    })
   }
 
   return (
@@ -556,20 +615,53 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
         className
       )}
     >
-      {/* Primary Hook */}
-      <motion.h3 
-        className="text-xl font-bold text-foreground mb-3 leading-tight cursor-pointer"
-        onClick={handleExpand}
-        whileHover={{ scale: 1.01 }}
+      {/* Clickable Question */}
+      <motion.div
+        className="flex items-center gap-2 mb-4 cursor-pointer group"
+        onClick={handleQuestionClick}
+        whileHover={{ x: 5 }}
         transition={{ duration: 0.2 }}
       >
-        {hookContent.primary}
-      </motion.h3>
+        <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-[var(--color-energy-600)] transition-colors">
+          {question}
+        </h3>
+        <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      </motion.div>
 
-      {/* Secondary Hook */}
-      <p className="text-muted-foreground mb-4 leading-relaxed">
-        {hookContent.secondary}
-      </p>
+      {/* Enhanced Hook from A/B Testing */}
+      <div className="mb-4 pb-4 border-b border-border">
+        <p className="text-muted-foreground leading-relaxed">
+          {variation ? variation.content.hook : hookContent.secondary}
+        </p>
+      </div>
+      
+      {/* Progressive Disclosure of Benefits */}
+      <AnimatePresence>
+        {showBenefits && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            transition={{ duration: 0.5 }}
+            className="mb-4"
+          >
+            <div className="space-y-2">
+              {variation && variation.content.benefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="flex items-start gap-2"
+                  onClick={() => handleBenefitInteraction(index)}
+                >
+                  <div className="w-2 h-2 bg-[var(--color-energy-500)] rounded-full mt-2 flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground">{benefit}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Expand/Collapse Button */}
       <button
@@ -588,6 +680,9 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
       </button>
 
       {/* Expanded Content */}
+      {/* Render children if provided */}
+      {children}
+      
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -648,7 +743,7 @@ export function EnhancedSectionHook({ section, hookVariation = 'question', class
                   onClick={handleLearnMore}
                   className="w-full"
                 >
-                  Explore {section.split('-').map(word => 
+                  Explore {sectionId.split('-').map(word => 
                     word.charAt(0).toUpperCase() + word.slice(1)
                   ).join(' ')} Framework
                   <ChevronRight className="h-4 w-4 ml-2" />

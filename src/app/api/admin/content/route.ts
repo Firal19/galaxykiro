@@ -2,9 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '../../../../../lib/supabase'
 import { ContentItem } from '../../../../lib/models/content'
 import { auth } from '../../../../lib/auth'
+import { withSecurity, sanitizeHtml, sanitizeObject } from '../../../../lib/security'
+import { z } from 'zod'
+
+// Define query parameters schema
+const ContentQuerySchema = z.object({
+  category: z.string().optional(),
+  contentType: z.string().optional(),
+  depthLevel: z.string().optional(),
+  limit: z.number().int().min(1).max(100).default(100),
+  offset: z.number().int().min(0).default(0)
+});
 
 // GET /api/admin/content - Get all content
-export async function GET(request: NextRequest) {
+async function getContentHandler(request: NextRequest) {
   try {
     // Verify admin authorization
     const session = await auth.getSession()
@@ -12,32 +23,37 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Get query parameters
+    // Get query parameters and validate
     const searchParams = request.nextUrl.searchParams
-    const category = searchParams.get('category')
-    const contentType = searchParams.get('contentType')
-    const depthLevel = searchParams.get('depthLevel')
-    const limit = parseInt(searchParams.get('limit') || '100')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const queryParams = {
+      category: searchParams.get('category') || undefined,
+      contentType: searchParams.get('contentType') || undefined,
+      depthLevel: searchParams.get('depthLevel') || undefined,
+      limit: parseInt(searchParams.get('limit') || '100'),
+      offset: parseInt(searchParams.get('offset') || '0')
+    };
+    
+    // Validate query parameters
+    const validatedParams = ContentQuerySchema.parse(queryParams);
     
     // Build query
     let query = supabase
       .from('content')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(limit)
-      .offset(offset)
+      .limit(validatedParams.limit)
+      .offset(validatedParams.offset)
     
-    if (category) {
-      query = query.eq('category', category)
+    if (validatedParams.category) {
+      query = query.eq('category', validatedParams.category)
     }
     
-    if (contentType) {
-      query = query.eq('content_type', contentType)
+    if (validatedParams.contentType) {
+      query = query.eq('content_type', validatedParams.contentType)
     }
     
-    if (depthLevel) {
-      query = query.eq('depth_level', depthLevel)
+    if (validatedParams.depthLevel) {
+      query = query.eq('depth_level', validatedParams.depthLevel)
     }
     
     const { data, error } = await query
@@ -57,8 +73,39 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Apply security wrapper to GET handler
+export const GET = withSecurity(getContentHandler, {
+  rateLimit: 50,
+  cors: true,
+  securityHeaders: true
+});
+
+// Define content creation schema
+const ContentCreateSchema = z.object({
+  title: z.string().min(3).max(200),
+  category: z.string(),
+  depthLevel: z.enum(['surface', 'medium', 'deep']),
+  contentType: z.string(),
+  hook: z.string().min(10),
+  insight: z.string().min(10),
+  application: z.string().min(10),
+  hungerBuilder: z.string().min(10),
+  nextStep: z.string().min(10),
+  content: z.string().min(100),
+  excerpt: z.string().min(10).max(300),
+  requiredCaptureLevel: z.number().int().min(1).max(3),
+  estimatedReadTime: z.number().int().min(1),
+  tags: z.array(z.string()),
+  publishedAt: z.string().datetime(),
+  author: z.string(),
+  slug: z.string().optional(),
+  featuredImage: z.string().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+});
+
 // POST /api/admin/content - Create new content
-export async function POST(request: NextRequest) {
+async function postContentHandler(request: NextRequest) {
   try {
     // Verify admin authorization
     const session = await auth.getSession()
@@ -66,54 +113,75 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
 
-    const contentData = await request.json()
+    // Parse and validate request body
+    const contentData = await request.json();
     
-    // Validate content data
-    const validationResult = validateContentData(contentData)
-    if (!validationResult.valid) {
-      return NextResponse.json(
-        { success: false, error: validationResult.error },
-        { status: 400 }
-      )
-    }
+    // Validate with Zod schema
+    const validatedData = ContentCreateSchema.parse(contentData);
+    
+    // Sanitize HTML content to prevent XSS
+    const sanitizedData = {
+      ...validatedData,
+      content: sanitizeHtml(validatedData.content),
+      hook: sanitizeHtml(validatedData.hook),
+      insight: sanitizeHtml(validatedData.insight),
+      application: sanitizeHtml(validatedData.application),
+      hungerBuilder: sanitizeHtml(validatedData.hungerBuilder),
+      nextStep: sanitizeHtml(validatedData.nextStep),
+      excerpt: sanitizeHtml(validatedData.excerpt),
+    };
     
     // Generate slug if not provided
-    if (!contentData.slug) {
-      contentData.slug = generateSlug(contentData.title)
+    if (!sanitizedData.slug) {
+      sanitizedData.slug = generateSlug(sanitizedData.title);
     }
     
     // Set default values
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     const newContent = {
-      ...contentData,
+      ...sanitizedData,
       created_at: now,
       updated_at: now,
       view_count: 0,
       engagement_rate: 0,
       conversion_rate: 0
-    }
+    };
     
     // Insert into database
     const { data, error } = await supabase
       .from('content')
       .insert(newContent)
       .select()
-      .single()
+      .single();
     
     if (error) {
-      console.error('Error creating content:', error)
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+      console.error('Error creating content:', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
     
-    return NextResponse.json({ success: true, content: data })
+    return NextResponse.json({ success: true, content: data });
   } catch (error) {
-    console.error('Error in content API:', error)
+    console.error('Error in content API:', error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: 'Validation error', details: error.errors },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
+
+// Apply security wrapper to POST handler
+export const POST = withSecurity(postContentHandler, {
+  rateLimit: 10, // Stricter rate limit for POST
+  cors: true,
+  securityHeaders: true,
+  validateSchema: ContentCreateSchema
+});
 
 // Helper function to validate content data
 function validateContentData(data: Partial<ContentItem>): { valid: boolean; error?: string } {

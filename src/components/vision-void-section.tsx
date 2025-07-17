@@ -18,7 +18,7 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false)
   const { trackEngagement } = useEngagementTracking()
 
-  const handleFullProfileSubmit = async (data: Record<string, string>) => {
+  const handleFullProfileSubmit = async (data: Record<string, unknown>) => {
     try {
       const sessionId = typeof window !== 'undefined' 
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`

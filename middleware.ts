@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import createIntlMiddleware from 'next-intl/middleware'
 import { locales } from './i18n'
+import { applySecurityHeaders, applyCorsHeaders, rateLimit } from './src/lib/security'
 
 // Initialize Supabase client for middleware
 const supabase = createClient(
@@ -151,26 +152,23 @@ export async function middleware(request: NextRequest) {
 
   // Handle API routes
   if (pathname.startsWith('/api/')) {
-    // Add CORS headers for API routes
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    // Apply CORS headers for API routes
+    applyCorsHeaders(response);
 
     // Handle preflight requests
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 200, headers: response.headers })
+      return new Response(null, { status: 204, headers: response.headers });
     }
 
-    // Add rate limiting headers (basic implementation)
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-    const rateLimitKey = `rate_limit_${ip}_${pathname}`
-    
-    // In a production environment, you'd use Redis or similar for rate limiting
-    // For now, we'll just add the headers
-    response.headers.set('X-RateLimit-Limit', '100')
-    response.headers.set('X-RateLimit-Remaining', '99')
-    response.headers.set('X-RateLimit-Reset', (Date.now() + 3600000).toString())
+    // Apply rate limiting
+    const rateLimitResponse = rateLimit(request);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
   }
+  
+  // Apply security headers to all responses
+  applySecurityHeaders(response);
 
   // Track page views for analytics (non-blocking)
   if (!pathname.startsWith('/api/') && !pathname.startsWith('/_next/')) {

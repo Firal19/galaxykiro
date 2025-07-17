@@ -2,7 +2,7 @@ import type { Viewport } from "next";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Geist, Geist_Mono, Plus_Jakarta_Sans, Inter, Noto_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Plus_Jakarta_Sans, Inter, Noto_Sans_Ethiopic } from "next/font/google";
 import { AuthProvider } from "../../lib/contexts/auth-context";
 import { Navigation } from "../../components/navigation";
 import { locales, type Locale } from '../../../i18n';
@@ -29,10 +29,11 @@ const inter = Inter({
   display: "swap",
 });
 
-const notoSansEthiopic = Noto_Sans({
-  subsets: ["latin"],
+const notoSansEthiopic = Noto_Sans_Ethiopic({
+  subsets: ["ethiopic"],
   variable: "--font-ethiopic",
   display: "swap",
+  weight: ["400", "700"],
 });
 
 export const viewport: Viewport = {
