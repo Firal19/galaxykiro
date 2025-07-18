@@ -139,3 +139,17 @@ export const getResponsiveSizes = (
 ): string => {
   return `(max-width: 640px) ${mobileWidth}, (max-width: 1024px) ${tabletWidth}, ${desktopWidth}`;
 };
+// Gen
+erate touch target class based on size to ensure minimum 44px touch targets
+export const getTouchTargetClass = (size: 'small' | 'medium' | 'large'): string => {
+  switch (size) {
+    case 'small':
+      return 'min-h-[44px] min-w-[44px]';
+    case 'medium':
+      return 'min-h-[48px] min-w-[48px]';
+    case 'large':
+      return 'min-h-[56px] min-w-[56px]';
+    default:
+      return 'min-h-[44px] min-w-[44px]';
+  }
+};

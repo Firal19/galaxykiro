@@ -9,7 +9,7 @@ import { Mail, Phone, User, MapPin, Briefcase, Target, ArrowRight, ArrowLeft, Ch
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/lib/store"
-import { Level1Schema, Level2Schema, Level3Schema, validateProgressiveCapture } from "@/lib/validations"
+import { level1Schema, level2Schema, level3Schema, validateFormData } from "@/lib/validations"
 
 // Form field configuration
 interface FieldConfig {
@@ -226,7 +226,7 @@ export function ProgressiveForm({
   const getValidationSchema = useCallback(() => {
     if (specialFields) {
       const fields = SPECIAL_FIELD_CONFIGS[specialFields]
-      if (!fields || !Array.isArray(fields)) return Level1Schema
+      if (!fields || !Array.isArray(fields)) return level1Schema
       
       const schemaFields: Record<string, z.ZodTypeAny> = {}
       fields.forEach(field => {
@@ -255,11 +255,11 @@ export function ProgressiveForm({
     
     switch (currentLevel) {
       case 2:
-        return Level2Schema
+        return level2Schema
       case 3:
-        return Level3Schema
+        return level3Schema
       default:
-        return Level1Schema
+        return level1Schema
     }
   }, [currentLevel, specialFields])
 
@@ -319,16 +319,10 @@ export function ProgressiveForm({
   useEffect(() => {
     try {
       const currentData = { ...formData, ...watchedValues }
-      const validation = validateProgressiveCapture(currentLevel as 1 | 2 | 3, currentData)
+      const validation = validateFormData(currentData, currentLevel as 1 | 2 | 3)
       
-      if (!validation.success && validation.error?.issues) {
-        const newErrors: Record<string, string> = {}
-        validation.error.issues.forEach((issue: any) => {
-          if (issue.path && issue.path.length > 0) {
-            newErrors[issue.path[0]] = issue.message
-          }
-        })
-        setValidationErrors(newErrors)
+      if (!validation.success && validation.errors) {
+        setValidationErrors(validation.errors)
       } else {
         setValidationErrors({})
       }

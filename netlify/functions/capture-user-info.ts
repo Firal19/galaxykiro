@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { UserModel } from '../../src/lib/models/user'
 import { InteractionModel } from '../../src/lib/models/interaction'
 import { LeadScoresModel } from '../../src/lib/models/lead-scores'
-import { validateProgressiveCapture } from '../../src/lib/validations'
+import { validateFormData } from '../../src/lib/validations'
 
 // Initialize Supabase client for real-time subscriptions and direct operations
 const supabase = createClient(
@@ -70,7 +70,7 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
     }
 
     // Validate data against schema
-    const validation = validateProgressiveCapture(level, data)
+    const validation = validateFormData(data, level)
     if (!validation.success) {
       return {
         statusCode: 400,
@@ -80,12 +80,12 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
         },
         body: JSON.stringify({
           error: 'Validation failed',
-          details: validation.error.issues,
+          details: validation.errors,
         }),
       }
     }
 
-    const validatedData = validation.data as any
+    const validatedData = data
 
     let user: UserModel
     let isNewUser = false

@@ -1,3 +1,4 @@
+import React from 'react';
 /**
  * Performance Testing Suite
  * 
@@ -414,6 +415,17 @@ describe('Performance Testing', () => {
 });
 
 // Add React import for the test
+
+// Mock components for testing
+const HeroSection = () => React.createElement('div', { 'data-testid': 'hero-section' }, 'Hero Content');
+const SuccessGapSection = () => React.createElement('div', { 'data-testid': 'success-gap' }, 'Success Gap Content');
+const AssessmentTool = () => React.createElement('div', { 'data-testid': 'assessment-tool' }, 'Assessment Content');
+const LargeList = ({ items }) => React.createElement('div', null, 
+  items.map(item => React.createElement('div', { key: item, 'data-testid': `item-${item}` }, `Item ${item}`))
+);
+const MemoizedComponent = React.memo(() => React.createElement('div', null, 'Memoized Component'));
+const ComponentWithListeners = () => React.createElement('div', null, 'Component with listeners');
+const ComponentWithSubscription = () => React.createElement('div', null, 'Component with subscription');
 const React = {
   memo: (component: any) => component,
   useEffect: (callback: () => void | (() => void), deps: any[]) => {

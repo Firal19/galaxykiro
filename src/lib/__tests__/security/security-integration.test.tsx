@@ -1,3 +1,4 @@
+import React from 'react';
 /**
  * Security Integration Tests
  * Tests security measures, data protection, and vulnerability prevention
@@ -10,8 +11,37 @@ import { validateInput, sanitizeInput } from '@/lib/security';
 import { ProgressiveForm } from '@/components/progressive-form';
 import { AssessmentTool } from '@/components/assessment/assessment-tool';
 
-// Mock security utilities
+// Mock modules
+jest.mock('@/lib/validations', () => ({
+  validateInput: jest.fn(),
+  sanitizeInput: jest.fn(),
+  validateEmail: jest.fn(),
+  validatePhone: jest.fn(),
+}));
+
+jest.mock('isomorphic-dompurify', () => ({
+  sanitize: jest.fn((input) => input.replace(/<script.*?<\/script>/gi, '')),
+}));
+
 jest.mock('@/lib/security');
+
+// Mock components for testing
+const MockProgressiveForm = ({ level }: { level: number }) => React.createElement('div', { 'data-testid': 'progressive-form' }, 
+  React.createElement('input', { 'aria-label': 'Email', type: 'email' }),
+  React.createElement('input', { 'aria-label': 'Name', type: 'text' }),
+  React.createElement('input', { 'aria-label': 'Phone', type: 'tel' }),
+  React.createElement('input', { 'aria-label': 'Social Security', type: 'text' }),
+  React.createElement('input', { type: 'checkbox', 'aria-label': 'I consent to data processing' }),
+  React.createElement('button', { type: 'submit' }, 'Submit'),
+  React.createElement('div', { 'data-testid': 'honeypot-field', style: { display: 'none' } })
+);
+
+const MockAssessmentTool = ({ toolId }: { toolId: string }) => React.createElement('div', { 'data-testid': 'assessment-tool' }, 
+  `Assessment: ${toolId}`,
+  React.createElement('button', { type: 'button' }, 'Start Assessment')
+);
+
+// Mock security utilities
 const mockValidateInput = validateInput as jest.MockedFunction<typeof validateInput>;
 const mockSanitizeInput = sanitizeInput as jest.MockedFunction<typeof sanitizeInput>;
 
@@ -314,16 +344,16 @@ describe('Security Integration Tests', () => {
       const htmlContent = document.documentElement.innerHTML;
       
       // Should not contain API keys
-      expect(htmlContent).not.to.match(/sk_live_/);
-      expect(htmlContent).not.to.match(/pk_live_/);
+      expect(htmlContent).not.toMatch(/sk_live_/);
+      expect(htmlContent).not.toMatch(/pk_live_/);
       
       // Should not contain database credentials
-      expect(htmlContent).not.to.match(/password.*:/);
-      expect(htmlContent).not.to.match(/secret.*:/);
+      expect(htmlContent).not.toMatch(/password.*:/);
+      expect(htmlContent).not.toMatch(/secret.*:/);
       
       // Should not contain internal URLs
-      expect(htmlContent).not.to.match(/localhost:\d+/);
-      expect(htmlContent).not.to.match(/127\.0\.0\.1/);
+      expect(htmlContent).not.toMatch(/localhost:\d+/);
+      expect(htmlContent).not.toMatch(/127\.0\.0\.1/);
     });
 
     test('should sanitize error messages', async () => {
@@ -384,7 +414,7 @@ describe('Security Integration Tests', () => {
       // but we can test our certificate pinning logic
       const certFingerprint = 'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
       
-      expect(mockValidateCert(certFingerprint)).to.equal(true);
+      expect(mockValidateCert(certFingerprint)).toBe(true);
     });
   });
 });
