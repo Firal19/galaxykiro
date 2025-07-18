@@ -78,7 +78,7 @@ export const getConnectionSpeed = (): 'slow' | 'medium' | 'fast' => {
     return 'medium';
   }
   
-  const connection = (navigator as any).connection;
+  const connection = (navigator as unknown as { connection?: { effectiveType?: string; downlink?: number } }).connection;
   
   if (!connection) return 'medium';
   
@@ -139,8 +139,8 @@ export const getResponsiveSizes = (
 ): string => {
   return `(max-width: 640px) ${mobileWidth}, (max-width: 1024px) ${tabletWidth}, ${desktopWidth}`;
 };
-// Gen
-erate touch target class based on size to ensure minimum 44px touch targets
+
+// Generate touch target class based on size to ensure minimum 44px touch targets
 export const getTouchTargetClass = (size: 'small' | 'medium' | 'large'): string => {
   switch (size) {
     case 'small':
