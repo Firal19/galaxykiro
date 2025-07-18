@@ -12,15 +12,20 @@ export const getOptimalImageFormat = (): 'webp' | 'avif' | 'jpg' => {
       return document.createElement('canvas')
         .toDataURL('image/webp')
         .indexOf('data:image/webp') === 0;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   })();
   
   // Check for AVIF support (more advanced but less supported)
   const hasAVIF = (() => {
-    const img = new Image();
-    return img.canPlayType && img.canPlayType('image/avif').replace(/no/, '');
+    try {
+      // This is a simplified check - in a real implementation we would use
+      // a more robust feature detection approach for AVIF
+      return false; // For now, default to not supporting AVIF
+    } catch (_) {
+      return false;
+    }
   })();
   
   if (hasAVIF) return 'avif';
