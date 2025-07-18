@@ -158,3 +158,77 @@ export const getTouchTargetClass = (size: 'small' | 'medium' | 'large'): string 
       return 'min-h-[44px] min-w-[44px]';
   }
 };
+
+// Check if the device is in thumb-friendly mode (mobile portrait)
+export const isThumbFriendlyMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check if device is in portrait orientation and has a touch screen
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  return isPortrait && isTouchDevice;
+};
+
+// Get the appropriate layout class based on device and orientation
+export const getResponsiveLayoutClass = (
+  defaultLayout: string = 'grid',
+  mobileLayout: string = 'flex flex-col',
+  tabletLayout: string = 'grid grid-cols-2 gap-4'
+): string => {
+  if (typeof window === 'undefined') return defaultLayout;
+  
+  const width = window.innerWidth;
+  
+  if (width < 640) return mobileLayout;
+  if (width < 1024) return tabletLayout;
+  return defaultLayout;
+};
+
+// Calculate the thumb zone safety for positioning important UI elements
+export const getThumbZoneSafety = (
+  elementPosition: 'top' | 'middle' | 'bottom' | 'left' | 'right'
+): string => {
+  // Thumb zone classes for mobile devices
+  // These classes position elements in areas easily reachable with one thumb
+  switch (elementPosition) {
+    case 'top':
+      return 'mt-2 mb-auto'; // Easy to reach with thumb stretch
+    case 'middle':
+      return 'my-auto'; // Natural thumb position
+    case 'bottom':
+      return 'mb-4 mt-auto'; // Most comfortable thumb zone
+    case 'left':
+      return 'ml-4 mr-auto'; // Easy for right-handed users
+    case 'right':
+      return 'mr-4 ml-auto'; // Easy for left-handed users
+    default:
+      return 'mb-4 mx-auto'; // Default to bottom center (most accessible)
+  }
+};
+
+// Detect if the device supports swipe gestures
+export const supportsSwipeGestures = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check if device has touch capability
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+// Container width classes for different layout variants
+export const containerClasses = {
+  full: 'w-full',
+  constrained: 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
+  content: 'w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8',
+  narrow: 'w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8'
+};
+
+// Responsive spacing classes
+export const responsiveSpacing = {
+  itemY: 'py-2 sm:py-3',
+  contentY: 'py-4 sm:py-6 lg:py-8',
+  sectionY: 'py-8 sm:py-12 lg:py-16',
+  itemX: 'px-2 sm:px-3',
+  contentX: 'px-4 sm:px-6 lg:px-8',
+  sectionX: 'px-4 sm:px-6 lg:px-8'
+};
