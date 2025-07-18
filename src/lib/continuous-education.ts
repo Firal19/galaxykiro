@@ -258,7 +258,7 @@ class ContinuousEducationEngine {
     if (progress.preferences.preferredTypes.includes(content.type)) score += 5
 
     // Difficulty progression
-    const difficultyScore = {
+    const difficultyScore: Record<string, number> = {
       beginner: progress.engagementScore < 50 ? 10 : 5,
       intermediate: progress.engagementScore >= 50 && progress.engagementScore < 150 ? 10 : 5,
       advanced: progress.engagementScore >= 150 ? 10 : 2

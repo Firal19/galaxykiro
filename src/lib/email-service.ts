@@ -1731,4 +1731,23 @@ Galaxy Dream Team | አዲስ አበባ፣ ኢትዮጵያ
       category: 'nurture',
       language: 'am'
     });
-  }
+  }}
+
+// Ex
+port the email service instance
+export const emailService = new EmailService();
+
+// Helper functions for external use
+export function sendEmail(to: string, templateId: string, personalization: EmailPersonalization, options?: any) {
+  return emailService.sendEmail(to, templateId, personalization, options);
+}
+
+export function triggerSequence(userId: string, sequenceId: string, customData?: Record<string, any>) {
+  return emailService.triggerSequence(userId, sequenceId, customData);
+}
+
+export function getEngagementMetrics(userId: string) {
+  return emailService.getEngagementMetrics(userId);
+}
+
+export type { EmailTemplate, EmailSequence, EmailSequenceStep, EmailCondition, EmailPersonalization, EmailMetrics };
