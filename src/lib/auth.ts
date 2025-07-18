@@ -297,3 +297,38 @@ export const signOut = async (): Promise<void> => {
     localStorage.removeItem('attribution')
   }
 }
+
+// Auth object for admin routes
+export const auth = {
+  getSession: async () => {
+    const supabase = createClientComponentClient()
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    if (error || !session) {
+      return null
+    }
+    
+    return session
+  },
+  
+  isAdmin: async (userId: string): Promise<boolean> => {
+    const supabase = createClientComponentClient()
+    
+    try {
+      const { data: userProfile, error } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', userId)
+        .single()
+      
+      if (error || !userProfile) {
+        return false
+      }
+      
+      return userProfile.is_admin === true
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+      return false
+    }
+  }
+}

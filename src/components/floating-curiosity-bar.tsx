@@ -19,7 +19,7 @@ const rotatingQuestions: RotatingQuestion[] = [
   {
     id: "identity-1",
     category: "identity",
-    text: "What if you're only using 10% of your true potential?",
+    text: "What if you are only using 10% of your true potential?",
     relatedTool: "Potential Quotient Calculator",
     toolUrl: "/tools/potential-quotient"
   },
@@ -33,7 +33,7 @@ const rotatingQuestions: RotatingQuestion[] = [
   {
     id: "identity-3",
     category: "identity", 
-    text: "What's your biggest limiting belief right now?",
+    text: "What is your biggest limiting belief right now?",
     relatedTool: "Limiting Belief Identifier",
     toolUrl: "/tools/limiting-beliefs"
   },
@@ -49,14 +49,14 @@ const rotatingQuestions: RotatingQuestion[] = [
   {
     id: "progress-2",
     category: "progress",
-    text: "You know what to do. So why aren't you doing it?",
+    text: "You know what to do. So why are not you doing it?",
     relatedTool: "Habit Strength Analyzer",
     toolUrl: "/tools/habit-strength"
   },
   {
     id: "progress-3",
     category: "progress",
-    text: "What's stopping you from taking the next step?",
+    text: "What is stopping you from taking the next step?",
     relatedTool: "Transformation Readiness Score",
     toolUrl: "/tools/transformation-readiness"
   },
@@ -72,7 +72,7 @@ const rotatingQuestions: RotatingQuestion[] = [
   {
     id: "future-2",
     category: "future",
-    text: "What would you do if you knew you couldn't fail?",
+    text: "What would you do if you knew you could not fail?",
     relatedTool: "Dream Clarity Generator",
     toolUrl: "/tools/dream-clarity"
   },

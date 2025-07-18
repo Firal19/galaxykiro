@@ -123,7 +123,7 @@ describe('Comprehensive Security Testing', () => {
 
       const encrypted = encryptSensitiveData(JSON.stringify(sensitiveData));
       expect(encrypted).not.toBe(JSON.stringify(sensitiveData));
-      expect(encrypted).toMatch(/^[A-Za-z0-9+/]+=*$/); // Base64 pattern
+      expect(encrypted).toMatch(/^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/); // Colon-separated base64 pattern
     });
 
     test('should decrypt data correctly', () => {

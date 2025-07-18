@@ -24,7 +24,7 @@ export function TeamBuilderSimulator() {
         required: true,
         category: 'purpose',
         weight: 1.5,
-        placeholder: 'Describe your team's main purpose or mission...'
+        placeholder: 'Describe your team\'s main purpose or mission...'
       },
       {
         id: 'team-size',

@@ -41,8 +41,7 @@ async function getContentHandler(request: NextRequest) {
       .from('content')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(validatedParams.limit)
-      .offset(validatedParams.offset)
+      .range(validatedParams.offset, validatedParams.offset + validatedParams.limit - 1)
     
     if (validatedParams.category) {
       query = query.eq('category', validatedParams.category)
@@ -164,7 +163,7 @@ async function postContentHandler(request: NextRequest) {
     console.error('Error in content API:', error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }

@@ -16,51 +16,73 @@ import {
 
 // Mock window and navigator objects
 const mockWindow = () => {
-  Object.defineProperty(global, 'window', {
-    value: {
-      innerWidth: 1024,
-      innerHeight: 768,
-      devicePixelRatio: 2,
-      HTMLImageElement: {
-        prototype: {
-          loading: true
+  // Only define if not already defined
+  if (!(global as any).window) {
+    Object.defineProperty(global, 'window', {
+      value: {
+        innerWidth: 1024,
+        innerHeight: 768,
+        devicePixelRatio: 2,
+        HTMLImageElement: {
+          prototype: {
+            loading: true
+          }
+        },
+        document: {
+          createElement: jest.fn().mockImplementation(() => ({
+            toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
+          }))
         }
       },
-      document: {
+      writable: true,
+      configurable: true
+    });
+  } else {
+    // Update existing window properties
+    (global as any).window.innerWidth = 1024;
+    (global as any).window.innerHeight = 768;
+    (global as any).window.devicePixelRatio = 2;
+  }
+
+  if (!(global as any).navigator) {
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        connection: {
+          effectiveType: '4g',
+          downlink: 10
+        },
+        maxTouchPoints: 5
+      },
+      writable: true,
+      configurable: true
+    });
+  }
+
+  if (!(global as any).document) {
+    Object.defineProperty(global, 'document', {
+      value: {
         createElement: jest.fn().mockImplementation(() => ({
           toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
         }))
-      }
-    },
-    writable: true
-  });
-
-  Object.defineProperty(global, 'navigator', {
-    value: {
-      connection: {
-        effectiveType: '4g',
-        downlink: 10
       },
-      maxTouchPoints: 5
-    },
-    writable: true
-  });
-
-  Object.defineProperty(global, 'document', {
-    value: {
-      createElement: jest.fn().mockImplementation(() => ({
-        toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
-      }))
-    },
-    writable: true
-  });
+      writable: true,
+      configurable: true
+    });
+  }
 };
 
 // Reset mocks
 const resetMocks = () => {
-  delete (global as any).window;
-  delete (global as any).navigator;
-  delete (global as any).document;
+  // Don't delete, just reset to undefined to avoid redefinition errors
+  if ((global as any).window) {
+    (global as any).window = undefined;
+  }
+  if ((global as any).navigator) {
+    (global as any).navigator = undefined;
+  }
+  if ((global as any).document) {
+    (global as any).document = undefined;
+  }
 };
 
 describe('Responsive Utilities', () => {

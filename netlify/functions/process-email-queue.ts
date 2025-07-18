@@ -303,7 +303,7 @@ async function processAutomaticSequenceTriggers(): Promise<void> {
           triggerEvent: 'webinar_attended',
           customData: {
             webinarId: attendee.webinar_id,
-            webinarTitle: attendee.webinars?.title || 'Our Webinar',
+            webinarTitle: (attendee.webinars as any)?.title || 'Our Webinar',
             attendedAt: attendee.attended_at
           }
         })
@@ -350,7 +350,7 @@ async function processAutomaticSequenceTriggers(): Promise<void> {
             customData: {
               oldTier: eventData.old_tier,
               newTier: eventData.new_tier,
-              upgradedAt: upgrade.created_at
+              upgradedAt: (upgrade as any).created_at
             }
           })
         }

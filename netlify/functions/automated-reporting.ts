@@ -452,7 +452,7 @@ async function generateMonthlyReport(dateString?: string): Promise<MonthlyReport
     executiveSummary: {
       totalUsers: currentMonthMetrics.totalUsers,
       monthlyGrowth,
-      conversionRate: currentMonthMetrics.conversionRate,
+      conversionRate: currentMonthMetrics.conversion.overallRate,
       revenueImpact: estimateRevenueImpact(currentMonthMetrics),
       keyAchievements: identifyKeyAchievements(currentMonthMetrics, previousMonthMetrics)
     },

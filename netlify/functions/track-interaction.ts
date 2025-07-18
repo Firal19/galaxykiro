@@ -220,8 +220,15 @@ async function handleBatchInteractions(batchRequest: BatchInteractionRequest): P
   }
 }
 
-async function processInteractionBusinessLogic(interaction: InteractionModel): Promise<Record<string, unknown>> {
-  const result: Record<string, unknown> = {
+interface ProcessingResult {
+  triggers: string[];
+  updates: string[];
+  notifications: Array<Record<string, unknown>>;
+  errors?: string[];
+}
+
+async function processInteractionBusinessLogic(interaction: InteractionModel): Promise<ProcessingResult> {
+  const result: ProcessingResult = {
     triggers: [],
     updates: [],
     notifications: []
@@ -271,7 +278,7 @@ async function processInteractionBusinessLogic(interaction: InteractionModel): P
         break
 
       default:
-        result.triggers.push('generic_interaction_processed')
+        (result.triggers as string[]).push('generic_interaction_processed')
     }
 
     // Update lead score if user is identified
@@ -325,7 +332,7 @@ async function processInteractionBusinessLogic(interaction: InteractionModel): P
   return result
 }
 
-async function processPageViewLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processPageViewLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('page_view_tracked')
   
   // Track page popularity
@@ -336,7 +343,7 @@ async function processPageViewLogic(interaction: InteractionModel, result: Recor
   }
 }
 
-async function processCTAClickLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processCTAClickLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('cta_engagement_tracked')
   
   const eventData = interaction.eventData
@@ -361,7 +368,7 @@ async function processCTAClickLogic(interaction: InteractionModel, result: Recor
   }
 }
 
-async function processToolStartLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processToolStartLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('tool_engagement_started')
   
   if (interaction.userId) {
@@ -378,7 +385,7 @@ async function processToolStartLogic(interaction: InteractionModel, result: Reco
   }
 }
 
-async function processToolCompleteLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processToolCompleteLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('tool_completion_achieved')
   
   if (interaction.userId) {
@@ -403,7 +410,7 @@ async function processToolCompleteLogic(interaction: InteractionModel, result: R
   }
 }
 
-async function processContentEngagementLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processContentEngagementLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('content_engagement_tracked')
   
   const eventData = interaction.eventData
@@ -425,7 +432,7 @@ async function processContentEngagementLogic(interaction: InteractionModel, resu
   }
 }
 
-async function processFormSubmissionLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processFormSubmissionLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('form_submission_processed')
   
   const eventData = interaction.eventData
@@ -443,7 +450,7 @@ async function processFormSubmissionLogic(interaction: InteractionModel, result:
   }
 }
 
-async function processWebinarRegistrationLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processWebinarRegistrationLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('webinar_registration_processed')
   
   if (interaction.userId) {
@@ -464,7 +471,7 @@ async function processWebinarRegistrationLogic(interaction: InteractionModel, re
   }
 }
 
-async function processScrollDepthLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processScrollDepthLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   const scrollDepth = interaction.eventData.depth as number
   
   if (scrollDepth >= 75) {
@@ -480,7 +487,7 @@ async function processScrollDepthLogic(interaction: InteractionModel, result: Re
   }
 }
 
-async function processTimeOnPageLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processTimeOnPageLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   const timeSpent = interaction.eventData.time_spent as number
   
   if (timeSpent >= 300) { // 5 minutes
@@ -497,7 +504,7 @@ async function processTimeOnPageLogic(interaction: InteractionModel, result: Rec
   }
 }
 
-async function processExitIntentLogic(interaction: InteractionModel, result: Record<string, unknown>): Promise<void> {
+async function processExitIntentLogic(interaction: InteractionModel, result: ProcessingResult): Promise<void> {
   result.triggers.push('exit_intent_detected')
   
   // This could trigger exit-intent popups or special offers

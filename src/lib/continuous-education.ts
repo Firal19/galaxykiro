@@ -95,7 +95,7 @@ class ContinuousEducationEngine {
         actionItems: [
           'Identify one fixed mindset belief you hold',
           'Write down three ways you can grow from a recent setback',
-          'Practice saying "I can't do this YET" instead of "I can't do this"'
+          'Practice saying "I cannot do this YET" instead of "I cannot do this"'
         ],
         relatedTools: ['mindset-assessment', 'growth-tracker'],
         tags: ['mindset', 'growth', 'foundation'],

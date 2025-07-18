@@ -369,25 +369,25 @@ export function GoalAchievementPredictor() {
         options: [
           {
             id: 'h2-1',
-            text: "I've consistently failed to achieve similar goals",
+            text: "I have consistently failed to achieve similar goals",
             value: 1,
             score: 1
           },
           {
             id: 'h2-2',
-            text: "I've had mixed results, with more failures than successes",
+            text: "I have had mixed results, with more failures than successes",
             value: 2,
             score: 3
           },
           {
             id: 'h2-3',
-            text: "I've had mixed results, with more successes than failures",
+            text: "I have had mixed results, with more successes than failures",
             value: 3,
             score: 7
           },
           {
             id: 'h2-4',
-            text: "I've consistently succeeded with similar goals",
+            text: "I have consistently succeeded with similar goals",
             value: 4,
             score: 10
           }

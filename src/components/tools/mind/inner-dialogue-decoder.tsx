@@ -229,7 +229,7 @@ export function InnerDialogueDecoder() {
         required: false,
         category: 'impact',
         weight: 1.3,
-        placeholder: 'Describe how your thoughts affected what you did or didn't do...'
+        placeholder: 'Describe how your thoughts affected what you did or did not do...'
       },
       {
         id: 'awareness-1',
@@ -398,7 +398,7 @@ export function InnerDialogueDecoder() {
           min: 0,
           max: 40,
           label: 'Dialogue Discoverer',
-          description: 'You're in the early stages of understanding your inner dialogue patterns.',
+          description: 'You are in the early stages of understanding your inner dialogue patterns.',
           insights: [
             'Your awareness of your thought patterns is developing',
             'Your inner dialogue may significantly influence your emotions and actions',

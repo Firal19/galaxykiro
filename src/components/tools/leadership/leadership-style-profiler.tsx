@@ -552,7 +552,7 @@ export function LeadershipStyleProfiler() {
             ]
             
             if (secondary === 'participative') {
-              insights.strengths.push('You balance decisiveness with consideration of others' input')
+              insights.strengths.push('You balance decisiveness with consideration of others\' input')
             } else if (secondary === 'collaborative') {
               insights.strengths.push('You can shift between taking charge and fostering team problem-solving')
             } else if (secondary === 'delegative') {
@@ -562,7 +562,7 @@ export function LeadershipStyleProfiler() {
             insights.strengths = [
               'You excel at engaging others while maintaining direction',
               'You build strong individual relationships and trust',
-              'You're skilled at coaching and developing others'
+              'You are skilled at coaching and developing others'
             ]
             
             if (secondary === 'directive') {
@@ -580,7 +580,7 @@ export function LeadershipStyleProfiler() {
             ]
             
             if (secondary === 'directive') {
-              insights.strengths.push('You can provide direction when consensus isn't possible')
+              insights.strengths.push('You can provide direction when consensus is not possible')
             } else if (secondary === 'participative') {
               insights.strengths.push('You balance team processes with individual needs')
             } else if (secondary === 'delegative') {
@@ -608,7 +608,7 @@ export function LeadershipStyleProfiler() {
               'Practice active listening without immediately jumping to solutions',
               'Experiment with asking more questions before providing direction',
               'Consider when team involvement might lead to better outcomes or buy-in',
-              'Be mindful of how your decisive style might inhibit others' input'
+              'Be mindful of how your decisive style might inhibit others\' input'
             ]
           } else if (primary === 'participative') {
             insights.development = [
@@ -621,12 +621,12 @@ export function LeadershipStyleProfiler() {
             insights.development = [
               'Recognize situations where quick decisions are needed over consensus',
               'Be mindful of when collaboration might be inefficient for simple decisions',
-              'Develop strategies for moving forward when consensus isn't possible',
+              'Develop strategies for moving forward when consensus is not possible',
               'Practice giving individual attention and feedback'
             ]
           } else if (primary === 'delegative') {
             insights.development = [
-              'Ensure you're providing enough clarity and context for success',
+              'Ensure you are providing enough clarity and context for success',
               'Recognize when team members need more guidance or support',
               'Develop systems to maintain appropriate oversight without micromanaging',
               'Practice more direct involvement when team members are struggling'

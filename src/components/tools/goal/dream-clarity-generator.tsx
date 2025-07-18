@@ -435,7 +435,7 @@ export function DreamClarityGenerator() {
           insights: [
             'You have a general sense of direction but need more specific details',
             'Some areas of your vision are clearer than others',
-            'You're beginning to align your values with your future vision'
+            'You are beginning to align your values with your future vision'
           ],
           recommendations: [
             'Focus on adding specific details to your vision in key life areas',

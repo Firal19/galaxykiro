@@ -88,7 +88,7 @@ export function PotentialQuotientCalculator() {
           },
           {
             id: 'lo1-3',
-            text: 'I enjoy learning new things in areas I'm already good at',
+            text: 'I enjoy learning new things in areas I am already good at',
             value: 3,
             score: 7
           },
@@ -213,7 +213,7 @@ export function PotentialQuotientCalculator() {
       {
         id: 'effort-belief-2',
         type: 'multiple-choice',
-        text: 'When I see someone who's highly successful in their field, I primarily attribute it to:',
+        text: 'When I see someone who is highly successful in their field, I primarily attribute it to:',
         required: true,
         category: 'effort-belief',
         weight: 1.2,
@@ -376,13 +376,13 @@ export function PotentialQuotientCalculator() {
           },
           {
             id: 'se2-3',
-            text: 'I'm cautiously optimistic about my chances',
+            text: 'I am cautiously optimistic about my chances',
             value: 3,
             score: 7
           },
           {
             id: 'se2-4',
-            text: 'I'm confident that I'll find a way to succeed',
+            text: 'I am confident that I will find a way to succeed',
             value: 4,
             score: 10
           }
@@ -465,9 +465,9 @@ export function PotentialQuotientCalculator() {
           label: 'Developing Mindset',
           description: 'You show elements of both fixed and growth mindsets depending on the situation.',
           insights: [
-            'You're open to growth in some areas but may have fixed beliefs in others',
+            'You are open to growth in some areas but may have fixed beliefs in others',
             'You sometimes embrace challenges but might avoid them when feeling uncertain',
-            'You're developing resilience but may still be discouraged by significant setbacks'
+            'You are developing resilience but may still be discouraged by significant setbacks'
           ],
           recommendations: [
             'Identify specific areas where you hold fixed beliefs',
@@ -484,7 +484,7 @@ export function PotentialQuotientCalculator() {
           insights: [
             'You embrace challenges as opportunities to develop',
             'You persist in the face of setbacks and see effort as a path to mastery',
-            'You learn from criticism and find inspiration in others' success'
+            'You learn from criticism and find inspiration in others\' success'
           ],
           recommendations: [
             'Continue nurturing your growth mindset in all areas of life',

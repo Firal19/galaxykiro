@@ -313,3 +313,172 @@ export function rateLimit(request: any): any | null {
   
   return null;
 }
+
+/**
+ * Validate phone number format
+ * @param phone Phone number to validate
+ * @returns Boolean indicating if phone number is valid
+ */
+export function validatePhone(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') return false;
+  
+  // Remove all non-digit characters except + and ()
+  const cleaned = phone.replace(/[^\d+()-\s]/g, '');
+  
+  // Check for minimum length (at least 10 digits)
+  const digits = cleaned.replace(/[^\d]/g, '');
+  if (digits.length < 10) return false;
+  
+  // Basic phone number patterns
+  const patterns = [
+    /^\+\d{10,15}$/, // International format
+    /^\(\d{3}\)\s?\d{3}-?\d{4}$/, // US format with parentheses
+    /^\d{3}-?\d{3}-?\d{4}$/, // US format with dashes
+    /^\d{10,15}$/, // Simple digit format
+  ];
+  
+  return patterns.some(pattern => pattern.test(cleaned));
+}
+
+/**
+ * Sanitize user input to prevent XSS attacks
+ * @param input User input to sanitize
+ * @returns Sanitized input
+ */
+export function sanitizeInput(input: string): string {
+  if (!input || typeof input !== 'string') return '';
+  
+  // Remove script tags and dangerous content
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, '')
+    .replace(/<img[^>]*onerror[^>]*>/gi, '')
+    .replace(/<[^>]*onclick[^>]*>/gi, '')
+    .replace(/<[^>]*onload[^>]*>/gi, '');
+}
+
+/**
+ * Sanitize HTML content to prevent XSS attacks
+ * @param html HTML content to sanitize
+ * @returns Sanitized HTML content
+ */
+export function sanitizeHtml(html: string): string {
+  if (!html || typeof html !== 'string') return '';
+  
+  // Basic HTML sanitization - remove script tags and dangerous attributes
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
+}
+
+/**
+ * Sanitize an object by sanitizing all string values
+ * @param obj Object to sanitize
+ * @returns Sanitized object
+ */
+export function sanitizeObject(obj: any): any {
+  if (typeof obj !== 'object' || obj === null) return obj;
+  
+  const sanitized: any = {};
+  
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === 'string') {
+      sanitized[key] = sanitizeHtml(value);
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeObject(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  
+  return sanitized;
+}
+
+/**
+ * Validate and sanitize input data
+ * @param data Data to validate and sanitize
+ * @param schema Zod schema for validation
+ * @returns Validated and sanitized data
+ */
+export function validateAndSanitize(data: any, schema?: any): any {
+  // Sanitize the data first
+  const sanitized = sanitizeObject(data);
+  
+  // If schema is provided, validate
+  if (schema) {
+    return schema.parse(sanitized);
+  }
+  
+  return sanitized;
+}
+
+/**
+ * Security wrapper for API handlers
+ * @param handler API handler function
+ * @param options Security options
+ * @returns Wrapped handler with security features
+ */
+export function withSecurity(
+  handler: (request: any) => Promise<any>,
+  options: {
+    rateLimit?: number;
+    cors?: boolean;
+    securityHeaders?: boolean;
+    validateSchema?: any;
+  } = {}
+) {
+  return async (request: any) => {
+    try {
+      // Apply rate limiting
+      if (options.rateLimit) {
+        const rateLimitResponse = rateLimit(request);
+        if (rateLimitResponse) return rateLimitResponse;
+      }
+      
+      // Validate request body if schema provided
+      if (options.validateSchema && (request.method === 'POST' || request.method === 'PUT')) {
+        try {
+          const body = await request.json();
+          const validatedBody = validateAndSanitize(body, options.validateSchema);
+          // Attach validated body to request
+          (request as any).validatedBody = validatedBody;
+        } catch (error) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Invalid request data' }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+      
+      // Call the original handler
+      const response = await handler(request);
+      
+      // Apply security headers
+      if (options.securityHeaders) {
+        applySecurityHeaders(response);
+      }
+      
+      // Apply CORS headers
+      if (options.cors) {
+        applyCorsHeaders(response);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Security wrapper error:', error);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Internal server error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  };
+}

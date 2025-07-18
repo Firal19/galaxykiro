@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
-import { encryptData, decryptData } from '../../src/lib/security';
+import { encryptSensitiveData, decryptSensitiveData } from '../../src/lib/security';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -77,10 +77,10 @@ const handler: Handler = async (event, context) => {
     let result;
     switch (action) {
       case 'encrypt':
-        result = encryptData(data);
+        result = encryptSensitiveData(data);
         break;
       case 'decrypt':
-        result = decryptData(data);
+        result = decryptSensitiveData(data);
         break;
       default:
         return {

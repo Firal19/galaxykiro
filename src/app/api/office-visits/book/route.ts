@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authToken = cookieStore.get('sb-access-token')?.value;
 
     if (!authToken) {
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function triggerAppointmentConfirmation(appointment: unknown) {
+async function triggerAppointmentConfirmation(appointment: any) {
   try {
     // This would typically trigger an email service
     // For now, we'll just update the confirmation timestamp

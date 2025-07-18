@@ -127,7 +127,7 @@ async function handleSendNotification(event: any): Promise<HandlerResponse> {
   switch (notificationRequest.type) {
     case 'tier_change':
       notificationPayload = await processTierChangeNotification(
-        notificationRequest.data as TierChangeNotification,
+        notificationRequest.data as unknown as TierChangeNotification,
         user
       )
       channels = ['tier-changes', `user-${user.id}`, 'user-notifications']
@@ -135,7 +135,7 @@ async function handleSendNotification(event: any): Promise<HandlerResponse> {
 
     case 'assessment_complete':
       notificationPayload = await processAssessmentCompleteNotification(
-        notificationRequest.data as AssessmentCompleteNotification,
+        notificationRequest.data as unknown as AssessmentCompleteNotification,
         user
       )
       channels = ['assessment-updates', `user-${user.id}`, 'user-notifications']
@@ -143,7 +143,7 @@ async function handleSendNotification(event: any): Promise<HandlerResponse> {
 
     case 'engagement_milestone':
       notificationPayload = await processEngagementMilestoneNotification(
-        notificationRequest.data as EngagementMilestoneNotification,
+        notificationRequest.data as unknown as EngagementMilestoneNotification,
         user
       )
       channels = ['engagement-milestones', `user-${user.id}`, 'user-notifications']

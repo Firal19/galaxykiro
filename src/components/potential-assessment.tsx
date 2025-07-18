@@ -31,7 +31,7 @@ interface Question {
 const questions: Question[] = [
   {
     id: "q1",
-    text: "When facing a new challenge, what's your typical first reaction?",
+    text: "When facing a new challenge, what is your typical first reaction?",
     options: [
       { value: "excited", label: "I get excited and dive right in", score: 4 },
       { value: "plan", label: "I carefully plan my approach first", score: 3 },
@@ -51,7 +51,7 @@ const questions: Question[] = [
   },
   {
     id: "q3",
-    text: "What percentage of your current potential do you feel you're using?",
+    text: "What percentage of your current potential do you feel you are using?",
     options: [
       { value: "high", label: "80-100% - I'm maximizing my abilities", score: 1 },
       { value: "medium", label: "50-79% - I'm doing okay but could improve", score: 2 },

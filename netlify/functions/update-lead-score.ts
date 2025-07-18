@@ -14,31 +14,30 @@ interface UpdateLeadScoreResponse {
   error?: string
 }
 
-export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({ error: 'Method not allowed' })
-    }
-  }
+// Helper function to ensure consistent headers
+const getHeaders = () => ({
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+})
 
+export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
+      headers: getHeaders(),
       body: ''
+    }
+  }
+
+  // Only allow POST requests
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: getHeaders(),
+      body: JSON.stringify({ error: 'Method not allowed' })
     }
   }
 
@@ -47,10 +46,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     if (!event.body) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: getHeaders(),
         body: JSON.stringify({ 
           success: false, 
           error: 'Request body is required' 
@@ -63,10 +59,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     if (!userId) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: getHeaders(),
         body: JSON.stringify({ 
           success: false, 
           error: 'userId is required' 
@@ -84,10 +77,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     if (userError || !user) {
       return {
         statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: getHeaders(),
         body: JSON.stringify({ 
           success: false, 
           error: 'User not found' 
@@ -149,10 +139,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers: getHeaders(),
       body: JSON.stringify(response)
     }
 
@@ -161,10 +148,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ 
         success: false, 
         error: 'Internal server error',

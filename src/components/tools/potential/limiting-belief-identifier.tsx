@@ -19,14 +19,14 @@ export function LimitingBeliefIdentifier() {
       {
         id: 'scenario-1',
         type: 'multiple-choice',
-        text: 'You're offered a promotion at work that would be a significant step up in responsibility. Your first thought is:',
+        text: 'You are offered a promotion at work that would be a significant step up in responsibility. Your first thought is:',
         required: true,
         category: 'self-worth',
         weight: 1.5,
         options: [
           {
             id: 's1-1',
-            text: '"I'm not ready for this level of responsibility yet."',
+            text: '"I am not ready for this level of responsibility yet."',
             value: 1,
             score: 1
           },
@@ -38,7 +38,7 @@ export function LimitingBeliefIdentifier() {
           },
           {
             id: 's1-3',
-            text: '"I'll probably have to work twice as hard to prove myself."',
+            text: '"I will probably have to work twice as hard to prove myself."',
             value: 3,
             score: 3
           },
@@ -60,7 +60,7 @@ export function LimitingBeliefIdentifier() {
         options: [
           {
             id: 's2-1',
-            text: '"This proves I'm not good enough for this role."',
+            text: '"This proves I am not good enough for this role."',
             value: 1,
             score: 1
           },
@@ -94,13 +94,13 @@ export function LimitingBeliefIdentifier() {
         options: [
           {
             id: 's3-1',
-            text: '"I don't have what it takes to be successful as an entrepreneur."',
+            text: '"I do not have what it takes to be successful as an entrepreneur."',
             value: 1,
             score: 1
           },
           {
             id: 's3-2',
-            text: '"The market is too competitive; I'll never stand out."',
+            text: '"The market is too competitive; I will never stand out."',
             value: 2,
             score: 2
           },
@@ -121,20 +121,20 @@ export function LimitingBeliefIdentifier() {
       {
         id: 'scenario-4',
         type: 'multiple-choice',
-        text: 'When you think about pursuing your biggest dream, what's the main thought that comes up?',
+        text: 'When you think about pursuing your biggest dream, what is the main thought that comes up?',
         required: true,
         category: 'deserving',
         weight: 1.5,
         options: [
           {
             id: 's4-1',
-            text: '"People like me don't achieve things like that."',
+            text: '"People like me do not achieve things like that."',
             value: 1,
             score: 1
           },
           {
             id: 's4-2',
-            text: '"I'm not sure I deserve that level of success."',
+            text: '"I am not sure I deserve that level of success."',
             value: 2,
             score: 2
           },
@@ -162,7 +162,7 @@ export function LimitingBeliefIdentifier() {
         options: [
           {
             id: 's5-1',
-            text: '"They must have had advantages or connections I don't have."',
+            text: '"They must have had advantages or connections I do not have."',
             value: 1,
             score: 1
           },
@@ -230,7 +230,7 @@ export function LimitingBeliefIdentifier() {
         options: [
           {
             id: 'd2-1',
-            text: '"I'm not _____ enough." (smart, talented, experienced, etc.)',
+            text: '"I am not _____ enough." (smart, talented, experienced, etc.)',
             value: 1,
             score: 1
           },
@@ -264,19 +264,19 @@ export function LimitingBeliefIdentifier() {
         options: [
           {
             id: 'd3-1',
-            text: '"It's too late for me to make such a big change."',
+            text: '"It is too late for me to make such a big change."',
             value: 1,
             score: 1
           },
           {
             id: 'd3-2',
-            text: '"I've invested too much in my current path to change now."',
+            text: '"I have invested too much in my current path to change now."',
             value: 2,
             score: 2
           },
           {
             id: 'd3-3',
-            text: '"I'm not sure I can succeed in a new field."',
+            text: '"I am not sure I can succeed in a new field."',
             value: 3,
             score: 3
           },
@@ -344,7 +344,7 @@ export function LimitingBeliefIdentifier() {
           },
           {
             id: 'd5-3',
-            text: '"I need to put others' needs before my own to maintain relationships."',
+            text: '"I need to put others\' needs before my own to maintain relationships."',
             value: 3,
             score: 3
           },

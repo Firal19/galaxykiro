@@ -46,13 +46,13 @@ export function TransformationReadinessScore() {
           },
           {
             id: 'a2-2',
-            text: 'I have a general idea but haven't deeply examined them',
+            text: 'I have a general idea but have not deeply examined them',
             value: 2,
             score: 3
           },
           {
             id: 'a2-3',
-            text: 'I've identified most of my key strengths and weaknesses',
+            text: 'I have identified most of my key strengths and weaknesses',
             value: 3,
             score: 7
           },
@@ -94,7 +94,7 @@ export function TransformationReadinessScore() {
           },
           {
             id: 'm2-2',
-            text: 'I know I should change but don't feel strongly about it',
+            text: 'I know I should change but do not feel strongly about it',
             value: 2,
             score: 3
           },
@@ -273,7 +273,7 @@ export function TransformationReadinessScore() {
       {
         id: 'history-2',
         type: 'multiple-choice',
-        text: 'When you've attempted significant changes in the past, what typically happened?',
+        text: 'When you have attempted significant changes in the past, what typically happened?',
         required: true,
         category: 'history',
         weight: 1.3,
@@ -292,7 +292,7 @@ export function TransformationReadinessScore() {
           },
           {
             id: 'h2-3',
-            text: 'I've successfully made some lasting changes but struggled with others',
+            text: 'I have successfully made some lasting changes but struggled with others',
             value: 3,
             score: 7
           },
@@ -376,13 +376,13 @@ export function TransformationReadinessScore() {
         options: [
           {
             id: 't2-1',
-            text: 'I'm in crisis or dealing with major life disruptions',
+            text: 'I am in crisis or dealing with major life disruptions',
             value: 1,
             score: 1
           },
           {
             id: 't2-2',
-            text: 'I'm stable but extremely busy with little margin',
+            text: 'I am stable but extremely busy with little margin',
             value: 2,
             score: 3
           },

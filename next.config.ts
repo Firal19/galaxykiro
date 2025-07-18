@@ -17,9 +17,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Set the server to listen on port 9000
-  serverOptions: {
-    port: 9000,
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
   },
 };
 

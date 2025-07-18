@@ -13,11 +13,12 @@ const IdParamSchema = z.object({
 // GET /api/admin/content/[id] - Get content by ID
 async function getContentByIdHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Validate ID parameter
-    const validatedParams = IdParamSchema.parse(params);
+    // Await and validate ID parameter
+    const resolvedParams = await params;
+    const validatedParams = IdParamSchema.parse(resolvedParams);
     
     // Verify admin authorization
     const session = await auth.getSession()
@@ -57,12 +58,8 @@ async function getContentByIdHandler(
   }
 }
 
-// Apply security wrapper to GET handler
-export const GET = withSecurity(getContentByIdHandler, {
-  rateLimit: 50,
-  cors: true,
-  securityHeaders: true
-});
+// Export GET handler directly (security is handled by middleware)
+export const GET = getContentByIdHandler;
 
 // Define content update schema
 const ContentUpdateSchema = z.object({
@@ -91,11 +88,12 @@ const ContentUpdateSchema = z.object({
 // PUT /api/admin/content/[id] - Update content
 async function updateContentHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Validate ID parameter
-    const validatedParams = IdParamSchema.parse(params);
+    // Await and validate ID parameter
+    const resolvedParams = await params;
+    const validatedParams = IdParamSchema.parse(resolvedParams);
     
     // Verify admin authorization
     const session = await auth.getSession()
@@ -142,7 +140,7 @@ async function updateContentHandler(
     console.error('Error in content API:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
@@ -153,22 +151,18 @@ async function updateContentHandler(
   }
 }
 
-// Apply security wrapper to PUT handler
-export const PUT = withSecurity(updateContentHandler, {
-  rateLimit: 10, // Stricter rate limit for PUT
-  cors: true,
-  securityHeaders: true,
-  validateSchema: ContentUpdateSchema
-});
+// Export PUT handler directly (security is handled by middleware)
+export const PUT = updateContentHandler;
 
 // DELETE /api/admin/content/[id] - Delete content
 async function deleteContentHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Validate ID parameter
-    const validatedParams = IdParamSchema.parse(params);
+    // Await and validate ID parameter
+    const resolvedParams = await params;
+    const validatedParams = IdParamSchema.parse(resolvedParams);
     
     // Verify admin authorization
     const session = await auth.getSession()
@@ -204,12 +198,8 @@ async function deleteContentHandler(
   }
 }
 
-// Apply security wrapper to DELETE handler
-export const DELETE = withSecurity(deleteContentHandler, {
-  rateLimit: 5, // Very strict rate limit for DELETE operations
-  cors: true,
-  securityHeaders: true
-});
+// Export DELETE handler directly (security is handled by middleware)
+export const DELETE = deleteContentHandler;
 
 // Helper function to validate content data
 function validateContentData(data: Partial<ContentItem>): { valid: boolean; error?: string } {

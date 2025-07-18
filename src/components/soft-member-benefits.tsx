@@ -39,7 +39,7 @@ const categoryColors = {
   insights: 'var(--color-potential-500)'
 }
 
-export function SoftMemberBenefits({ 
+function SoftMemberBenefits({ 
   variant = 'widget', 
   showProgress = true,
   className 
@@ -354,3 +354,5 @@ export function SoftMemberBenefits({
     </motion.div>
   )
 }
+
+export default SoftMemberBenefits

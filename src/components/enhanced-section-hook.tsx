@@ -130,7 +130,7 @@ const sectionHooks: Record<EnhancedSectionHookProps['sectionId'], HookContent> =
       relatedTools: [
         {
           name: "Regret Prevention Planner",
-          description: "Make decisions you'll be proud of later",
+          description: "Make decisions you will be proud of later",
           url: "/tools/regret-prevention",
           icon: BookOpen
         },
@@ -307,7 +307,7 @@ const sectionHooks: Record<EnhancedSectionHookProps['sectionId'], HookContent> =
       relatedTools: [
         {
           name: "Change Readiness Assessment",
-          description: "Discover what's really stopping you",
+          description: "Discover what is really stopping you",
           url: "/tools/change-readiness",
           icon: Target
         },

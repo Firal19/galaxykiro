@@ -61,7 +61,7 @@ export function AffirmationArchitect() {
           },
           {
             id: 'ga-8',
-            text: 'Other (you'll specify later)',
+            text: 'Other (you will specify later)',
             value: 'other'
           }
         ]
@@ -92,7 +92,7 @@ export function AffirmationArchitect() {
           },
           {
             id: 'cb1-2',
-            text: 'I'm uncertain if I can achieve this goal',
+            text: 'I am uncertain if I can achieve this goal',
             value: 2,
             score: 3
           },
@@ -104,7 +104,7 @@ export function AffirmationArchitect() {
           },
           {
             id: 'cb1-4',
-            text: 'I'm confident I will achieve this goal',
+            text: 'I am confident I will achieve this goal',
             value: 4,
             score: 10
           }
@@ -118,7 +118,7 @@ export function AffirmationArchitect() {
         required: true,
         category: 'current-beliefs',
         weight: 1.4,
-        placeholder: 'Example: I'm not smart enough, I don't have enough time, etc.'
+        placeholder: 'Example: I am not smart enough, I do not have enough time, etc.'
       },
       {
         id: 'strengths',
@@ -206,7 +206,7 @@ export function AffirmationArchitect() {
       {
         id: 'visualization',
         type: 'text',
-        text: 'Briefly describe how you'll look, feel, and act when you've achieved this goal:',
+        text: 'Briefly describe how you will look, feel, and act when you have achieved this goal:',
         required: false,
         category: 'visualization',
         weight: 1.2,
@@ -468,7 +468,7 @@ export function AffirmationArchitect() {
         } else {
           tier = {
             label: 'Affirmation Beginner',
-            description: 'You're just starting to work with affirmations and belief building.',
+            description: 'You are just starting to work with affirmations and belief building.',
             insights: [
               'You may have significant doubts about achieving your goal',
               'Your implementation plan needs strengthening',

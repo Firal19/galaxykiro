@@ -415,7 +415,7 @@ async function handleGetSequenceStatus(event: any): Promise<HandlerResponse> {
   const sequencesByType: Record<string, any[]> = {}
   emailSequences.forEach(interaction => {
     const eventData = interaction.eventData
-    const seqType = eventData.sequence_type || eventData.sequenceType || 'unknown'
+    const seqType = (eventData.sequence_type as string) || (eventData.sequenceType as string) || 'unknown'
     
     if (!sequencesByType[seqType]) {
       sequencesByType[seqType] = []

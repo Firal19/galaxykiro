@@ -216,25 +216,25 @@ export function HabitStrengthAnalyzer() {
         options: [
           {
             id: 'i2-1',
-            text: 'It's something I'm trying to do but doesn't feel like "me"',
+            text: 'It is something I am trying to do but does not feel like "me"',
             value: 1,
             score: 1
           },
           {
             id: 'i2-2',
-            text: 'It's something I do but not a core part of my identity',
+            text: 'It is something I do but not a core part of my identity',
             value: 2,
             score: 3
           },
           {
             id: 'i2-3',
-            text: 'It's becoming part of how I see myself',
+            text: 'It is becoming part of how I see myself',
             value: 3,
             score: 7
           },
           {
             id: 'i2-4',
-            text: 'It's completely aligned with who I am as a person',
+            text: 'It is completely aligned with who I am as a person',
             value: 4,
             score: 10
           }
@@ -250,13 +250,13 @@ export function HabitStrengthAnalyzer() {
         options: [
           {
             id: 'cue1-1',
-            text: 'No, I don't have a specific cue or trigger',
+            text: 'No, I do not have a specific cue or trigger',
             value: 1,
             score: 1
           },
           {
             id: 'cue1-2',
-            text: 'I have a vague cue but it's not very consistent',
+            text: 'I have a vague cue but it is not very consistent',
             value: 2,
             score: 3
           },
@@ -308,7 +308,7 @@ export function HabitStrengthAnalyzer() {
         options: [
           {
             id: 'r2-1',
-            text: 'I don't experience any reward, I just do it because I should',
+            text: 'I do not experience any reward, I just do it because I should',
             value: 1,
             score: 1
           },
@@ -356,25 +356,25 @@ export function HabitStrengthAnalyzer() {
         options: [
           {
             id: 'e2-1',
-            text: 'I haven't made any environmental changes to support this habit',
+            text: 'I have not made any environmental changes to support this habit',
             value: 1,
             score: 1
           },
           {
             id: 'e2-2',
-            text: 'I've made minor adjustments to my environment',
+            text: 'I have made minor adjustments to my environment',
             value: 2,
             score: 3
           },
           {
             id: 'e2-3',
-            text: 'I've made several significant changes to my environment',
+            text: 'I have made several significant changes to my environment',
             value: 3,
             score: 7
           },
           {
             id: 'e2-4',
-            text: 'I've completely optimized my environment to make this habit almost inevitable',
+            text: 'I have completely optimized my environment to make this habit almost inevitable',
             value: 4,
             score: 10
           }
@@ -509,7 +509,7 @@ export function HabitStrengthAnalyzer() {
           label: 'Developing Habit',
           description: 'This habit is establishing but needs reinforcement in specific areas.',
           insights: [
-            'Your habit has moderate strength but isn't fully automatic yet',
+            'Your habit has moderate strength but is not fully automatic yet',
             'You have some good foundations but specific areas need strengthening',
             'The habit may falter under stress or significant disruption'
           ],

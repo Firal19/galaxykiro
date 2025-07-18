@@ -8,8 +8,9 @@ const supabase = createClient(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const { searchParams } = new URL(request.url);
     const dateFrom = searchParams.get('date_from');
@@ -26,7 +27,7 @@ export async function GET(
     const { data: office, error: officeError } = await supabase
       .from('office_locations')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('is_active', true)
       .single();
 
@@ -78,7 +79,7 @@ async function generateAvailableSlots(
 
   // Generate slots for each day
   for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'lowercase' });
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
     const daySchedule = office.operating_hours[dayName];
     
     // Skip if office is closed on this day
