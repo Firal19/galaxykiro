@@ -42,14 +42,13 @@ const CACHEABLE_APIS = [
   '/.netlify/functions/process-assessment'
 ];
 
-// Assessment tools to cache for offline use
+// Assessment tools to cache for offline use (only include existing ones)
 const CACHEABLE_TOOLS = [
-  '/api/tools/potential-quotient-calculator',
-  '/api/tools/success-factor-calculator',
-  '/api/tools/habit-strength-analyzer',
-  '/api/tools/future-self-visualizer',
-  '/api/tools/leadership-style-identifier',
-  '/api/tools/cost-of-inaction-calculator'
+  // Only include tools that actually exist
+  '/tools/potential-quotient-calculator',
+  '/tools/habit-strength-analyzer',
+  '/tools/leadership-style-profiler',
+  '/tools/transformation-readiness-score'
 ];
 
 // Install event - cache static assets and tools
@@ -62,14 +61,23 @@ self.addEventListener('install', (event) => {
       caches.open(STATIC_CACHE)
         .then((cache) => {
           console.log('Service Worker: Caching static assets');
-          return cache.addAll(STATIC_ASSETS);
+          return cache.addAll(STATIC_ASSETS.filter(asset => 
+            !asset.includes('_next/static/') || asset.endsWith('/')
+          ));
         }),
       
-      // Pre-cache tool templates and data
+      // Pre-cache tool templates and data (with error handling)
       caches.open(TOOL_CACHE)
         .then((cache) => {
           console.log('Service Worker: Caching assessment tools');
-          return cache.addAll(CACHEABLE_TOOLS);
+          return Promise.allSettled(
+            CACHEABLE_TOOLS.map(url => 
+              cache.add(url).catch(error => {
+                console.warn(`Service Worker: Failed to cache ${url}:`, error);
+                return null;
+              })
+            )
+          );
         })
     ])
     .then(() => {

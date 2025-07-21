@@ -1,12 +1,23 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useForm, FormProvider } from "react-hook-form"
+import { useState, useCallback, useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { z } from "zod"
-import { Mail, Phone, User, MapPin, Briefcase, Target, ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
+import { 
+  Mail, 
+  Phone, 
+  User, 
+  MapPin, 
+  ChevronLeft, 
+  ChevronRight, 
+  CheckCircle, 
+  AlertCircle,
+  Loader2
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/lib/store"
 import { level1Schema, level2Schema, level3Schema, validateFormData } from "@/lib/validations"
@@ -165,7 +176,7 @@ const SPECIAL_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       label: 'Occupation',
       placeholder: 'Enter your occupation (optional)',
       type: 'text',
-      icon: Briefcase,
+      icon: User, // Changed from Briefcase to User for consistency
       required: false,
     },
     {
@@ -173,7 +184,7 @@ const SPECIAL_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       label: 'Main Goals',
       placeholder: 'What are your main goals? (optional)',
       type: 'textarea',
-      icon: Target,
+      icon: User, // Changed from Target to User for consistency
       required: false,
     }
   ]
@@ -291,16 +302,6 @@ export function ProgressiveForm({
     }
   }, [user, setValue])
 
-  // Persist form data to localStorage for recovery
-  const watchedValues = watch()
-  useEffect(() => {
-    if (isDirty) {
-      const dataToSave = { ...formData, ...watchedValues }
-      localStorage.setItem('progressive-form-data', JSON.stringify(dataToSave))
-      setFormData(dataToSave)
-    }
-  }, [watchedValues, isDirty, formData])
-
   // Recover form data from localStorage on mount
   useEffect(() => {
     const savedData = localStorage.getItem('progressive-form-data')
@@ -315,29 +316,15 @@ export function ProgressiveForm({
     }
   }, [reset])
 
-  // Real-time validation
-  useEffect(() => {
-    try {
-      const currentData = { ...formData, ...watchedValues }
-      const validation = validateFormData(currentData, currentLevel as 1 | 2 | 3)
-      
-      if (!validation.success && validation.errors) {
-        setValidationErrors(validation.errors)
-      } else {
-        setValidationErrors({})
-      }
-    } catch (error) {
-      console.error('Validation error:', error)
-      setValidationErrors({})
-    }
-  }, [watchedValues, currentLevel, formData])
-
   // Handle form submission
   const handleFormSubmit = async (data: Record<string, unknown>) => {
     setIsSubmitting(true)
     try {
-      // Merge with existing form data
+      // Use the submitted data directly instead of calling watch()
       const completeData = { ...formData, ...data }
+      
+      // Save to localStorage
+      localStorage.setItem('progressive-form-data', JSON.stringify(completeData))
       
       // Submit to parent component
       await onSubmit(completeData, currentLevel)
@@ -517,8 +504,7 @@ export function ProgressiveForm({
 
   return (
     <div className={cn("w-full max-w-md mx-auto", className)}>
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Header */}
           {(title || description) && (
             <motion.div
@@ -568,45 +554,22 @@ export function ProgressiveForm({
           )}
 
           {/* Form Fields */}
-          <AnimatePresence mode="wait">
-            {!isSuccess ? (
-              <motion.div
-                key={`level-${currentLevel}-${specialFields}`}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-4"
-              >
-                {fields && fields.length > 0 ? (
-                  fields.map(field => renderField(field))
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    No form fields configured
-                  </div>
-                )}
-              </motion.div>
+          <motion.div
+            key={`level-${currentLevel}-${specialFields}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4"
+          >
+            {fields && fields.length > 0 ? (
+              fields.map(field => renderField(field))
             ) : (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.5 }}
-                className="text-center py-8"
-              >
-                <div className="mx-auto w-16 h-16 bg-[var(--color-growth-500)] rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Information Saved!
-                </h3>
-                <p className="text-muted-foreground">
-                  Thank you for providing your information. You can now access more personalized features.
-                </p>
-              </motion.div>
+              <div className="text-center py-4 text-muted-foreground">
+                No form fields configured
+              </div>
             )}
-          </AnimatePresence>
+          </motion.div>
 
           {/* Form Actions */}
           {!isSuccess && (
@@ -624,7 +587,7 @@ export function ProgressiveForm({
                   onClick={handleLevelRegression}
                   className="flex items-center"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ChevronLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               )}
@@ -639,15 +602,11 @@ export function ProgressiveForm({
                 className="flex items-center"
               >
                 {isSubmitting || isLoading ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                  />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <>
                     {ctaText}
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ChevronRight className="h-4 w-4 ml-2" />
                   </>
                 )}
               </Button>
@@ -673,7 +632,6 @@ export function ProgressiveForm({
             </motion.div>
           )}
         </form>
-      </FormProvider>
     </div>
   )
 }

@@ -30,6 +30,7 @@ export function VideoPlayer({
   const [isPlaying, setIsPlaying] = useState(autoplay)
   const [isMuted, setIsMuted] = useState(muted)
   const [showControls, setShowControls] = useState(false)
+  const [videoError, setVideoError] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
@@ -37,19 +38,25 @@ export function VideoPlayer({
 
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
+    const handleError = () => {
+      console.warn(`Video failed to load: ${src}`)
+      setVideoError(true)
+    }
 
     video.addEventListener('play', handlePlay)
     video.addEventListener('pause', handlePause)
+    video.addEventListener('error', handleError)
 
     return () => {
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
+      video.removeEventListener('error', handleError)
     }
-  }, [])
+  }, [src])
 
   const togglePlay = () => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || videoError) return
 
     if (isPlaying) {
       video.pause()
@@ -60,10 +67,54 @@ export function VideoPlayer({
 
   const toggleMute = () => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || videoError) return
 
     video.muted = !video.muted
     setIsMuted(video.muted)
+  }
+
+  // If video failed to load, show a placeholder
+  if (videoError) {
+    return (
+      <motion.div
+        className={cn("relative group", className)}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <div className="relative overflow-hidden rounded-lg shadow-2xl bg-gradient-to-br from-muted to-muted/50">
+          <div className="aspect-video flex items-center justify-center">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-muted-foreground/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Play className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Testimonial Video</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Watch how our tools have transformed lives and unlocked hidden potential.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Testimonial Text */}
+        {testimonialText && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-4 p-4 bg-card border border-border rounded-lg"
+          >
+            <blockquote className="text-muted-foreground italic">"{testimonialText}"</blockquote>
+            {authorName && (
+              <div className="mt-2 text-sm">
+                <span className="font-semibold text-foreground">{authorName}</span>
+                {authorTitle && <span className="text-muted-foreground">, {authorTitle}</span>}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </motion.div>
+    )
   }
 
   return (

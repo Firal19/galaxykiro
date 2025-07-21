@@ -8,7 +8,7 @@ import { GalaxyDreamTeamFooter } from "@/components/galaxy-dream-team-footer";
 
 export default function Home() {
   return (
-    <main>
+    <div>
       <HeroSection />
       <SuccessGapSection />
       <ChangeParadoxSection />
@@ -16,6 +16,6 @@ export default function Home() {
       <LeadershipLeverSection />
       <DecisionDoorSection />
       <GalaxyDreamTeamFooter />
-    </main>
+    </div>
   );
 }

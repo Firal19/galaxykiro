@@ -199,7 +199,7 @@ export function PotentialAssessment({ isOpen, onClose, userEmail }: PotentialAss
     console.log('Assessment completed:', {
       email: userEmail,
       results: assessmentResults,
-      responses: data
+      responses: JSON.stringify(data)
     })
   }
 

@@ -1,20 +1,16 @@
-import { supabase } from '../../lib/supabase';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
-import { Database } from '../../lib/supabase';
+import { supabase } from './supabase';
 
-// Cache TTL constants (in seconds)
+// Cache configuration
 const CACHE_TTL = {
-  ASSESSMENT_RESULTS: 60 * 60, // 1 hour
-  USER_SESSION: 30 * 60, // 30 minutes
-  CONTENT: 24 * 60 * 60, // 24 hours
-  WEBINAR_LISTING: 15 * 60, // 15 minutes
-  LEAD_SCORE: 5 * 60, // 5 minutes
-  CONTENT_ENGAGEMENT: 10 * 60, // 10 minutes
-  OFFICE_LOCATIONS: 24 * 60 * 60, // 24 hours
-  WEBINAR_REGISTRATIONS: 15 * 60, // 15 minutes
-};
+  ASSESSMENT_RESULTS: 5 * 60, // 5 minutes
+  USER_SESSION: 10 * 60, // 10 minutes
+  LEAD_SCORE: 2 * 60, // 2 minutes
+  CONTENT: 15 * 60, // 15 minutes
+  WEBINARS: 30 * 60, // 30 minutes
+  OFFICE_LOCATIONS: 60 * 60, // 1 hour
+} as const;
 
-// Cache statistics for monitoring
 interface CacheStats {
   hits: number;
   misses: number;
@@ -22,14 +18,12 @@ interface CacheStats {
   lastCleanup: number;
 }
 
-// Local in-memory cache for frequently accessed data
 interface CacheItem<T> {
   data: T;
   expiry: number;
   lastAccessed: number;
 }
 
-// Active subscription tracking
 interface ActiveSubscription {
   channel: RealtimeChannel;
   table: string;
@@ -46,26 +40,12 @@ class SupabaseCache {
     hits: 0,
     misses: 0,
     size: 0,
-    lastCleanup: Date.now()
+    lastCleanup: Date.now(),
   };
-  
-  // Initialize Supabase client with caching options
-  initializeClient() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    
-    return createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-      },
-      global: {
-        headers: {
-          'Cache-Control': 'max-age=300', // 5 minutes default cache
-        },
-      },
-    });
+
+  constructor() {
+    // Cleanup cache every 5 minutes
+    setInterval(() => this.cleanupCache(), 5 * 60 * 1000);
   }
 
   // Get assessment results with caching
@@ -292,7 +272,7 @@ class SupabaseCache {
     }
     
     // Store in cache
-    this.setInCache(cacheKey, data, CACHE_TTL.WEBINAR_LISTING);
+    this.setInCache(cacheKey, data, CACHE_TTL.WEBINARS);
     
     return data;
   }

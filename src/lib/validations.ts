@@ -2,6 +2,8 @@
  * Input validation utilities
  */
 
+import { z } from "zod"
+
 /**
  * Validate email address format
  * @param email Email address to validate
@@ -143,4 +145,52 @@ export function validateCity(city: string): boolean {
   // Allow letters, spaces, hyphens, and common city name characters
   const cityRegex = /^[a-zA-Z\s'-.,]{2,100}$/;
   return cityRegex.test(city.trim());
+}
+
+// Schema definitions for progressive form validation
+export const level1Schema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const level2Schema = z.object({
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+});
+
+export const level3Schema = z.object({
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  city: z.string().min(2, "City must be at least 2 characters"),
+});
+
+/**
+ * Validate form data based on level
+ * @param data Form data to validate
+ * @param level Validation level (1, 2, or 3)
+ * @returns Boolean indicating if data is valid
+ */
+export function validateFormData(data: Record<string, unknown>, level: number): boolean {
+  try {
+    let schema;
+    switch (level) {
+      case 1:
+        schema = level1Schema;
+        break;
+      case 2:
+        schema = level2Schema;
+        break;
+      case 3:
+        schema = level3Schema;
+        break;
+      default:
+        return false;
+    }
+    
+    schema.parse(data);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }

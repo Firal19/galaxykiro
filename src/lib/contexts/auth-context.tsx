@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { createClientComponentClient } from '../auth'
 import type { UserSession } from '../auth'
 import type { User } from '@supabase/supabase-js'
@@ -21,7 +21,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserSession | null>(null)
   const [supabaseUser, setSupabaseUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClientComponentClient()
+  
+  // Use ref to ensure supabase client is only created once
+  const supabaseRef = useRef<ReturnType<typeof createClientComponentClient> | null>(null)
+  const supabase = supabaseRef.current || (supabaseRef.current = createClientComponentClient())
 
   const fetchUserProfile = async (authUser: User): Promise<UserSession | null> => {
     try {

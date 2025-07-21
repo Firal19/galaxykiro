@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { useTranslations } from 'next-intl'
+// import { useTranslations } from 'next-intl'
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { VideoPlayer } from "@/components/ui/video-player"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ export function HeroSection({ className }: HeroSectionProps) {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
   
-  const t = useTranslations('hero')
+  // const t = useTranslations('hero')
 
   const handleEmailSubmit = async (email: string) => {
     try {
@@ -126,7 +126,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-energy-500)]/10 rounded-full text-[var(--color-energy-700)] dark:text-[var(--color-energy-300)] text-sm font-medium"
               >
                 <Sparkles className="h-4 w-4" />
-                {t('badge')}
+                {/* {t('badge')} */}
               </motion.div>
               
               <motion.h1
@@ -135,7 +135,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight"
               >
-                {t('title')}
+                {/* {t('title')} */}
               </motion.h1>
               
               <motion.p
@@ -144,7 +144,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-lg text-muted-foreground max-w-2xl"
               >
-                {t('description')}
+                {/* {t('description')} */}
               </motion.p>
             </div>
 
@@ -162,7 +162,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={50000} suffix="+" />
                 </div>
-                <div className="text-sm text-muted-foreground">{t('stats.livesTransformed')}</div>
+                <div className="text-sm text-muted-foreground">{/* {t('stats.livesTransformed')} */}</div>
               </div>
               
               <div className="text-center">
@@ -172,7 +172,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={90} suffix="%" />
                 </div>
-                <div className="text-sm text-muted-foreground">{t('stats.successRate')}</div>
+                <div className="text-sm text-muted-foreground">{/* {t('stats.successRate')} */}</div>
               </div>
               
               <div className="text-center">
@@ -182,7 +182,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 <div className="text-2xl font-bold text-foreground">
                   <AnimatedCounter from={0} to={15} suffix="+" />
                 </div>
-                <div className="text-sm text-muted-foreground">{t('stats.yearsExperience')}</div>
+                <div className="text-sm text-muted-foreground">{/* {t('stats.yearsExperience')} */}</div>
               </div>
             </motion.div>
 
@@ -199,10 +199,10 @@ export function HeroSection({ className }: HeroSectionProps) {
                 className="text-lg px-8 py-4 h-auto"
               >
                 <Sparkles className="mr-2 h-5 w-5" />
-                {t('cta')}
+                {/* {t('cta')} */}
               </Button>
               <p className="text-sm text-muted-foreground mt-2">
-                {t('freeAssessment')}
+                {/* {t('freeAssessment')} */}
               </p>
             </motion.div>
           </motion.div>
