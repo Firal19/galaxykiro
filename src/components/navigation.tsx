@@ -18,17 +18,9 @@ export function Navigation() {
   const { isInstallable, installApp, isOnline } = usePWA()
 
   const navItems = [
-    { href: `/${locale}`, label: t('home') },
-    { href: `/${locale}/success-gap`, label: 'Success Gap' },
-    { href: `/${locale}/change-paradox`, label: 'Change Paradox' },
-    { href: `/${locale}/vision-void`, label: 'Vision Void' },
-    { href: `/${locale}/leadership-lever`, label: 'Leadership Lever' },
-    { href: `/${locale}/decision-door`, label: 'Decision Door' },
-    { href: `/${locale}/webinars`, label: t('webinars') },
-    { href: `/${locale}/content-library`, label: t('content') },
-    { href: `/quick-links`, label: 'Quick Links' },
-    { href: `/office-visit`, label: 'Book Visit' },
-    { href: `/membership/dashboard`, label: 'Dashboard' },
+    { href: `/${locale}/webinars`, label: 'Webinars' },
+    { href: '/community', label: 'Network' },
+    { href: '/membership/dashboard', label: 'Member' },
   ]
 
   const isActive = (href: string) => {
@@ -39,7 +31,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="backdrop-blur-lg bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-gray-800 shadow-md sticky top-0 z-50" role="navigation" aria-label="Main Navigation">
+    <nav className="backdrop-blur bg-white/60 dark:bg-black/60 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50" role="navigation" aria-label="Main Navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center min-h-[60px]">
           {/* Logo */}

@@ -2,6 +2,7 @@ import type { Viewport } from "next";
 import { notFound } from 'next/navigation';
 import { locales, type Locale } from '../../../i18n';
 import { AuthProvider } from '../../lib/contexts/auth-context';
+import { Navigation } from '../../components/navigation';
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -35,6 +36,7 @@ export default async function LocaleLayout({
       </head>
       <body>
         <AuthProvider>
+          <Navigation />
           {children}
         </AuthProvider>
       </body>
