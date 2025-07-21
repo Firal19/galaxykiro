@@ -347,21 +347,27 @@ function calculateScheduledTime(sequenceType: string, webinarScheduledAt: string
 }
 
 async function sendEmail(emailContent: { subject: string; content: string }, toEmail: string): Promise<void> {
-  // This is a placeholder for actual email sending
-  // In a real implementation, you would integrate with:
-  // - SendGrid
-  // - Mailgun
-  // - AWS SES
-  // - Or another email service
-  
-  console.log('Sending email:', {
-    to: toEmail,
-    subject: emailContent.subject,
-    content: emailContent.content
-  })
-  
-  // For now, we'll just log the email
-  // In production, replace this with actual email sending logic
+  try {
+    // Use the email service to send the email
+    const { emailService } = await import('../../src/lib/email-service')
+    
+    const result = await emailService.sendEmail({
+      to: toEmail,
+      subject: emailContent.subject,
+      htmlContent: emailContent.content,
+      textContent: emailContent.content.replace(/<[^>]*>/g, '') // Strip HTML for text version
+    })
+    
+    if (!result.success) {
+      console.error('Failed to send webinar email:', result.error)
+      throw new Error(`Email sending failed: ${result.error}`)
+    }
+    
+    console.log('Webinar email sent successfully:', result.messageId)
+  } catch (error) {
+    console.error('Error sending webinar email:', error)
+    throw error
+  }
 }
 
 export { handler }

@@ -24,7 +24,7 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
         : `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       
-      const response = await fetch('/.netlify/functions/capture-user-info', {
+      const response = await fetch('/api/capture-user-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,92 +203,110 @@ function VisionVoidVisualization() {
 
   return (
     <div className="relative w-full max-w-lg mx-auto">
-      {/* Central Void */}
-      <div className="relative w-80 h-80 mx-auto">
-        {/* Outer Circle - Represents Life */}
-        <div className="absolute inset-0 border-4 border-[var(--color-energy-300)] rounded-full" />
-        
-        {/* Inner Void - Represents Unclear Vision */}
+      {/* Glassmorphic Animated Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.05, 1],
-            opacity: [0.3, 0.5, 0.3]
+            opacity: [0.12, 0.18, 0.12]
           }}
-          transition={{ 
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-8 left-8 w-72 h-72 bg-gradient-to-br from-[var(--color-energy-400)]/30 to-[var(--color-transformation-400)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.08, 1],
+            opacity: [0.10, 0.16, 0.10]
           }}
-          className="absolute inset-8 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center"
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-8 right-8 w-80 h-80 bg-gradient-to-br from-[var(--color-growth-400)]/30 to-[var(--color-ethiopian-gold)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        {/* Ethiopian pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
+          <defs>
+            <pattern id="ethiopianPattern2" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FFD700" strokeWidth="2" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#ethiopianPattern2)" />
+        </svg>
+      </div>
+      {/* Life Wheel Visualization */}
+      <div className="relative w-80 h-80 mx-auto z-10">
+        {/* Outer Glassy Circle */}
+        <div className="absolute inset-0 border-4 border-[var(--color-energy-300)] rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md shadow-2xl" />
+        {/* Animated Central Void */}
+        <motion.div
+          animate={{
+            scale: [1, 1.05, 1],
+            opacity: [0.18, 0.28, 0.18]
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-10 bg-gradient-to-br from-gray-200/60 to-gray-300/60 dark:from-gray-700/60 dark:to-gray-800/60 rounded-full flex items-center justify-center shadow-xl backdrop-blur-lg"
         >
           <div className="text-center">
-            <div className="text-4xl font-bold text-gray-400 mb-2">?</div>
-            <div className="text-sm text-gray-500">Vision Void</div>
+            <div className="text-4xl font-extrabold text-gray-400 mb-2 drop-shadow-lg animate-pulse">?</div>
+            <div className="text-base text-gray-500 drop-shadow">Vision Void</div>
           </div>
         </motion.div>
-
-        {/* Life Areas */}
+        {/* Life Areas with Animated Glow and Glassy Labels */}
         {lifeAreas.map((area, index) => {
-          const radius = 140
+          const radius = 120
           const x = Math.cos((area.angle - 90) * Math.PI / 180) * radius
           const y = Math.sin((area.angle - 90) * Math.PI / 180) * radius
-
           return (
             <motion.div
               key={area.id}
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+              transition={{ duration: 0.7, delay: index * 0.1 }}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
               style={{
                 transform: `translate(${x}px, ${y}px) translate(-50%, -50%)`
               }}
               onMouseEnter={() => setHoveredArea(area.id)}
               onMouseLeave={() => setHoveredArea(null)}
             >
-              <div className={`relative transition-all duration-300 ${
-                hoveredArea === area.id ? 'scale-110' : ''
-              }`}>
-                {/* Clarity Indicator */}
-                <div className="absolute -inset-2 rounded-full border-2 border-dashed opacity-30"
-                     style={{ 
-                       borderColor: `hsl(${area.clarity * 1.2}, 70%, 50%)`,
-                       opacity: area.clarity / 100
-                     }} />
-                
-                {/* Icon Container */}
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-                  hoveredArea === area.id 
-                    ? 'bg-white dark:bg-gray-800 scale-110' 
-                    : 'bg-white/80 dark:bg-gray-800/80'
-                }`}>
-                  <area.icon 
-                    className="h-5 w-5" 
+              <div className={`relative transition-all duration-300 ${hoveredArea === area.id ? 'scale-110' : ''}`}>
+                {/* Animated Clarity Indicator */}
+                <motion.div
+                  animate={{
+                    opacity: hoveredArea === area.id ? 0.7 : 0.3,
+                    scale: hoveredArea === area.id ? 1.15 : 1
+                  }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute -inset-3 rounded-full border-2 border-dashed shadow-lg"
+                  style={{
+                    borderColor: `hsl(${area.clarity * 1.2}, 70%, 50%)`,
+                    boxShadow: hoveredArea === area.id ? `0 0 16px 4px hsl(${area.clarity * 1.2}, 70%, 60%)` : undefined
+                  }}
+                />
+                {/* Icon Container with Glow */}
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 bg-white/80 dark:bg-gray-900/80 border-2 border-white/40 ${hoveredArea === area.id ? 'ring-4 ring-[var(--color-energy-400)]/40' : ''}`}>
+                  <area.icon
+                    className="h-7 w-7 drop-shadow-glow"
                     style={{ color: `hsl(${area.clarity * 1.2}, 70%, 50%)` }}
                   />
                 </div>
-
-                {/* Label */}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 text-center">
-                  <div className="text-xs font-medium whitespace-nowrap">{area.label}</div>
-                  <div className="text-xs text-muted-foreground">{area.clarity}% clear</div>
+                {/* Glassy Label with Animated Gradient Text */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 text-center px-4 py-2 bg-white/90 dark:bg-gray-900/90 rounded-xl shadow-lg border border-white/30 min-w-[90px]">
+                  <span className="font-bold text-base bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x">{area.label}</span>
+                  <div className="text-xs text-muted-foreground mt-1">{area.clarity}% clear</div>
                 </div>
               </div>
             </motion.div>
           )
         })}
-
-        {/* Connecting Lines to Show Void */}
+        {/* Animated Connecting Lines */}
         {lifeAreas.map((area, index) => {
-          const radius = 100
-
+          const radius = 90
           return (
             <motion.div
               key={`line-${area.id}`}
               initial={{ opacity: 0 }}
-              whileInView={{ opacity: 0.2 }}
+              whileInView={{ opacity: 0.12 }}
               transition={{ duration: 0.5, delay: 1 + index * 0.05 }}
-              className="absolute top-1/2 left-1/2 w-px bg-gray-300 dark:bg-gray-600 origin-bottom"
+              className="absolute top-1/2 left-1/2 w-px bg-gradient-to-b from-[var(--color-energy-400)]/40 to-[var(--color-transformation-400)]/10 origin-bottom z-0"
               style={{
                 height: `${radius}px`,
                 transform: `translate(-50%, -100%) rotate(${area.angle}deg)`
@@ -297,28 +315,25 @@ function VisionVoidVisualization() {
           )
         })}
       </div>
-
-      {/* Legend */}
+      {/* Glassy Legend */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 2 }}
-        className="mt-8 text-center"
+        transition={{ duration: 0.8, delay: 2 }}
+        className="mt-10 text-center px-4 py-4 bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl inline-block border border-white/30 backdrop-blur-md"
       >
-        <p className="text-sm text-muted-foreground mb-2">
-          Most people have unclear vision in most life areas
-        </p>
-        <div className="flex justify-center items-center gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
+        <p className="text-base font-semibold bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x mb-2">Most people have unclear vision in most life areas</p>
+        <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+          <div className="flex items-center gap-2 px-3 py-1 bg-red-100/60 rounded-full">
+            <div className="w-3 h-3 rounded-full bg-red-400 animate-pulse" />
             <span>Unclear (0-30%)</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
+          <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100/60 rounded-full">
+            <div className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse" />
             <span>Somewhat Clear (30-60%)</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-green-400" />
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-100/60 rounded-full">
+            <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
             <span>Crystal Clear (60%+)</span>
           </div>
         </div>

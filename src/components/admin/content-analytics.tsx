@@ -16,7 +16,7 @@ import {
   ContentCategory, 
   CONTENT_CATEGORIES 
 } from '../../lib/models/content'
-import { getContentMetrics, ContentMetrics } from '../../lib/content-review-system'
+import { contentReviewService, ContentMetrics } from '../../lib/content-review-service'
 
 interface ContentAnalyticsProps {
   contents: ContentModel[]
@@ -48,21 +48,23 @@ export function ContentAnalytics({ contents }: ContentAnalyticsProps) {
       setLoading(true)
       
       try {
-        // In a real implementation, this would be an API call
-        // For now, we'll simulate with the local content-review-system
+        // Use real content review service
         const performance = await Promise.all(
           contents
             .filter(content => categoryFilter === 'all' || content.category === categoryFilter)
             .map(async content => {
-              const metrics = getContentMetrics(content.id) || {
+              const metrics = await contentReviewService.getContentMetrics(content.id) || {
                 contentId: content.id,
-                totalReviews: Math.floor(Math.random() * 50),
-                averageRating: 3 + Math.random() * 2,
-                ratingDistribution: { 1: 0, 2: 1, 3: 3, 4: 8, 5: 5 },
-                tagFrequency: { 'helpful': 10, 'inspiring': 5, 'practical': 8 },
-                completionRate: 0.6 + Math.random() * 0.3,
-                engagementScore: 50 + Math.random() * 40,
-                lastUpdated: new Date().toISOString()
+                contentType: content.contentType,
+                totalReviews: 0,
+                averageRating: 0,
+                ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                tagFrequency: {},
+                engagementScore: 0,
+                verifiedReviewsCount: 0,
+                totalHelpfulVotes: 0,
+                reportedReviewsCount: 0,
+                lastReviewAt: new Date().toISOString()
               }
               
               return {

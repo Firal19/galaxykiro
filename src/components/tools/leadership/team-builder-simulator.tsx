@@ -16,7 +16,6 @@ export function TeamBuilderSimulator() {
     title: 'Team Builder Simulator',
     description: 'Create optimal team structures based on complementary strengths',
     questions: [
-      // Questions would go here - simplified for brevity
       {
         id: 'team-purpose',
         type: 'text',
@@ -55,8 +54,357 @@ export function TeamBuilderSimulator() {
             value: 'very-large'
           }
         ]
+      },
+      {
+        id: 'team-type',
+        type: 'multiple-choice',
+        text: 'What type of team are you building?',
+        required: true,
+        category: 'type',
+        weight: 1.2,
+        options: [
+          {
+            id: 'tt-1',
+            text: 'Project team (temporary, goal-focused)',
+            value: 'project'
+          },
+          {
+            id: 'tt-2',
+            text: 'Functional team (ongoing, specialized)',
+            value: 'functional'
+          },
+          {
+            id: 'tt-3',
+            text: 'Cross-functional team (diverse skills)',
+            value: 'cross_functional'
+          },
+          {
+            id: 'tt-4',
+            text: 'Leadership team (strategic, decision-making)',
+            value: 'leadership'
+          },
+          {
+            id: 'tt-5',
+            text: 'Innovation team (creative, experimental)',
+            value: 'innovation'
+          },
+          {
+            id: 'tt-6',
+            text: 'Other',
+            value: 'other'
+          }
+        ]
+      },
+      {
+        id: 'critical-skills',
+        type: 'text',
+        text: 'What are the most critical skills needed for your team to succeed?',
+        description: 'List the essential skills, knowledge, or expertise required',
+        required: true,
+        category: 'skills',
+        weight: 1.4,
+        placeholder: 'Example: Technical expertise, communication, project management, creativity'
+      },
+      {
+        id: 'team-diversity',
+        type: 'multiple-choice',
+        text: 'How important is diversity in your team composition?',
+        required: true,
+        category: 'diversity',
+        weight: 1.1,
+        options: [
+          {
+            id: 'td-1',
+            text: 'Very important - I actively seek diverse perspectives',
+            value: 'very_important'
+          },
+          {
+            id: 'td-2',
+            text: 'Somewhat important - I value different viewpoints',
+            value: 'somewhat_important'
+          },
+          {
+            id: 'td-3',
+            text: 'Moderately important - I consider it when possible',
+            value: 'moderately_important'
+          },
+          {
+            id: 'td-4',
+            text: 'Not a priority - I focus on skills and fit',
+            value: 'not_priority'
+          }
+        ]
+      },
+      {
+        id: 'leadership-style',
+        type: 'multiple-choice',
+        text: 'What is your preferred leadership style for this team?',
+        required: true,
+        category: 'leadership',
+        weight: 1.3,
+        options: [
+          {
+            id: 'ls-1',
+            text: 'Directive - I provide clear direction and oversight',
+            value: 'directive'
+          },
+          {
+            id: 'ls-2',
+            text: 'Participative - I involve team members in decisions',
+            value: 'participative'
+          },
+          {
+            id: 'ls-3',
+            text: 'Delegative - I empower team members to lead',
+            value: 'delegative'
+          },
+          {
+            id: 'ls-4',
+            text: 'Transformational - I inspire and motivate the team',
+            value: 'transformational'
+          },
+          {
+            id: 'ls-5',
+            text: 'Adaptive - I adjust my style to the situation',
+            value: 'adaptive'
+          }
+        ]
+      },
+      {
+        id: 'communication-preference',
+        type: 'multiple-choice',
+        text: 'How do you prefer team communication to be structured?',
+        required: true,
+        category: 'communication',
+        weight: 1.0,
+        options: [
+          {
+            id: 'cp-1',
+            text: 'Frequent, informal check-ins',
+            value: 'frequent_informal'
+          },
+          {
+            id: 'cp-2',
+            text: 'Structured, scheduled meetings',
+            value: 'structured_scheduled'
+          },
+          {
+            id: 'cp-3',
+            text: 'Asynchronous, written communication',
+            value: 'asynchronous'
+          },
+          {
+            id: 'cp-4',
+            text: 'Hybrid approach - mix of methods',
+            value: 'hybrid'
+          },
+          {
+            id: 'cp-5',
+            text: 'Minimal communication - let people work independently',
+            value: 'minimal'
+          }
+        ]
+      },
+      {
+        id: 'decision-making-process',
+        type: 'multiple-choice',
+        text: 'How should important decisions be made in your team?',
+        required: true,
+        category: 'decision-making',
+        weight: 1.2,
+        options: [
+          {
+            id: 'dmp-1',
+            text: 'Consensus - everyone must agree',
+            value: 'consensus'
+          },
+          {
+            id: 'dmp-2',
+            text: 'Majority vote',
+            value: 'majority'
+          },
+          {
+            id: 'dmp-3',
+            text: 'Leader decides after input',
+            value: 'leader_decides'
+          },
+          {
+            id: 'dmp-4',
+            text: 'Expert decides in their domain',
+            value: 'expert_decides'
+          },
+          {
+            id: 'dmp-5',
+            text: 'Autonomous - each person decides their area',
+            value: 'autonomous'
+          }
+        ]
+      },
+      {
+        id: 'team-culture',
+        type: 'multiple-choice',
+        text: 'What type of team culture do you want to create?',
+        required: true,
+        category: 'culture',
+        weight: 1.1,
+        options: [
+          {
+            id: 'tc-1',
+            text: 'High performance - focus on results and excellence',
+            value: 'high_performance'
+          },
+          {
+            id: 'tc-2',
+            text: 'Collaborative - emphasis on teamwork and support',
+            value: 'collaborative'
+          },
+          {
+            id: 'tc-3',
+            text: 'Innovative - encourage creativity and experimentation',
+            value: 'innovative'
+          },
+          {
+            id: 'tc-4',
+            text: 'Learning - focus on growth and development',
+            value: 'learning'
+          },
+          {
+            id: 'tc-5',
+            text: 'Balanced - mix of performance and wellbeing',
+            value: 'balanced'
+          }
+        ]
+      },
+      {
+        id: 'current-challenges',
+        type: 'text',
+        text: 'What are the biggest challenges you face with your current team?',
+        description: 'Describe specific issues or problems you\'re trying to solve',
+        required: true,
+        category: 'challenges',
+        weight: 1.3,
+        placeholder: 'Example: Communication gaps, skill gaps, personality conflicts, unclear roles'
+      },
+      {
+        id: 'success-metrics',
+        type: 'text',
+        text: 'How will you measure the success of your team?',
+        description: 'What specific outcomes or metrics matter most?',
+        required: true,
+        category: 'success',
+        weight: 1.4,
+        placeholder: 'Example: Project completion, customer satisfaction, team engagement, revenue growth'
+      },
+      {
+        id: 'resource-constraints',
+        type: 'multiple-choice',
+        text: 'What are your main constraints when building this team?',
+        required: true,
+        category: 'constraints',
+        weight: 1.0,
+        options: [
+          {
+            id: 'rc-1',
+            text: 'Budget limitations',
+            value: 'budget'
+          },
+          {
+            id: 'rc-2',
+            text: 'Time constraints',
+            value: 'time'
+          },
+          {
+            id: 'rc-3',
+            text: 'Limited talent pool',
+            value: 'talent_pool'
+          },
+          {
+            id: 'rc-4',
+            text: 'Organizational politics',
+            value: 'politics'
+          },
+          {
+            id: 'rc-5',
+            text: 'No major constraints',
+            value: 'none'
+          }
+        ]
+      },
+      {
+        id: 'team-development',
+        type: 'multiple-choice',
+        text: 'How do you plan to develop your team members?',
+        required: true,
+        category: 'development',
+        weight: 1.1,
+        options: [
+          {
+            id: 'td-1',
+            text: 'Formal training and education programs',
+            value: 'formal_training'
+          },
+          {
+            id: 'td-2',
+            text: 'On-the-job learning and mentoring',
+            value: 'on_job_learning'
+          },
+          {
+            id: 'td-3',
+            text: 'Cross-training and skill rotation',
+            value: 'cross_training'
+          },
+          {
+            id: 'td-4',
+            text: 'External coaching and consulting',
+            value: 'external_coaching'
+          },
+          {
+            id: 'td-5',
+            text: 'Self-directed learning and development',
+            value: 'self_directed'
+          }
+        ]
+      },
+      {
+        id: 'team-timeline',
+        type: 'multiple-choice',
+        text: 'What is your timeline for building this team?',
+        required: true,
+        category: 'timeline',
+        weight: 0.9,
+        options: [
+          {
+            id: 'tt-1',
+            text: 'Immediate - need to start right away',
+            value: 'immediate'
+          },
+          {
+            id: 'tt-2',
+            text: 'Short-term - within the next month',
+            value: 'short_term'
+          },
+          {
+            id: 'tt-3',
+            text: 'Medium-term - within 3-6 months',
+            value: 'medium_term'
+          },
+          {
+            id: 'tt-4',
+            text: 'Long-term - 6+ months to build',
+            value: 'long_term'
+          }
+        ]
+      },
+      {
+        id: 'ideal-outcome',
+        type: 'text',
+        text: 'What would an ideal team look like for your situation?',
+        description: 'Describe your vision of the perfect team for your needs',
+        required: true,
+        category: 'outcome',
+        weight: 1.5,
+        placeholder: 'Example: A team that communicates effectively, delivers high-quality results, and enjoys working together'
       }
-      // Additional questions would be added here
     ],
     scoringConfig: {
       type: 'simple',

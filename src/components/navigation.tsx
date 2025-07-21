@@ -19,8 +19,15 @@ export function Navigation() {
 
   const navItems = [
     { href: `/${locale}`, label: t('home') },
+    { href: `/${locale}/success-gap`, label: 'Success Gap' },
+    { href: `/${locale}/change-paradox`, label: 'Change Paradox' },
+    { href: `/${locale}/vision-void`, label: 'Vision Void' },
+    { href: `/${locale}/leadership-lever`, label: 'Leadership Lever' },
+    { href: `/${locale}/decision-door`, label: 'Decision Door' },
     { href: `/${locale}/webinars`, label: t('webinars') },
     { href: `/${locale}/content-library`, label: t('content') },
+    { href: `/quick-links`, label: 'Quick Links' },
+    { href: `/office-visit`, label: 'Book Visit' },
     { href: `/membership/dashboard`, label: 'Dashboard' },
   ]
 
@@ -32,7 +39,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 safe-area-inset-top">
+    <nav className="backdrop-blur-lg bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-gray-800 shadow-md sticky top-0 z-50" role="navigation" aria-label="Main Navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center min-h-[60px]">
           {/* Logo */}
@@ -41,7 +48,7 @@ export function Navigation() {
               href={`/${locale}`}
               variant="full"
               size="medium"
-              className="transition-opacity hover:opacity-90"
+              className="transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-growth-500 rounded-lg"
             />
           </div>
 
@@ -55,18 +62,25 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+            <div className="ml-10 flex items-center space-x-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors touch-manipulation min-h-[44px] flex items-center ${
-                    isActive(item.href)
-                      ? 'bg-growth-100 text-growth-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  className={
+                    `relative px-4 py-2 rounded-full font-medium transition-all duration-200 min-h-[44px] flex items-center outline-none focus-visible:ring-2 focus-visible:ring-growth-500
+                    ${isActive(item.href)
+                      ? 'bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-growth-500)] text-white shadow-lg'
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-growth-700'}
+                    `
+                  }
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  tabIndex={0}
+                  role="tab"
                 >
-                  {item.label}
+                  <span className="z-10">{item.label}</span>
+                  {/* Animated underline for active/hover */}
+                  <span className={`absolute left-2 right-2 -bottom-1 h-1 rounded-full transition-all duration-300 ${isActive(item.href) ? 'bg-gradient-to-r from-[var(--color-energy-400)] to-[var(--color-growth-400)] opacity-80' : 'opacity-0 group-hover:opacity-40'}`}></span>
                 </Link>
               ))}
             </div>
@@ -93,6 +107,7 @@ export function Navigation() {
                 Join Free
               </TouchButton>
             </Link>
+            {/* User avatar/CTA reserved here */}
           </div>
 
           {/* Mobile menu button */}
@@ -102,7 +117,7 @@ export function Navigation() {
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-growth-500 touch-manipulation"
+              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-growth-500"
               aria-expanded={isOpen}
               aria-label="Toggle navigation menu"
             >
@@ -122,23 +137,25 @@ export function Navigation() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 safe-area-inset-bottom">
+        <div className="md:hidden backdrop-blur-lg bg-white/90 dark:bg-black/90 border-t border-gray-200 dark:border-gray-800 sticky top-0 z-50">
           <div className="px-4 pt-2 pb-4 space-y-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors touch-manipulation min-h-[44px] flex items-center ${
-                  isActive(item.href)
-                    ? 'bg-growth-100 text-growth-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                className={`block px-4 py-3 rounded-full text-base font-medium transition-all duration-200 min-h-[44px] flex items-center outline-none focus-visible:ring-2 focus-visible:ring-growth-500
+                  ${isActive(item.href)
+                    ? 'bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-growth-500)] text-white shadow-lg'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-growth-700'}
+                `}
+                aria-current={isActive(item.href) ? 'page' : undefined}
                 onClick={() => setIsOpen(false)}
+                tabIndex={0}
+                role="tab"
               >
                 {item.label}
               </Link>
             ))}
-            
             {/* Mobile Actions */}
             <div className="pt-4 space-y-3">
               <div className="flex justify-center">

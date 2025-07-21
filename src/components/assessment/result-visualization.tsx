@@ -56,19 +56,16 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
           value: visualizationData.data.datasets[0].data[index],
           fullMark: 100
         }))
-      
       case 'bar':
         return visualizationData.data.labels.map((label, index) => ({
           name: label,
           value: visualizationData.data.datasets[0].data[index]
         }))
-      
       case 'pie':
         return visualizationData.data.labels.map((label, index) => ({
           name: label,
           value: visualizationData.data.datasets[0].data[index]
         }))
-      
       default:
         return []
     }
@@ -95,51 +92,70 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 relative">
+      {/* Glassmorphic Animated Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360, opacity: [0.12, 0.18, 0.12] }}
+          transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
+          className="absolute top-8 left-8 w-72 h-72 bg-gradient-to-br from-[var(--color-energy-400)]/30 to-[var(--color-transformation-400)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        <motion.div
+          animate={{ rotate: -360, opacity: [0.10, 0.16, 0.10] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute bottom-8 right-8 w-80 h-80 bg-gradient-to-br from-[var(--color-growth-400)]/30 to-[var(--color-ethiopian-gold)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        {/* Ethiopian pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
+          <defs>
+            <pattern id="ethiopianPattern5" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FFD700" strokeWidth="2" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#ethiopianPattern5)" />
+        </svg>
+      </div>
       {/* Score Overview */}
       <ScoreOverview scores={scores} />
-
-      {/* Main Visualization */}
-      <Card>
+      {/* Main Visualization with Glassmorphism */}
+      <Card className="relative z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x">
+            <TrendingUp className="h-5 w-5 animate-pulse" />
             Your Results Breakdown
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-80">
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               {visualizationData.chartType === 'radar' && (
-                <RadarChart data={chartData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="category" />
-                  <PolarRadiusAxis 
-                    angle={90} 
-                    domain={[0, 100]} 
-                    tick={false}
-                  />
+                <RadarChart data={chartData} outerRadius={120}>
+                  <PolarGrid stroke="#fff" strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="category" tick={{ fill: '#fff', fontWeight: 700, fontSize: 16, filter: 'drop-shadow(0 2px 8px #0008)' }} />
+                  <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} />
                   <Radar
                     name="Score"
                     dataKey="value"
                     stroke="#3B82F6"
                     fill="#3B82F6"
-                    fillOpacity={0.2}
-                    strokeWidth={2}
+                    fillOpacity={0.25}
+                    strokeWidth={3}
                   />
                 </RadarChart>
               )}
-
               {visualizationData.chartType === 'bar' && (
                 <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#3B82F6" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#fff" strokeOpacity={0.2} />
+                  <XAxis dataKey="name" tick={{ fill: '#fff', fontWeight: 700, fontSize: 16, filter: 'drop-shadow(0 2px 8px #0008)' }} />
+                  <YAxis tick={{ fill: '#fff', fontWeight: 700, fontSize: 16, filter: 'drop-shadow(0 2px 8px #0008)' }} />
+                  <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: 12, boxShadow: '0 4px 24px #0002', color: '#222' }} />
+                  <Bar dataKey="value" fill="#3B82F6" radius={[8, 8, 0, 0]}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               )}
-
               {visualizationData.chartType === 'pie' && (
                 <PieChart>
                   <Pie
@@ -148,7 +164,7 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -156,10 +172,9 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
                       <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ background: 'rgba(255,255,255,0.95)', borderRadius: 12, boxShadow: '0 4px 24px #0002', color: '#222' }} />
                 </PieChart>
               )}
-
               {visualizationData.chartType === 'gauge' && (
                 <div className="flex items-center justify-center h-full">
                   <GaugeChart value={scores.percentage} />
@@ -169,22 +184,18 @@ export function ResultVisualization({ result, showSharing = true, compact = fals
           </div>
         </CardContent>
       </Card>
-
       {/* Category Breakdown */}
       {scores.categoryScores && (
         <CategoryBreakdown categoryScores={scores.categoryScores} />
       )}
-
       {/* Personalized Insights */}
       <InsightsSummary insights={insights} />
-
       {/* Sharing Options */}
       {showSharing && (
         <SharingOptions result={result} />
       )}
-
       {/* Galaxy Dream Team Attribution */}
-      <Card>
+      <Card className="relative z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl">
         <CardContent className="pt-6">
           <div className="flex items-center justify-center space-x-3 border-t border-border pt-4">
             <GalaxyDreamTeamLogo variant="compact" size="small" />

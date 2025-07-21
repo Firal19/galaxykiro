@@ -16,7 +16,6 @@ export function MentalModelMapper() {
     title: 'Mental Model Mapper',
     description: 'Discover which mental models shape your thinking and decision-making',
     questions: [
-      // Questions would go here - simplified for brevity
       {
         id: 'decision-scenario',
         type: 'text',
@@ -34,8 +33,387 @@ export function MentalModelMapper() {
         category: 'process',
         weight: 1.5,
         placeholder: 'Describe your thinking process...'
+      },
+      {
+        id: 'decision-style',
+        type: 'multiple-choice',
+        text: 'How do you typically approach important decisions?',
+        required: true,
+        category: 'decision-style',
+        weight: 1.2,
+        options: [
+          {
+            id: 'ds-1',
+            text: 'Analytical - I gather data and analyze options systematically',
+            value: 'analytical'
+          },
+          {
+            id: 'ds-2',
+            text: 'Intuitive - I trust my gut feeling and experience',
+            value: 'intuitive'
+          },
+          {
+            id: 'ds-3',
+            text: 'Collaborative - I discuss with others and seek input',
+            value: 'collaborative'
+          },
+          {
+            id: 'ds-4',
+            text: 'Risk-averse - I prefer safe, proven options',
+            value: 'risk_averse'
+          },
+          {
+            id: 'ds-5',
+            text: 'Innovative - I look for creative, unconventional solutions',
+            value: 'innovative'
+          }
+        ]
+      },
+      {
+        id: 'problem-solving-approach',
+        type: 'multiple-choice',
+        text: 'When solving complex problems, what approach do you prefer?',
+        required: true,
+        category: 'problem-solving',
+        weight: 1.1,
+        options: [
+          {
+            id: 'psa-1',
+            text: 'Breaking down into smaller, manageable parts',
+            value: 'decomposition'
+          },
+          {
+            id: 'psa-2',
+            text: 'Looking for patterns and similarities to past situations',
+            value: 'pattern_recognition'
+          },
+          {
+            id: 'psa-3',
+            text: 'Considering multiple perspectives and viewpoints',
+            value: 'multiple_perspectives'
+          },
+          {
+            id: 'psa-4',
+            text: 'Focusing on the root cause and fundamental issues',
+            value: 'root_cause'
+          },
+          {
+            id: 'psa-5',
+            text: 'Experimenting and testing different approaches',
+            value: 'experimentation'
+          }
+        ]
+      },
+      {
+        id: 'information-processing',
+        type: 'multiple-choice',
+        text: 'How do you prefer to process and organize information?',
+        required: true,
+        category: 'information',
+        weight: 1.0,
+        options: [
+          {
+            id: 'ip-1',
+            text: 'Visual - I prefer charts, diagrams, and visual representations',
+            value: 'visual'
+          },
+          {
+            id: 'ip-2',
+            text: 'Logical - I prefer structured, step-by-step frameworks',
+            value: 'logical'
+          },
+          {
+            id: 'ip-3',
+            text: 'Narrative - I prefer stories and contextual information',
+            value: 'narrative'
+          },
+          {
+            id: 'ip-4',
+            text: 'Systems - I prefer understanding how things connect and interact',
+            value: 'systems'
+          },
+          {
+            id: 'ip-5',
+            text: 'Practical - I prefer concrete, actionable information',
+            value: 'practical'
+          }
+        ]
+      },
+      {
+        id: 'bias-awareness',
+        type: 'multiple-choice',
+        text: 'Which cognitive biases do you think affect your thinking most?',
+        required: true,
+        category: 'biases',
+        weight: 1.3,
+        options: [
+          {
+            id: 'ba-1',
+            text: 'Confirmation bias - seeking information that confirms my views',
+            value: 'confirmation'
+          },
+          {
+            id: 'ba-2',
+            text: 'Anchoring - being influenced by first impressions or numbers',
+            value: 'anchoring'
+          },
+          {
+            id: 'ba-3',
+            text: 'Availability bias - overestimating what comes to mind easily',
+            value: 'availability'
+          },
+          {
+            id: 'ba-4',
+            text: 'Sunk cost fallacy - continuing because of past investment',
+            value: 'sunk_cost'
+          },
+          {
+            id: 'ba-5',
+            text: 'I\'m not sure which biases affect me most',
+            value: 'unsure'
+          }
+        ]
+      },
+      {
+        id: 'learning-preference',
+        type: 'multiple-choice',
+        text: 'How do you prefer to learn new concepts or skills?',
+        required: true,
+        category: 'learning',
+        weight: 1.0,
+        options: [
+          {
+            id: 'lp-1',
+            text: 'Through examples and real-world applications',
+            value: 'examples'
+          },
+          {
+            id: 'lp-2',
+            text: 'Through theoretical frameworks and principles',
+            value: 'theoretical'
+          },
+          {
+            id: 'lp-3',
+            text: 'Through hands-on practice and experimentation',
+            value: 'hands_on'
+          },
+          {
+            id: 'lp-4',
+            text: 'Through discussion and debate with others',
+            value: 'discussion'
+          },
+          {
+            id: 'lp-5',
+            text: 'Through observation and modeling others',
+            value: 'observation'
+          }
+        ]
+      },
+      {
+        id: 'complexity-tolerance',
+        type: 'multiple-choice',
+        text: 'How do you handle complex, ambiguous situations?',
+        required: true,
+        category: 'complexity',
+        weight: 1.1,
+        options: [
+          {
+            id: 'ct-1',
+            text: 'I embrace complexity and enjoy exploring multiple possibilities',
+            value: 'embrace'
+          },
+          {
+            id: 'ct-2',
+            text: 'I simplify complex situations into clear frameworks',
+            value: 'simplify'
+          },
+          {
+            id: 'ct-3',
+            text: 'I gather more information to reduce uncertainty',
+            value: 'gather_info'
+          },
+          {
+            id: 'ct-4',
+            text: 'I rely on proven methods and best practices',
+            value: 'proven_methods'
+          },
+          {
+            id: 'ct-5',
+            text: 'I prefer to avoid overly complex situations',
+            value: 'avoid'
+          }
+        ]
+      },
+      {
+        id: 'mental-model-familiarity',
+        type: 'multiple-choice',
+        text: 'How familiar are you with mental models and thinking frameworks?',
+        required: true,
+        category: 'familiarity',
+        weight: 0.9,
+        options: [
+          {
+            id: 'mmf-1',
+            text: 'Very familiar - I actively use mental models in my thinking',
+            value: 'very_familiar'
+          },
+          {
+            id: 'mmf-2',
+            text: 'Somewhat familiar - I know some models but don\'t use them regularly',
+            value: 'somewhat_familiar'
+          },
+          {
+            id: 'mmf-3',
+            text: 'A little familiar - I\'ve heard of mental models but don\'t know many',
+            value: 'little_familiar'
+          },
+          {
+            id: 'mmf-4',
+            text: 'Not familiar - I\'m new to the concept of mental models',
+            value: 'not_familiar'
+          }
+        ]
+      },
+      {
+        id: 'thinking-improvement-goal',
+        type: 'multiple-choice',
+        text: 'What aspect of your thinking would you most like to improve?',
+        required: true,
+        category: 'improvement',
+        weight: 1.2,
+        options: [
+          {
+            id: 'tig-1',
+            text: 'Making better decisions under uncertainty',
+            value: 'better_decisions'
+          },
+          {
+            id: 'tig-2',
+            text: 'Avoiding cognitive biases and blind spots',
+            value: 'avoiding_biases'
+          },
+          {
+            id: 'tig-3',
+            text: 'Thinking more creatively and innovatively',
+            value: 'creative_thinking'
+          },
+          {
+            id: 'tig-4',
+            text: 'Understanding complex systems and relationships',
+            value: 'systems_thinking'
+          },
+          {
+            id: 'tig-5',
+            text: 'Communicating my thinking more effectively',
+            value: 'communication'
+          },
+          {
+            id: 'tig-6',
+            text: 'Other',
+            value: 'other'
+          }
+        ]
+      },
+      {
+        id: 'domain-expertise',
+        type: 'multiple-choice',
+        text: 'In which areas do you have the most expertise or experience?',
+        required: true,
+        category: 'expertise',
+        weight: 1.0,
+        options: [
+          {
+            id: 'de-1',
+            text: 'Business and strategy',
+            value: 'business'
+          },
+          {
+            id: 'de-2',
+            text: 'Science and technology',
+            value: 'science_tech'
+          },
+          {
+            id: 'de-3',
+            text: 'Psychology and human behavior',
+            value: 'psychology'
+          },
+          {
+            id: 'de-4',
+            text: 'Mathematics and logic',
+            value: 'mathematics'
+          },
+          {
+            id: 'de-5',
+            text: 'Arts and creativity',
+            value: 'arts'
+          },
+          {
+            id: 'de-6',
+            text: 'Other or multiple areas',
+            value: 'other'
+          }
+        ]
+      },
+      {
+        id: 'decision-context',
+        type: 'multiple-choice',
+        text: 'What types of decisions do you make most frequently?',
+        required: true,
+        category: 'context',
+        weight: 1.1,
+        options: [
+          {
+            id: 'dc-1',
+            text: 'Strategic decisions with long-term impact',
+            value: 'strategic'
+          },
+          {
+            id: 'dc-2',
+            text: 'Tactical decisions about processes and operations',
+            value: 'tactical'
+          },
+          {
+            id: 'dc-3',
+            text: 'People and relationship decisions',
+            value: 'people'
+          },
+          {
+            id: 'dc-4',
+            text: 'Technical or analytical decisions',
+            value: 'technical'
+          },
+          {
+            id: 'dc-5',
+            text: 'Creative or design decisions',
+            value: 'creative'
+          },
+          {
+            id: 'dc-6',
+            text: 'Personal life decisions',
+            value: 'personal'
+          }
+        ]
+      },
+      {
+        id: 'thinking-challenge',
+        type: 'text',
+        text: 'What is the most challenging thinking problem you\'re currently facing?',
+        description: 'Describe a situation where you feel your current thinking approaches are insufficient',
+        required: true,
+        category: 'challenge',
+        weight: 1.3,
+        placeholder: 'Describe the thinking challenge you\'re facing...'
+      },
+      {
+        id: 'mental-model-application',
+        type: 'text',
+        text: 'How do you think mental models could help you in your current situation?',
+        description: 'What specific benefits are you hoping to gain from improving your mental models?',
+        required: true,
+        category: 'application',
+        weight: 1.4,
+        placeholder: 'Describe how mental models could help you...'
       }
-      // Additional questions would be added here
     ],
     scoringConfig: {
       type: 'simple',

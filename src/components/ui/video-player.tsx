@@ -174,28 +174,11 @@ export function VideoPlayer({
 
       {/* Testimonial Text */}
       {testimonialText && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-4 p-4 bg-card border border-border rounded-lg"
-        >
-          <blockquote className="text-muted-foreground italic">
-            &ldquo;{testimonialText}&rdquo;
-          </blockquote>
-          {(authorName || authorTitle) && (
-            <div className="mt-2 text-sm">
-              {authorName && (
-                <span className="font-semibold text-foreground">{authorName}</span>
-              )}
-              {authorTitle && (
-                <span className="text-muted-foreground">
-                  {authorName ? ', ' : ''}{authorTitle}
-                </span>
-              )}
-            </div>
-          )}
-        </motion.div>
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/60 text-white text-sm rounded-b-lg drop-shadow-lg">
+          <div className="mb-1 font-semibold">{authorName}</div>
+          <div className="mb-1 italic">"{testimonialText}"</div>
+          {authorTitle && <div className="text-xs text-gray-300">{authorTitle}</div>}
+        </div>
       )}
     </motion.div>
   )

@@ -30,7 +30,7 @@ export function LeadershipLeverSection({ className }: LeadershipLeverSectionProp
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
         : `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       
-      const response = await fetch('/.netlify/functions/capture-user-info', {
+      const response = await fetch('/api/capture-user-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -257,65 +257,80 @@ function LeadershipStylesVisualization() {
 
   return (
     <div className="relative w-full max-w-lg mx-auto">
-      {/* Central Hub */}
-      <div className="relative w-80 h-80 mx-auto">
-        {/* Central Circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-[var(--color-transformation-500)] to-[var(--color-energy-500)] rounded-full flex items-center justify-center shadow-lg">
+      {/* Glassmorphic Animated Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360, opacity: [0.12, 0.18, 0.12] }}
+          transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
+          className="absolute top-8 left-8 w-72 h-72 bg-gradient-to-br from-[var(--color-energy-400)]/30 to-[var(--color-transformation-400)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        <motion.div
+          animate={{ rotate: -360, opacity: [0.10, 0.16, 0.10] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute bottom-8 right-8 w-80 h-80 bg-gradient-to-br from-[var(--color-growth-400)]/30 to-[var(--color-ethiopian-gold)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        {/* Ethiopian pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
+          <defs>
+            <pattern id="ethiopianPattern4" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FFD700" strokeWidth="2" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#ethiopianPattern4)" />
+        </svg>
+      </div>
+      {/* Leadership Styles Visualization */}
+      <div className="relative w-80 h-80 mx-auto z-10">
+        {/* Central Glassy Hub */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 bg-gradient-to-br from-[var(--color-transformation-500)] to-[var(--color-energy-500)] rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 backdrop-blur-md">
           <div className="text-center text-white">
-            <Crown className="h-8 w-8 mx-auto mb-1" />
-            <div className="text-xs font-medium">YOU</div>
+            <Crown className="h-10 w-10 mx-auto mb-2 drop-shadow-md animate-pulse" />
+            <div className="text-base font-bold drop-shadow-md">YOU</div>
           </div>
         </div>
-
-        {/* Leadership Styles */}
+        {/* Leadership Styles with Animated Glow and Glassy Labels */}
         {leadershipStyles.map((style, index) => (
           <motion.div
             key={style.id}
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+            transition={{ duration: 0.7, delay: index * 0.1 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
             style={{
-              transform: `translate(${style.position.x}px, ${style.position.y}px) translate(-50%, -50%)`
+              transform: `translate(${style.position.x * 0.92}px, ${style.position.y * 0.92}px) translate(-50%, -50%)`
             }}
             onMouseEnter={() => setHoveredStyle(style.id)}
             onMouseLeave={() => setHoveredStyle(null)}
           >
-            <div className={`relative transition-all duration-300 ${
-              hoveredStyle === style.id ? 'scale-110' : ''
-            }`}>
-              {/* Connection Line */}
+            <div className={`relative transition-all duration-300 ${hoveredStyle === style.id ? 'scale-110' : ''}`}>
+              {/* Animated Glow */}
               <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 0.3 }}
-                transition={{ duration: 0.5, delay: 1 + index * 0.05 }}
-                className="absolute top-1/2 left-1/2 w-px bg-gray-300 dark:bg-gray-600 origin-center"
+                animate={{
+                  opacity: hoveredStyle === style.id ? 0.7 : 0.3,
+                  scale: hoveredStyle === style.id ? 1.15 : 1
+                }}
+                transition={{ duration: 0.4 }}
+                className="absolute -inset-3 rounded-full border-2 border-dashed shadow-lg"
                 style={{
-                  height: `${Math.sqrt(style.position.x ** 2 + style.position.y ** 2)}px`,
-                  transform: `translate(-50%, -50%) rotate(${Math.atan2(style.position.y, style.position.x) * 180 / Math.PI}deg) translateY(-50%)`
+                  borderColor: style.color,
+                  boxShadow: hoveredStyle === style.id ? `0 0 16px 4px ${style.color}` : undefined
                 }}
               />
-
-              {/* Style Icon */}
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-                hoveredStyle === style.id 
-                  ? 'bg-white dark:bg-gray-800 scale-110' 
-                  : 'bg-white/90 dark:bg-gray-800/90'
-              }`}>
-                <style.icon 
-                  className="h-6 w-6" 
+              {/* Icon Container with Glow */}
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 bg-white/80 dark:bg-gray-900/80 border-2 border-white/40 ${hoveredStyle === style.id ? 'ring-4 ring-[var(--color-energy-400)]/40' : ''}`}>
+                <style.icon
+                  className="h-8 w-8 drop-shadow-glow"
                   style={{ color: style.color }}
                 />
               </div>
-
-              {/* Style Label */}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 text-center">
-                <div className="text-sm font-medium whitespace-nowrap">{style.name}</div>
+              {/* Glassy Label with Animated Gradient Text */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 text-center px-4 py-2 bg-white/90 dark:bg-gray-900/90 rounded-xl shadow-lg border border-white/30 min-w-[90px]">
+                <span className="font-bold text-base bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x">{style.name}</span>
                 {hoveredStyle === style.id && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-xs text-muted-foreground mt-1 max-w-24"
+                    className="text-xs text-muted-foreground mt-2 max-w-32 drop-shadow-sm bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded px-2 py-1"
                   >
                     {style.description}
                   </motion.div>
@@ -324,25 +339,29 @@ function LeadershipStylesVisualization() {
             </div>
           </motion.div>
         ))}
-
-        {/* Rotating Ring */}
+        {/* Animated Rotating Ring */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-8 border-2 border-dashed border-[var(--color-transformation-300)] rounded-full opacity-30"
+          className="absolute inset-8 border-2 border-dashed border-[var(--color-transformation-300)] rounded-full opacity-20"
         />
       </div>
-
-      {/* Legend */}
+      {/* Glassy Legend */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 2 }}
-        className="mt-8 text-center"
+        transition={{ duration: 0.8, delay: 2 }}
+        className="mt-10 text-center px-4 py-4 bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl inline-block border border-white/30 backdrop-blur-md"
       >
-        <p className="text-sm text-muted-foreground">
-          Most people use 1-2 styles. Great leaders adapt their style to the situation.
-        </p>
+        <p className="text-base font-semibold bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x mb-2">Most people use 1-2 styles. Great leaders adapt their style to the situation.</p>
+        <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+          {leadershipStyles.map((style) => (
+            <div key={style.id} className="flex items-center gap-2 px-3 py-1 bg-white/60 dark:bg-gray-900/60 rounded-full border border-white/20">
+              <style.icon className="h-4 w-4" style={{ color: style.color }} />
+              <span>{style.name}</span>
+            </div>
+          ))}
+        </div>
       </motion.div>
     </div>
   )

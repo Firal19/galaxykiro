@@ -1,430 +1,497 @@
-import { useAppStore } from './store'
+/**
+ * Score Tracking System
+ * 
+ * Handles tracking and management of user engagement scores,
+ * lead scores, and behavioral metrics.
+ */
 
-// Score-affecting action types
-export type ScoreAction = 
-  | 'page_view'
-  | 'tool_start'
-  | 'tool_complete'
-  | 'content_download'
-  | 'webinar_register'
-  | 'cta_click'
-  | 'session_extend'
-  | 'scroll_depth'
-  | 'form_submit'
-  | 'video_complete'
+import { supabase } from './supabase'
 
-export interface ScoreActionData {
-  action: ScoreAction
+// Score tracking types
+interface ScoreAction {
   userId?: string
-  metadata?: {
-    toolId?: string
-    contentId?: string
-    webinarId?: string
-    ctaId?: string
-    scrollDepth?: number
-    sessionDuration?: number
-    pageUrl?: string
-    [key: string]: any
-  }
-  timestamp?: Date
+  sessionId?: string
+  actionType: string
+  value: number
+  metadata?: Record<string, unknown>
+  timestamp: Date
 }
 
-class ScoreTracker {
-  private actionQueue: ScoreActionData[] = []
-  private isProcessing = false
-  private batchTimeout: NodeJS.Timeout | null = null
-  private readonly BATCH_SIZE = 10
-  private readonly BATCH_DELAY = 5000 // 5 seconds
+interface EngagementScore {
+  userId?: string
+  sessionId?: string
+  score: number
+  level: 'low' | 'medium' | 'high' | 'very-high'
+  lastUpdated: Date
+  actions: ScoreAction[]
+}
 
-  /**
-   * Track a score-affecting action
-   */
-  trackAction(actionData: ScoreActionData): void {
-    const { user } = useAppStore.getState()
-    
-    if (!user?.id && !actionData.userId) {
-      console.warn('Cannot track score action: no user ID available')
-      return
+interface LeadScore {
+  userId?: string
+  sessionId?: string
+  score: number
+  tier: 'cold' | 'warm' | 'hot' | 'qualified'
+  lastUpdated: Date
+  factors: Array<{
+    factor: string
+    weight: number
+    value: number
+  }>
+}
+
+interface ScoreConfig {
+  engagementWeights: Record<string, number>
+  leadScoreFactors: Record<string, number>
+  thresholds: {
+    engagement: {
+      low: number
+      medium: number
+      high: number
+      veryHigh: number
     }
-
-    const enrichedAction: ScoreActionData = {
-      ...actionData,
-      userId: actionData.userId || user?.id,
-      timestamp: actionData.timestamp || new Date(),
-      metadata: {
-        ...actionData.metadata,
-        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined
-      }
-    }
-
-    // Add to queue
-    this.actionQueue.push(enrichedAction)
-
-    // Process queue if it reaches batch size
-    if (this.actionQueue.length >= this.BATCH_SIZE) {
-      this.processBatch()
-    } else {
-      // Set timeout to process remaining actions
-      this.scheduleBatchProcessing()
-    }
-
-    // Also track in interactions table for immediate analytics
-    this.trackInteraction(enrichedAction)
-  }
-
-  /**
-   * Track multiple actions at once
-   */
-  trackActions(actions: ScoreActionData[]): void {
-    actions.forEach(action => this.trackAction(action))
-  }
-
-  /**
-   * Schedule batch processing
-   */
-  private scheduleBatchProcessing(): void {
-    if (this.batchTimeout) {
-      clearTimeout(this.batchTimeout)
-    }
-
-    this.batchTimeout = setTimeout(() => {
-      this.processBatch()
-    }, this.BATCH_DELAY)
-  }
-
-  /**
-   * Process queued actions in batch
-   */
-  private async processBatch(): Promise<void> {
-    if (this.isProcessing || this.actionQueue.length === 0) {
-      return
-    }
-
-    this.isProcessing = true
-
-    try {
-      // Get actions to process
-      const actionsToProcess = this.actionQueue.splice(0, this.BATCH_SIZE)
-      
-      // Group actions by user ID
-      const actionsByUser = this.groupActionsByUser(actionsToProcess)
-
-      // Update scores for each user
-      const updatePromises = Object.keys(actionsByUser).map(userId => 
-        this.updateUserScore(userId, actionsByUser[userId])
-      )
-
-      await Promise.allSettled(updatePromises)
-
-    } catch (error) {
-      console.error('Error processing score action batch:', error)
-    } finally {
-      this.isProcessing = false
-
-      // Process remaining actions if any
-      if (this.actionQueue.length > 0) {
-        setTimeout(() => this.processBatch(), 1000)
-      }
+    leadScore: {
+      cold: number
+      warm: number
+      hot: number
+      qualified: number
     }
   }
+}
 
-  /**
-   * Group actions by user ID
-   */
-  private groupActionsByUser(actions: ScoreActionData[]): Record<string, ScoreActionData[]> {
-    return actions.reduce((groups, action) => {
-      const userId = action.userId!
-      if (!groups[userId]) {
-        groups[userId] = []
-      }
-      groups[userId].push(action)
-      return groups
-    }, {} as Record<string, ScoreActionData[]>)
-  }
+class ScoreTrackingSystem {
+  private config: ScoreConfig
+  private engagementScores: Map<string, EngagementScore> = new Map()
+  private leadScores: Map<string, LeadScore> = new Map()
+  private actionHistory: ScoreAction[] = []
 
-  /**
-   * Update user score based on actions
-   */
-  private async updateUserScore(userId: string, actions: ScoreActionData[]): Promise<void> {
-    try {
-      // Check if any actions are significant enough to trigger score update
-      const significantActions = actions.filter(action => 
-        this.isSignificantAction(action.action)
-      )
-
-      if (significantActions.length === 0) {
-        return
-      }
-
-      // Call the update lead score function
-      const response = await fetch('/.netlify/functions/update-lead-score', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+  constructor() {
+    this.config = {
+      engagementWeights: {
+        'page_view': 1,
+        'tool_usage': 5,
+        'assessment_completion': 10,
+        'webinar_registration': 8,
+        'content_engagement': 3,
+        'social_interaction': 2,
+        'time_on_site': 0.1, // per minute
+        'return_visit': 5
+      },
+      leadScoreFactors: {
+        'email_capture': 20,
+        'phone_capture': 30,
+        'assessment_completion': 25,
+        'webinar_registration': 15,
+        'content_download': 10,
+        'social_proof_view': 5,
+        'time_on_site': 0.5, // per minute
+        'return_visits': 10
+      },
+      thresholds: {
+        engagement: {
+          low: 0,
+          medium: 25,
+          high: 50,
+          veryHigh: 75
         },
-        body: JSON.stringify({
-          userId,
-          triggerSequences: true
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        leadScore: {
+          cold: 0,
+          warm: 30,
+          hot: 60,
+          qualified: 80
+        }
       }
-
-      const result = await response.json()
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update score')
-      }
-
-      // If tier changed, dispatch event for UI updates
-      if (result.tierChange) {
-        this.dispatchTierChangeEvent(result.tierChange)
-      }
-
-    } catch (error) {
-      console.error(`Error updating score for user ${userId}:`, error)
     }
   }
 
   /**
-   * Check if action is significant enough to trigger score update
+   * Track a score action
    */
-  private isSignificantAction(action: ScoreAction): boolean {
-    const significantActions: ScoreAction[] = [
-      'tool_complete',
-      'content_download',
-      'webinar_register',
-      'session_extend'
-    ]
+  async trackAction(
+    actionType: string,
+    value: number = 1,
+    metadata?: Record<string, unknown>,
+    userId?: string,
+    sessionId?: string
+  ): Promise<void> {
+    const action: ScoreAction = {
+      userId,
+      sessionId,
+      actionType,
+      value,
+      metadata,
+      timestamp: new Date()
+    }
 
-    return significantActions.includes(action)
+    // Add to action history
+    this.actionHistory.push(action)
+
+    // Update engagement score
+    await this.updateEngagementScore(action)
+
+    // Update lead score
+    await this.updateLeadScore(action)
+
+    // Save to database
+    await this.saveActionToDatabase(action)
+
+    console.log(`Tracked action: ${actionType} (value: ${value})`)
   }
 
   /**
-   * Track interaction in database for immediate analytics
+   * Update engagement score based on action
    */
-  private async trackInteraction(actionData: ScoreActionData): Promise<void> {
-    try {
-      await fetch('/.netlify/functions/track-interaction', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userId: actionData.userId,
-          interactionType: actionData.action,
-          metadata: actionData.metadata,
-          timestamp: actionData.timestamp?.toISOString()
-        })
-      })
-    } catch (error) {
-      console.error('Error tracking interaction:', error)
+  private async updateEngagementScore(action: ScoreAction): Promise<void> {
+    const key = action.userId || action.sessionId || 'anonymous'
+    const currentScore = this.engagementScores.get(key) || {
+      userId: action.userId,
+      sessionId: action.sessionId,
+      score: 0,
+      level: 'low',
+      lastUpdated: new Date(),
+      actions: []
     }
+
+    // Calculate score increment
+    const weight = this.config.engagementWeights[action.actionType] || 1
+    const increment = weight * action.value
+
+    // Update score
+    currentScore.score += increment
+    currentScore.lastUpdated = new Date()
+    currentScore.actions.push(action)
+
+    // Determine level
+    currentScore.level = this.calculateEngagementLevel(currentScore.score)
+
+    // Update map
+    this.engagementScores.set(key, currentScore)
+
+    // Save to database
+    await this.saveEngagementScoreToDatabase(currentScore)
   }
 
   /**
-   * Dispatch tier change event for UI updates
+   * Update lead score based on action
    */
-  private dispatchTierChangeEvent(tierChange: any): void {
-    if (typeof window !== 'undefined') {
-      const event = new CustomEvent('tierChanged', {
-        detail: tierChange
-      })
-      window.dispatchEvent(event)
+  private async updateLeadScore(action: ScoreAction): Promise<void> {
+    const key = action.userId || action.sessionId || 'anonymous'
+    const currentScore = this.leadScores.get(key) || {
+      userId: action.userId,
+      sessionId: action.sessionId,
+      score: 0,
+      tier: 'cold',
+      lastUpdated: new Date(),
+      factors: []
     }
+
+    // Calculate score increment
+    const factor = this.config.leadScoreFactors[action.actionType] || 1
+    const increment = factor * action.value
+
+    // Update score
+    currentScore.score += increment
+    currentScore.lastUpdated = new Date()
+
+    // Add factor
+    currentScore.factors.push({
+      factor: action.actionType,
+      weight: factor,
+      value: increment
+    })
+
+    // Determine tier
+    currentScore.tier = this.calculateLeadScoreTier(currentScore.score)
+
+    // Update map
+    this.leadScores.set(key, currentScore)
+
+    // Save to database
+    await this.saveLeadScoreToDatabase(currentScore)
   }
 
   /**
-   * Force process all queued actions immediately
+   * Calculate engagement level based on score
    */
-  async flushQueue(): Promise<void> {
-    if (this.batchTimeout) {
-      clearTimeout(this.batchTimeout)
-      this.batchTimeout = null
-    }
+  private calculateEngagementLevel(score: number): 'low' | 'medium' | 'high' | 'very-high' {
+    const { thresholds } = this.config.engagement
 
-    while (this.actionQueue.length > 0) {
-      await this.processBatch()
-    }
+    if (score >= thresholds.veryHigh) return 'very-high'
+    if (score >= thresholds.high) return 'high'
+    if (score >= thresholds.medium) return 'medium'
+    return 'low'
   }
 
   /**
-   * Get queue status for debugging
+   * Calculate lead score tier based on score
    */
-  getQueueStatus(): {
-    queueLength: number
-    isProcessing: boolean
-    hasPendingTimeout: boolean
+  private calculateLeadScoreTier(score: number): 'cold' | 'warm' | 'hot' | 'qualified' {
+    const { thresholds } = this.config.leadScore
+
+    if (score >= thresholds.qualified) return 'qualified'
+    if (score >= thresholds.hot) return 'hot'
+    if (score >= thresholds.warm) return 'warm'
+    return 'cold'
+  }
+
+  /**
+   * Get engagement score for user/session
+   */
+  getEngagementScore(userId?: string, sessionId?: string): EngagementScore | null {
+    const key = userId || sessionId || 'anonymous'
+    return this.engagementScores.get(key) || null
+  }
+
+  /**
+   * Get lead score for user/session
+   */
+  getLeadScore(userId?: string, sessionId?: string): LeadScore | null {
+    const key = userId || sessionId || 'anonymous'
+    return this.leadScores.get(key) || null
+  }
+
+  /**
+   * Get all engagement scores
+   */
+  getAllEngagementScores(): EngagementScore[] {
+    return Array.from(this.engagementScores.values())
+  }
+
+  /**
+   * Get all lead scores
+   */
+  getAllLeadScores(): LeadScore[] {
+    return Array.from(this.leadScores.values())
+  }
+
+  /**
+   * Get action history
+   */
+  getActionHistory(userId?: string, sessionId?: string): ScoreAction[] {
+    if (userId || sessionId) {
+      return this.actionHistory.filter(action => 
+        action.userId === userId || action.sessionId === sessionId
+      )
+    }
+    return [...this.actionHistory]
+  }
+
+  /**
+   * Get score statistics
+   */
+  getScoreStatistics(): {
+    totalUsers: number
+    averageEngagementScore: number
+    averageLeadScore: number
+    engagementLevels: Record<string, number>
+    leadScoreTiers: Record<string, number>
+    topActions: Array<{ action: string; count: number }>
   } {
+    const engagementScores = this.getAllEngagementScores()
+    const leadScores = this.getAllLeadScores()
+
+    // Calculate averages
+    const avgEngagement = engagementScores.length > 0 
+      ? engagementScores.reduce((sum, score) => sum + score.score, 0) / engagementScores.length
+      : 0
+
+    const avgLeadScore = leadScores.length > 0
+      ? leadScores.reduce((sum, score) => sum + score.score, 0) / leadScores.length
+      : 0
+
+    // Count levels and tiers
+    const engagementLevels: Record<string, number> = {}
+    const leadScoreTiers: Record<string, number> = {}
+
+    engagementScores.forEach(score => {
+      engagementLevels[score.level] = (engagementLevels[score.level] || 0) + 1
+    })
+
+    leadScores.forEach(score => {
+      leadScoreTiers[score.tier] = (leadScoreTiers[score.tier] || 0) + 1
+    })
+
+    // Top actions
+    const actionCounts: Record<string, number> = {}
+    this.actionHistory.forEach(action => {
+      actionCounts[action.actionType] = (actionCounts[action.actionType] || 0) + 1
+    })
+
+    const topActions = Object.entries(actionCounts)
+      .map(([action, count]) => ({ action, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+
     return {
-      queueLength: this.actionQueue.length,
-      isProcessing: this.isProcessing,
-      hasPendingTimeout: this.batchTimeout !== null
-    }
-  }
-}
-
-// Create singleton instance
-export const scoreTracker = new ScoreTracker()
-
-// Convenience functions for common actions
-export const trackPageView = (pageUrl?: string) => {
-  scoreTracker.trackAction({
-    action: 'page_view',
-    metadata: { pageUrl }
-  })
-}
-
-export const trackToolStart = (toolId: string) => {
-  scoreTracker.trackAction({
-    action: 'tool_start',
-    metadata: { toolId }
-  })
-}
-
-export const trackToolComplete = (toolId: string, results?: any) => {
-  scoreTracker.trackAction({
-    action: 'tool_complete',
-    metadata: { toolId, results }
-  })
-}
-
-export const trackContentDownload = (contentId: string, contentType?: string) => {
-  scoreTracker.trackAction({
-    action: 'content_download',
-    metadata: { contentId, contentType }
-  })
-}
-
-export const trackWebinarRegistration = (webinarId: string) => {
-  scoreTracker.trackAction({
-    action: 'webinar_register',
-    metadata: { webinarId }
-  })
-}
-
-export const trackCTAClick = (ctaId: string, ctaText?: string) => {
-  scoreTracker.trackAction({
-    action: 'cta_click',
-    metadata: { ctaId, ctaText }
-  })
-}
-
-export const trackScrollDepth = (scrollDepth: number) => {
-  scoreTracker.trackAction({
-    action: 'scroll_depth',
-    metadata: { scrollDepth }
-  })
-}
-
-export const trackSessionExtend = (sessionDuration: number) => {
-  scoreTracker.trackAction({
-    action: 'session_extend',
-    metadata: { sessionDuration }
-  })
-}
-
-export const trackFormSubmit = (formId: string, formData?: any) => {
-  scoreTracker.trackAction({
-    action: 'form_submit',
-    metadata: { formId, formData }
-  })
-}
-
-export const trackVideoComplete = (videoId: string, duration?: number) => {
-  scoreTracker.trackAction({
-    action: 'video_complete',
-    metadata: { videoId, duration }
-  })
-}
-
-// Auto-tracking setup for common browser events
-export const setupAutoTracking = () => {
-  if (typeof window === 'undefined') return
-
-  // Track page views
-  let currentPath = window.location.pathname
-  const trackPageViewChange = () => {
-    const newPath = window.location.pathname
-    if (newPath !== currentPath) {
-      currentPath = newPath
-      trackPageView(window.location.href)
+      totalUsers: Math.max(engagementScores.length, leadScores.length),
+      averageEngagementScore: avgEngagement,
+      averageLeadScore: avgLeadScore,
+      engagementLevels,
+      leadScoreTiers,
+      topActions
     }
   }
 
-  // Listen for navigation changes
-  window.addEventListener('popstate', trackPageViewChange)
-  
-  // Override pushState and replaceState to catch programmatic navigation
-  const originalPushState = history.pushState
-  const originalReplaceState = history.replaceState
+  /**
+   * Save action to database
+   */
+  private async saveActionToDatabase(action: ScoreAction): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .insert({
+          user_id: action.userId,
+          session_id: action.sessionId,
+          action_type: action.actionType,
+          value: action.value,
+          metadata: action.metadata,
+          timestamp: action.timestamp.toISOString()
+        })
 
-  history.pushState = function(...args) {
-    originalPushState.apply(history, args)
-    setTimeout(trackPageViewChange, 0)
-  }
-
-  history.replaceState = function(...args) {
-    originalReplaceState.apply(history, args)
-    setTimeout(trackPageViewChange, 0)
-  }
-
-  // Track scroll depth
-  let maxScrollDepth = 0
-  let scrollTimeout: NodeJS.Timeout | null = null
-
-  const handleScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight
-    const scrollPercent = Math.round((scrollTop / docHeight) * 100)
-
-    if (scrollPercent > maxScrollDepth) {
-      maxScrollDepth = scrollPercent
-
-      // Debounce scroll tracking
-      if (scrollTimeout) clearTimeout(scrollTimeout)
-      scrollTimeout = setTimeout(() => {
-        trackScrollDepth(maxScrollDepth)
-      }, 1000)
+      if (error) {
+        console.error('Error saving action to database:', error)
+      }
+    } catch (error) {
+      console.error('Error saving action to database:', error)
     }
   }
 
-  window.addEventListener('scroll', handleScroll, { passive: true })
+  /**
+   * Save engagement score to database
+   */
+  private async saveEngagementScoreToDatabase(score: EngagementScore): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('engagement_scores')
+        .upsert({
+          user_id: score.userId,
+          session_id: score.sessionId,
+          score: score.score,
+          level: score.level,
+          last_updated: score.lastUpdated.toISOString()
+        })
 
-  // Track session duration
-  const sessionStart = Date.now()
-  const trackSessionDuration = () => {
-    const duration = Math.round((Date.now() - sessionStart) / 1000)
-    if (duration > 300) { // Only track sessions longer than 5 minutes
-      trackSessionExtend(duration)
+      if (error) {
+        console.error('Error saving engagement score to database:', error)
+      }
+    } catch (error) {
+      console.error('Error saving engagement score to database:', error)
     }
   }
 
-  // Track session on page unload
-  window.addEventListener('beforeunload', trackSessionDuration)
+  /**
+   * Save lead score to database
+   */
+  private async saveLeadScoreToDatabase(score: LeadScore): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('lead_scores')
+        .upsert({
+          user_id: score.userId,
+          session_id: score.sessionId,
+          score: score.score,
+          tier: score.tier,
+          last_updated: score.lastUpdated.toISOString()
+        })
 
-  // Track session every 5 minutes for long sessions
-  setInterval(() => {
-    const duration = Math.round((Date.now() - sessionStart) / 1000)
-    if (duration > 300 && duration % 300 === 0) { // Every 5 minutes after initial 5 minutes
-      trackSessionExtend(duration)
+      if (error) {
+        console.error('Error saving lead score to database:', error)
+      }
+    } catch (error) {
+      console.error('Error saving lead score to database:', error)
     }
-  }, 60000) // Check every minute
+  }
 
-  // Flush queue on page unload
-  window.addEventListener('beforeunload', () => {
-    scoreTracker.flushQueue()
-  })
+  /**
+   * Load scores from database
+   */
+  async loadScoresFromDatabase(): Promise<void> {
+    try {
+      // Load engagement scores
+      const { data: engagementData, error: engagementError } = await supabase
+        .from('engagement_scores')
+        .select('*')
+
+      if (engagementError) {
+        console.error('Error loading engagement scores:', engagementError)
+      } else if (engagementData) {
+        engagementData.forEach(row => {
+          const key = row.user_id || row.session_id || 'anonymous'
+          this.engagementScores.set(key, {
+            userId: row.user_id,
+            sessionId: row.session_id,
+            score: row.score,
+            level: row.level,
+            lastUpdated: new Date(row.last_updated),
+            actions: []
+          })
+        })
+      }
+
+      // Load lead scores
+      const { data: leadData, error: leadError } = await supabase
+        .from('lead_scores')
+        .select('*')
+
+      if (leadError) {
+        console.error('Error loading lead scores:', leadError)
+      } else if (leadData) {
+        leadData.forEach(row => {
+          const key = row.user_id || row.session_id || 'anonymous'
+          this.leadScores.set(key, {
+            userId: row.user_id,
+            sessionId: row.session_id,
+            score: row.score,
+            tier: row.tier,
+            lastUpdated: new Date(row.last_updated),
+            factors: []
+          })
+        })
+      }
+    } catch (error) {
+      console.error('Error loading scores from database:', error)
+    }
+  }
+
+  /**
+   * Reset scores for user/session
+   */
+  resetScores(userId?: string, sessionId?: string): void {
+    const key = userId || sessionId || 'anonymous'
+    this.engagementScores.delete(key)
+    this.leadScores.delete(key)
+  }
+
+  /**
+   * Update configuration
+   */
+  updateConfig(newConfig: Partial<ScoreConfig>): void {
+    this.config = { ...this.config, ...newConfig }
+  }
 }
 
-// Initialize auto-tracking when module loads
-if (typeof window !== 'undefined') {
-  // Delay initialization to ensure DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupAutoTracking)
-  } else {
-    setupAutoTracking()
+// Export singleton instance
+export const scoreTrackingSystem = new ScoreTrackingSystem()
+
+// Hook for React components
+export function useScoreTracking() {
+  return {
+    trackAction: (
+      actionType: string,
+      value?: number,
+      metadata?: Record<string, unknown>,
+      userId?: string,
+      sessionId?: string
+    ) => scoreTrackingSystem.trackAction(actionType, value, metadata, userId, sessionId),
+    getEngagementScore: (userId?: string, sessionId?: string) => 
+      scoreTrackingSystem.getEngagementScore(userId, sessionId),
+    getLeadScore: (userId?: string, sessionId?: string) => 
+      scoreTrackingSystem.getLeadScore(userId, sessionId),
+    getActionHistory: (userId?: string, sessionId?: string) => 
+      scoreTrackingSystem.getActionHistory(userId, sessionId),
+    getScoreStatistics: () => scoreTrackingSystem.getScoreStatistics(),
+    resetScores: (userId?: string, sessionId?: string) => 
+      scoreTrackingSystem.resetScores(userId, sessionId),
+    updateConfig: (config: Partial<ScoreConfig>) => 
+      scoreTrackingSystem.updateConfig(config)
   }
 }

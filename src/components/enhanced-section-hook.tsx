@@ -622,9 +622,10 @@ export function EnhancedSectionHook({
         whileHover={{ x: 5 }}
         transition={{ duration: 0.2 }}
       >
-        <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-[var(--color-energy-600)] transition-colors">
-          {question}
-        </h3>
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5 drop-shadow-md" />
+          <span className="font-medium drop-shadow-md text-black dark:text-white">{question}</span>
+        </div>
         <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
       </motion.div>
 

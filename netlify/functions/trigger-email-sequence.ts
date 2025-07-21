@@ -475,32 +475,71 @@ function personalizeEmailSubject(
 }
 
 async function sendImmediateEmail(emailData: any, user: UserModel): Promise<void> {
-  // This would integrate with an email service provider (SendGrid, Mailgun, etc.)
-  // For now, we'll just log and track the email as sent
-  
-  console.log(`Sending immediate email to ${user.email}:`, {
-    subject: emailData.subject,
-    templateId: emailData.templateId,
-    userId: user.id
-  })
-
-  // Track email as sent
-  await InteractionModel.create({
-    user_id: user.id,
-    session_id: `email-sent-${Date.now()}`,
-    event_type: 'email_sent',
-    event_data: {
-      ...emailData,
-      sentTime: new Date().toISOString(),
-      status: 'sent',
-      immediate: true
+  try {
+    // Use the email service to send the email
+    const { emailService } = await import('../../src/lib/email-service')
+    
+    // Get the email template content
+    const template = EMAIL_SEQUENCES[emailData.templateId]
+    if (!template) {
+      throw new Error(`Email template ${emailData.templateId} not found`)
     }
-  })
 
-  // In a real implementation, you would:
-  // 1. Load the email template
-  // 2. Personalize the content with user data
-  // 3. Send via email service API
-  // 4. Handle delivery status and bounces
-  // 5. Update email status in database
+    // Personalize the content
+    const personalizedContent = personalizeEmailContent(template.content, user, emailData.customData)
+    const personalizedSubject = personalizeEmailSubject(template.subject, user, emailData.customData)
+
+    const result = await emailService.sendEmail({
+      to: user.email,
+      subject: personalizedSubject,
+      htmlContent: personalizedContent,
+      textContent: personalizedContent.replace(/<[^>]*>/g, '') // Strip HTML for text version
+    })
+
+    if (!result.success) {
+      throw new Error(`Email sending failed: ${result.error}`)
+    }
+
+    console.log(`Immediate email sent successfully to ${user.email}:`, result.messageId)
+
+    // Track email as sent
+    await InteractionModel.create({
+      user_id: user.id,
+      session_id: `email-sent-${Date.now()}`,
+      event_type: 'email_sent',
+      event_data: {
+        ...emailData,
+        sentTime: new Date().toISOString(),
+        status: 'sent',
+        immediate: true,
+        messageId: result.messageId
+      }
+    })
+  } catch (error) {
+    console.error('Error sending immediate email:', error)
+    throw error
+  }
+}
+
+function personalizeEmailContent(
+  content: string, 
+  user: UserModel, 
+  customData?: Record<string, unknown>
+): string {
+  let personalizedContent = content
+
+  // Replace common placeholders
+  personalizedContent = personalizedContent.replace(/\{firstName\}/g, user.fullName?.split(' ')[0] || 'Friend')
+  personalizedContent = personalizedContent.replace(/\{fullName\}/g, user.fullName || 'Friend')
+  personalizedContent = personalizedContent.replace(/\{city\}/g, user.city || '')
+
+  // Replace custom data placeholders
+  if (customData) {
+    Object.entries(customData).forEach(([key, value]) => {
+      const placeholder = new RegExp(`\\{${key}\\}`, 'g')
+      personalizedContent = personalizedContent.replace(placeholder, String(value))
+    })
+  }
+
+  return personalizedContent
 }

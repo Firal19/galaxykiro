@@ -290,7 +290,7 @@ export function ProgressiveCaptureWizard({
               >
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-[var(--color-energy-500)]" />
+                    <Sparkles className="h-5 w-5 mr-2 text-[var(--color-energy-500)] drop-shadow-md" />
                     What you&apos;ll get:
                   </h3>
                   <ul className="space-y-3">
@@ -302,8 +302,8 @@ export function ProgressiveCaptureWizard({
                         transition={{ duration: 0.3, delay: 0.1 * index }}
                         className="flex items-start"
                       >
-                        <CheckCircle className="h-5 w-5 text-[var(--color-growth-500)] mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{benefit}</span>
+                        <CheckCircle className="h-5 w-5 text-[var(--color-growth-500)] mr-3 mt-0.5 flex-shrink-0 drop-shadow-md" />
+                        <span className="text-muted-foreground drop-shadow-md">{benefit}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -317,12 +317,12 @@ export function ProgressiveCaptureWizard({
                   className="bg-muted/50 rounded-lg p-4"
                 >
                   <div className="flex items-center mb-2">
-                    <Users className="h-5 w-5 text-[var(--color-energy-500)] mr-2" />
-                    <span className="text-sm font-medium text-foreground">
+                    <Users className="h-5 w-5 text-[var(--color-energy-500)] mr-2 drop-shadow-md" />
+                    <span className="text-sm font-medium text-foreground drop-shadow-md">
                       Join 10,000+ people
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground drop-shadow-md">
                     Who have already discovered their hidden potential and are transforming their lives.
                   </p>
                 </motion.div>
@@ -335,15 +335,15 @@ export function ProgressiveCaptureWizard({
                   className="text-center"
                 >
                   <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground">
-                    <span className="flex items-center">
+                    <span className="flex items-center drop-shadow-md">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       100% Free
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center drop-shadow-md">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       No Spam
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center drop-shadow-md">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Instant Access
                     </span>

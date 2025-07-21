@@ -182,7 +182,7 @@ export const useAppStore = create<AppState>()(
         set({ isLoading: true })
         
         try {
-          const response = await fetch('/.netlify/functions/capture-user-info', {
+          const response = await fetch('/api/capture-user-info', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ export const useAppStore = create<AppState>()(
         const state = get()
         
         try {
-          const response = await fetch('/.netlify/functions/track-interaction', {
+          const response = await fetch('/api/track-interaction', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ export const useAppStore = create<AppState>()(
         }
         
         try {
-          const response = await fetch('/.netlify/functions/update-engagement-score', {
+          const response = await fetch('/api/update-engagement-score', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

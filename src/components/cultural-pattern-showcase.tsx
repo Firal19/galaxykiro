@@ -44,8 +44,10 @@ export function CulturalPatternShowcase({ className }: CulturalPatternShowcasePr
                 >
                   <div className={`h-32 ${pattern.cssClass}`} style={{ color: ethiopianColors.green }}></div>
                   <div className="p-4">
-                    <h4 className="font-medium">{pattern.name}</h4>
-                    <p className="text-sm text-muted-foreground">{pattern.description}</p>
+                    <div className="flex flex-col items-center">
+                      <span className="font-bold text-lg drop-shadow-md text-black dark:text-white">{pattern.name}</span>
+                      <span className="text-sm drop-shadow-sm text-black dark:text-white">{pattern.description}</span>
+                    </div>
                   </div>
                 </motion.div>
               );

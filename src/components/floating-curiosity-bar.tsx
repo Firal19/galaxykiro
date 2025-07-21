@@ -212,24 +212,39 @@ export function FloatingCuriosityBar({
         }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
-          "fixed z-50 bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] text-white shadow-lg",
-          position === 'bottom' && "bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md rounded-lg",
-          position === 'side' && "right-4 top-1/2 -translate-y-1/2 max-w-xs rounded-lg",
+          "fixed z-50 backdrop-blur-xl bg-white/80 dark:bg-black/80 border-2 border-gradient-ethiopian animate-border-glow shadow-2xl",
+          position === 'bottom' && "bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md rounded-full",
+          position === 'side' && "right-4 top-1/2 -translate-y-1/2 max-w-xs rounded-full",
           className
         )}
+        role="region"
+        aria-label="Floating Curiosity Bar"
+        tabIndex={0}
       >
-        <div className="p-4">
+        {/* Ethiopian pattern accent */}
+        <div className="absolute inset-0 pointer-events-none rounded-full opacity-10">
+          <svg className="w-full h-full" aria-hidden="true">
+            <defs>
+              <pattern id="ethiopianPatternCuriosity" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="16" fill="none" stroke="#FFD700" strokeWidth="1.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#ethiopianPatternCuriosity)" />
+          </svg>
+        </div>
+        <div className="relative p-4 z-10 flex flex-col">
           {/* Header */}
           <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-white/90" />
-              <span className="text-sm font-medium text-white/90">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 drop-shadow-md text-[var(--color-energy-500)]" />
+              <span className="font-medium drop-shadow-md text-gray-900 dark:text-white">
                 Quick Question
               </span>
             </div>
             <button
               onClick={handleDismiss}
-              className="text-white/70 hover:text-white transition-colors"
+              className="text-gray-500 hover:text-red-500 transition-colors rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-energy-400)]"
+              aria-label="Dismiss curiosity bar"
             >
               <X className="h-4 w-4" />
             </button>
@@ -247,7 +262,8 @@ export function FloatingCuriosityBar({
             >
               <button
                 onClick={handleQuestionClick}
-                className="text-left text-white font-medium hover:text-white/90 transition-colors"
+                className="text-left text-lg font-semibold text-gray-900 dark:text-white hover:text-[var(--color-energy-600)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-energy-400)] rounded-md"
+                aria-label={currentQuestion.text}
               >
                 {currentQuestion.text}
               </button>
@@ -256,12 +272,13 @@ export function FloatingCuriosityBar({
 
           {/* CTA */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-white/80">
+            <span className="text-xs text-gray-700 dark:text-gray-200">
               Try: {currentQuestion.relatedTool}
             </span>
             <button
               onClick={handleToolAccess}
-              className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+              className="bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] hover:from-[var(--color-energy-600)] hover:to-[var(--color-transformation-600)] text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 flex items-center space-x-1 shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-energy-400)]"
+              aria-label={`Get answer with ${currentQuestion.relatedTool}`}
             >
               <span>Get Answer</span>
               <ChevronRight className="h-3 w-3" />
@@ -276,8 +293,8 @@ export function FloatingCuriosityBar({
                 className={cn(
                   "h-1 rounded-full transition-all duration-300",
                   index === currentQuestionIndex 
-                    ? "bg-white flex-1" 
-                    : "bg-white/30 w-1"
+                    ? "bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] flex-1" 
+                    : "bg-gray-300 dark:bg-gray-700 w-1"
                 )}
               />
             ))}

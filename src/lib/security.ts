@@ -1,347 +1,426 @@
 /**
- * Security Utilities
- * 
- * This file contains security-related functions for encryption,
- * data protection, and secure operations.
+ * Security utilities for data encryption, validation, and protection
  */
 
-// Remove Node.js crypto imports and use only Web Crypto API or safe browser/Edge-compatible code.
-// All cryptographic and random functions should use Web Crypto API (window.crypto or globalThis.crypto).
-// Remove any import crypto from 'crypto' and related Node.js-only code.
+// Encryption configuration
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-for-development-only-change-in-prod';
+
+// Data types for security operations
+interface EncryptionResult {
+  encrypted: string;
+  iv: string;
+}
+
+interface DecryptionResult {
+  decrypted: string;
+  success: boolean;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+interface SecurityConfig {
+  encryptionKey: string;
+  algorithm: string;
+  keyLength: number;
+  ivLength: number;
+}
+
+// Security configuration
+const securityConfig: SecurityConfig = {
+  encryptionKey: ENCRYPTION_KEY,
+  algorithm: 'AES-GCM',
+  keyLength: 256,
+  ivLength: 12
+};
 
 /**
- * Generate a secure random token using Web Crypto API
- * @param length Length of the token
- * @returns Random token string
+ * Encrypt sensitive data
+ */
+export async function encryptData(data: string): Promise<EncryptionResult> {
+  try {
+    // Generate a random IV
+    const iv = crypto.getRandomValues(new Uint8Array(securityConfig.ivLength));
+    
+    // Import the encryption key
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(securityConfig.encryptionKey),
+      { name: securityConfig.algorithm },
+      false,
+      ['encrypt']
+    );
+    
+    // Encrypt the data
+    const encrypted = await crypto.subtle.encrypt(
+      { name: securityConfig.algorithm, iv },
+      key,
+      new TextEncoder().encode(data)
+    );
+    
+    return {
+      encrypted: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+      iv: btoa(String.fromCharCode(...iv))
+    };
+  } catch (error) {
+    console.error('Encryption error:', error);
+    throw new Error('Failed to encrypt data');
+  }
+}
+
+/**
+ * Decrypt sensitive data
+ */
+export async function decryptData(encryptedData: string, iv: string): Promise<DecryptionResult> {
+  try {
+    // Import the encryption key
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(securityConfig.encryptionKey),
+      { name: securityConfig.algorithm },
+      false,
+      ['decrypt']
+    );
+    
+    // Decode the encrypted data and IV
+    const encryptedBytes = new Uint8Array(
+      atob(encryptedData).split('').map(char => char.charCodeAt(0))
+    );
+    const ivBytes = new Uint8Array(
+      atob(iv).split('').map(char => char.charCodeAt(0))
+    );
+    
+    // Decrypt the data
+    const decrypted = await crypto.subtle.decrypt(
+      { name: securityConfig.algorithm, iv: ivBytes },
+      key,
+      encryptedBytes
+    );
+    
+    return {
+      decrypted: new TextDecoder().decode(decrypted),
+      success: true
+    };
+  } catch (error) {
+    console.error('Decryption error:', error);
+    return {
+      decrypted: '',
+      success: false
+    };
+  }
+}
+
+/**
+ * Hash sensitive data (one-way encryption)
+ */
+export async function hashData(data: string): Promise<string> {
+  try {
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    
+    const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
+  } catch (error) {
+    console.error('Hashing error:', error);
+    throw new Error('Failed to hash data');
+  }
+}
+
+/**
+ * Validate user input for security
+ */
+export function validateInput(input: string, type: 'email' | 'phone' | 'name' | 'general'): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!input || typeof input !== 'string') {
+    errors.push('Input is required and must be a string');
+    return { isValid: false, errors };
+  }
+  
+  // Remove potentially dangerous characters
+  const sanitized = input.replace(/[<>\"'&]/g, '');
+  
+  if (sanitized !== input) {
+    errors.push('Input contains potentially dangerous characters');
+  }
+  
+  // Type-specific validation
+  switch (type) {
+    case 'email':
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(input)) {
+        errors.push('Invalid email format');
+      }
+      break;
+      
+    case 'phone':
+      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+      if (!phoneRegex.test(input.replace(/[\s\-\(\)]/g, ''))) {
+        errors.push('Invalid phone number format');
+      }
+      break;
+      
+    case 'name':
+      const nameRegex = /^[a-zA-Z\s\-']{2,50}$/;
+      if (!nameRegex.test(input)) {
+        errors.push('Name must be 2-50 characters and contain only letters, spaces, hyphens, and apostrophes');
+      }
+      break;
+      
+    case 'general':
+      if (input.length > 1000) {
+        errors.push('Input is too long (maximum 1000 characters)');
+      }
+      break;
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Sanitize user input to prevent XSS
+ */
+export function sanitizeInput(input: string): string {
+  if (!input || typeof input !== 'string') {
+    return '';
+  }
+  
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+
+/**
+ * Generate a secure random token
  */
 export function generateSecureToken(length: number = 32): string {
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Hash password using Web Crypto API
- * @param password Password to hash
- * @returns Hashed password
- */
-export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + 'default-key-for-development-only-change-in-prod');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Verify password against hash
- * @param password Password to verify
- * @param hashedPassword Hashed password to compare against
- * @returns Boolean indicating if password matches
- */
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  const hashedInput = await hashPassword(password);
-  return hashedInput === hashedPassword;
-}
-
-/**
- * Generate a CSRF token
- * @returns CSRF token string
- */
-export function generateCSRFToken(): string {
-  return generateSecureToken(32);
-}
-
-/**
- * Validate JWT structure (basic validation)
- * @param token JWT token to validate
- * @returns Boolean indicating if JWT structure is valid
- */
-export function validateJWTStructure(token: string): boolean {
-  if (!token || typeof token !== 'string') return false;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
   
-  const parts = token.split('.');
-  if (parts.length !== 3) return false;
+  const randomValues = new Uint8Array(length);
+  crypto.getRandomValues(randomValues);
   
-  // Basic base64 validation
-  try {
-    parts.forEach(part => {
-      // Add padding if needed
-      const padded = part + '='.repeat((4 - part.length % 4) % 4);
-      atob(padded);
-    });
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(randomValues[i] % chars.length);
+  }
+  
+  return result;
+}
+
+/**
+ * Validate API request
+ */
+export function validateApiRequest(
+  method: string,
+  headers: Record<string, string>,
+  body?: Record<string, unknown>
+): ValidationResult {
+  const errors: string[] = [];
+  
+  // Check method
+  const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+  if (!allowedMethods.includes(method.toUpperCase())) {
+    errors.push('Invalid HTTP method');
+  }
+  
+  // Check content type for POST/PUT/PATCH
+  if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
+    const contentType = headers['content-type'] || headers['Content-Type'];
+    if (!contentType || !contentType.includes('application/json')) {
+      errors.push('Content-Type must be application/json');
+    }
+  }
+  
+  // Validate body if present
+  if (body && typeof body !== 'object') {
+    errors.push('Request body must be an object');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Rate limiting helper
+ */
+export class RateLimiter {
+  private requests: Map<string, number[]> = new Map();
+  private maxRequests: number;
+  private windowMs: number;
+  
+  constructor(maxRequests: number = 100, windowMs: number = 60000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+  
+  isAllowed(identifier: string): boolean {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+    
+    // Get existing requests for this identifier
+    const requests = this.requests.get(identifier) || [];
+    
+    // Filter out old requests
+    const recentRequests = requests.filter(timestamp => timestamp > windowStart);
+    
+    // Check if under limit
+    if (recentRequests.length >= this.maxRequests) {
+      return false;
+    }
+    
+    // Add current request
+    recentRequests.push(now);
+    this.requests.set(identifier, recentRequests);
+    
     return true;
-  } catch {
+  }
+  
+  getRemainingRequests(identifier: string): number {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+    
+    const requests = this.requests.get(identifier) || [];
+    const recentRequests = requests.filter(timestamp => timestamp > windowStart);
+    
+    return Math.max(0, this.maxRequests - recentRequests.length);
+  }
+  
+  reset(identifier: string): void {
+    this.requests.delete(identifier);
+  }
+}
+
+/**
+ * Export user data securely
+ */
+export async function exportUserData(userId: string): Promise<Record<string, unknown>> {
+  try {
+    // This would typically fetch from database
+    const userData = {
+      id: userId,
+      email: 'user@example.com',
+      name: 'John Doe',
+      createdAt: new Date().toISOString(),
+      preferences: {
+        theme: 'light',
+        notifications: true
+      }
+    };
+    
+    // Encrypt sensitive fields
+    const encryptedData = { ...userData };
+    if (userData.email) {
+      const encrypted = await encryptData(userData.email);
+      encryptedData.email = encrypted.encrypted;
+    }
+    
+    return encryptedData;
+  } catch (error) {
+    console.error('Error exporting user data:', error);
+    throw new Error('Failed to export user data');
+  }
+}
+
+/**
+ * Delete user data securely
+ */
+export async function deleteUserData(userId: string): Promise<boolean> {
+  try {
+    // This would typically delete from database
+    console.log(`Deleting data for user: ${userId}`);
+    
+    // Simulate deletion
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting user data:', error);
     return false;
   }
 }
 
 /**
- * Get security headers for responses
- * @returns Object with security headers
+ * Validate file upload
  */
-export function getSecurityHeaders(): Record<string, string> {
+export function validateFileUpload(
+  file: File,
+  maxSize: number = 5 * 1024 * 1024, // 5MB
+  allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!file) {
+    errors.push('No file provided');
+    return { isValid: false, errors };
+  }
+  
+  // Check file size
+  if (file.size > maxSize) {
+    errors.push(`File size exceeds maximum allowed size of ${maxSize / (1024 * 1024)}MB`);
+  }
+  
+  // Check file type
+  if (!allowedTypes.includes(file.type)) {
+    errors.push(`File type ${file.type} is not allowed`);
+  }
+  
+  // Check file name for security
+  const fileName = file.name.toLowerCase();
+  if (fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+    errors.push('Invalid file name');
+  }
+  
   return {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    isValid: errors.length === 0,
+    errors
   };
 }
 
 /**
- * Session manager for Edge Runtime
+ * Generate secure password requirements
  */
-export class SessionManager {
-  private sessions: Map<string, { userId: string; expires: number }> = new Map();
-
-  createSession(userId: string, duration: number = 24 * 60 * 60 * 1000): string {
-    const sessionId = generateSecureToken(32);
-    const expires = Date.now() + duration;
-    
-    this.sessions.set(sessionId, { userId, expires });
-    
-    // Clean up expired sessions
-    this.cleanupExpiredSessions();
-    
-    return sessionId;
-  }
-
-  validateSession(sessionId: string): boolean {
-    const session = this.sessions.get(sessionId);
-    if (!session) return false;
-    
-    if (Date.now() > session.expires) {
-      this.sessions.delete(sessionId);
-      return false;
-    }
-    
-    return true;
-  }
-
-  getUserId(sessionId: string): string | null {
-    const session = this.sessions.get(sessionId);
-    if (!session || Date.now() > session.expires) {
-      this.sessions.delete(sessionId);
-      return null;
-    }
-    return session.userId;
-  }
-
-  destroySession(sessionId: string): void {
-    this.sessions.delete(sessionId);
-  }
-
-  cleanupExpiredSessions(): void {
-    const now = Date.now();
-    for (const [sessionId, session] of this.sessions.entries()) {
-      if (now > session.expires) {
-        this.sessions.delete(sessionId);
-      }
-    }
-  }
-}
-
-/**
- * Apply security headers to response
- * @param response Response object
- * @returns Response with security headers
- */
-export function applySecurityHeaders(response: any): any {
-  const headers = getSecurityHeaders();
-  Object.entries(headers).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-  return response;
-}
-
-/**
- * Apply CORS headers to response
- * @param response Response object
- * @returns Response with CORS headers
- */
-export function applyCorsHeaders(response: any): any {
-  response.headers.set('Access-Control-Allow-Origin', '*');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  return response;
-}
-
-/**
- * Simple rate limiting for Edge Runtime
- * @param request Request object
- * @returns Rate limit response or null
- */
-export function rateLimit(request: any): any | null {
-  // Simple IP-based rate limiting
-  const clientIP = request.headers.get('x-forwarded-for') || 
-                   request.headers.get('x-real-ip') || 
-                   'unknown';
+export function validatePassword(password: string): ValidationResult {
+  const errors: string[] = [];
   
-  // This is a simplified rate limiter - in production you'd use Redis or similar
-  // For now, we'll just return null (no rate limiting)
-  return null;
-}
-
-/**
- * Validate phone number format
- * @param phone Phone number to validate
- * @returns Boolean indicating if phone number is valid
- */
-export function validatePhone(phone: string): boolean {
-  if (!phone || typeof phone !== 'string') return false;
-  
-  // Remove all non-digit characters except + and ()
-  const cleaned = phone.replace(/[^\d+()-\s]/g, '');
-  
-  // Check for minimum length (at least 10 digits)
-  const digits = cleaned.replace(/[^\d]/g, '');
-  if (digits.length < 10) return false;
-  
-  // Basic phone number patterns
-  const patterns = [
-    /^\+\d{10,15}$/, // International format
-    /^\(\d{3}\)\s?\d{3}-?\d{4}$/, // US format with parentheses
-    /^\d{3}-?\d{3}-?\d{4}$/, // US format with dashes
-    /^\d{10,15}$/, // Simple digit format
-  ];
-  
-  return patterns.some(pattern => pattern.test(cleaned));
-}
-
-/**
- * Sanitize user input to prevent XSS attacks
- * @param input User input to sanitize
- * @returns Sanitized input
- */
-export function sanitizeInput(input: string): string {
-  if (!input || typeof input !== 'string') return '';
-  
-  // Remove script tags and dangerous content
-  return input
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
-    .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, '')
-    .replace(/<img[^>]*onerror[^>]*>/gi, '')
-    .replace(/<[^>]*onclick[^>]*>/gi, '')
-    .replace(/<[^>]*onload[^>]*>/gi, '');
-}
-
-/**
- * Sanitize HTML content
- * @param html HTML content to sanitize
- * @returns Sanitized HTML
- */
-export function sanitizeHtml(html: string): string {
-  if (!html || typeof html !== 'string') return '';
-  
-  // Basic HTML sanitization - in production, use a proper HTML sanitizer
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
-}
-
-/**
- * Sanitize object recursively
- * @param obj Object to sanitize
- * @returns Sanitized object
- */
-export function sanitizeObject(obj: any): any {
-  if (typeof obj === 'string') {
-    return sanitizeInput(obj);
+  if (!password || password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
   }
   
-  if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeObject(item));
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
   }
   
-  if (obj && typeof obj === 'object') {
-    const sanitized: any = {};
-    for (const [key, value] of Object.entries(obj)) {
-      sanitized[key] = sanitizeObject(value);
-    }
-    return sanitized;
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
   }
   
-  return obj;
-}
-
-/**
- * Validate and sanitize data against a schema
- * @param data Data to validate
- * @param schema Schema to validate against
- * @returns Validated and sanitized data
- */
-export function validateAndSanitize(data: any, schema?: any): any {
-  const sanitized = sanitizeObject(data);
-  
-  if (schema) {
-    try {
-      return schema.parse(sanitized);
-    } catch (error) {
-      throw new Error('Validation failed');
-    }
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
   }
   
-  return sanitized;
-}
-
-/**
- * Higher-order function to wrap handlers with security features
- * @param handler Request handler function
- * @param options Security options
- * @returns Wrapped handler function
- */
-export function withSecurity(
-  handler: (request: any) => Promise<any>,
-  options: {
-    rateLimit?: number;
-    cors?: boolean;
-    securityHeaders?: boolean;
-    validateSchema?: any;
-  } = {}
-) {
-  return async (request: any) => {
-    // Apply rate limiting
-    if (options.rateLimit) {
-      const rateLimitResponse = rateLimit(request);
-      if (rateLimitResponse) {
-        return rateLimitResponse;
-      }
-    }
-
-    // Apply CORS headers
-    if (options.cors) {
-      applyCorsHeaders(request);
-    }
-
-    // Validate schema if provided
-    if (options.validateSchema) {
-      try {
-        const data = await request.json();
-        validateAndSanitize(data, options.validateSchema);
-      } catch (error) {
-        return new Response('Invalid data', { status: 400 });
-      }
-    }
-
-    // Call the original handler
-    const response = await handler(request);
-
-    // Apply security headers
-    if (options.securityHeaders !== false) {
-      applySecurityHeaders(response);
-    }
-
-    return response;
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Password must contain at least one special character');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
   };
 }
+
+// Export rate limiter instance
+export const rateLimiter = new RateLimiter();

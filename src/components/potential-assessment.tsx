@@ -169,7 +169,7 @@ export function PotentialAssessment({ isOpen, onClose, userEmail }: PotentialAss
         }))
 
         // Call the process-assessment function
-        const response = await fetch('/.netlify/functions/process-assessment', {
+        const response = await fetch('/api/process-assessment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

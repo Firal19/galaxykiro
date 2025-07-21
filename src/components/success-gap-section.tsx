@@ -24,7 +24,7 @@ export function SuccessGapSection({ className }: SuccessGapSectionProps) {
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
         : `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       
-      const response = await fetch('/.netlify/functions/capture-user-info', {
+      const response = await fetch('/api/capture-user-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

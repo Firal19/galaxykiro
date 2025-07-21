@@ -55,7 +55,7 @@ export function useEngagementTracking() {
       }
 
       // Send to backend for analytics
-      await fetch('/.netlify/functions/track-interaction', {
+      await fetch('/api/track-interaction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

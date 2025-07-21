@@ -16,7 +16,6 @@ export function RoutineOptimizer() {
     title: 'Routine Optimizer',
     description: 'Design optimal daily routines based on your goals and energy patterns',
     questions: [
-      // Questions would go here - simplified for brevity
       {
         id: 'energy-pattern',
         type: 'multiple-choice',
@@ -55,8 +54,407 @@ export function RoutineOptimizer() {
         category: 'goals',
         weight: 1.6,
         placeholder: 'List your top goals or priorities...'
+      },
+      {
+        id: 'current-routine-satisfaction',
+        type: 'multiple-choice',
+        text: 'How satisfied are you with your current daily routine?',
+        required: true,
+        category: 'current-routine',
+        weight: 1.0,
+        options: [
+          {
+            id: 'crs-1',
+            text: 'Very satisfied - my routine works well for me',
+            value: 'very_satisfied'
+          },
+          {
+            id: 'crs-2',
+            text: 'Somewhat satisfied - it works but could be better',
+            value: 'somewhat_satisfied'
+          },
+          {
+            id: 'crs-3',
+            text: 'Not very satisfied - I need significant improvements',
+            value: 'not_satisfied'
+          },
+          {
+            id: 'crs-4',
+            text: 'Very dissatisfied - my routine is not working at all',
+            value: 'very_dissatisfied'
+          }
+        ]
+      },
+      {
+        id: 'work-style',
+        type: 'multiple-choice',
+        text: 'What best describes your preferred work style?',
+        required: true,
+        category: 'work-style',
+        weight: 1.2,
+        options: [
+          {
+            id: 'ws-1',
+            text: 'Deep focus - I prefer long, uninterrupted work sessions',
+            value: 'deep_focus'
+          },
+          {
+            id: 'ws-2',
+            text: 'Pomodoro - I work best in focused 25-minute blocks',
+            value: 'pomodoro'
+          },
+          {
+            id: 'ws-3',
+            text: 'Flexible - I adapt my work style to the task',
+            value: 'flexible'
+          },
+          {
+            id: 'ws-4',
+            text: 'Collaborative - I work best with others around',
+            value: 'collaborative'
+          },
+          {
+            id: 'ws-5',
+            text: 'Quick bursts - I prefer short, intense work periods',
+            value: 'quick_bursts'
+          }
+        ]
+      },
+      {
+        id: 'morning-preference',
+        type: 'multiple-choice',
+        text: 'What type of morning routine do you prefer?',
+        required: true,
+        category: 'morning',
+        weight: 1.1,
+        options: [
+          {
+            id: 'mp-1',
+            text: 'Slow and relaxed - I need time to wake up gradually',
+            value: 'slow_relaxed'
+          },
+          {
+            id: 'mp-2',
+            text: 'Quick and efficient - I want to get started immediately',
+            value: 'quick_efficient'
+          },
+          {
+            id: 'mp-3',
+            text: 'Active and energizing - I like exercise or movement',
+            value: 'active_energizing'
+          },
+          {
+            id: 'mp-4',
+            text: 'Mindful and reflective - I prefer meditation or journaling',
+            value: 'mindful_reflective'
+          },
+          {
+            id: 'mp-5',
+            text: 'Productive - I like to tackle important tasks early',
+            value: 'productive'
+          }
+        ]
+      },
+      {
+        id: 'evening-preference',
+        type: 'multiple-choice',
+        text: 'What type of evening routine do you prefer?',
+        required: true,
+        category: 'evening',
+        weight: 1.1,
+        options: [
+          {
+            id: 'ep-1',
+            text: 'Relaxing and winding down - I need to decompress',
+            value: 'relaxing'
+          },
+          {
+            id: 'ep-2',
+            text: 'Planning and preparation - I like to prepare for tomorrow',
+            value: 'planning'
+          },
+          {
+            id: 'ep-3',
+            text: 'Creative and inspiring - I like to work on personal projects',
+            value: 'creative'
+          },
+          {
+            id: 'ep-4',
+            text: 'Social and connecting - I prefer spending time with others',
+            value: 'social'
+          },
+          {
+            id: 'ep-5',
+            text: 'Active and energizing - I like evening exercise',
+            value: 'active'
+          }
+        ]
+      },
+      {
+        id: 'break-preference',
+        type: 'multiple-choice',
+        text: 'How do you prefer to take breaks during your workday?',
+        required: true,
+        category: 'breaks',
+        weight: 0.9,
+        options: [
+          {
+            id: 'bp-1',
+            text: 'Short, frequent breaks (every 30-60 minutes)',
+            value: 'short_frequent'
+          },
+          {
+            id: 'bp-2',
+            text: 'Longer, less frequent breaks (every 2-3 hours)',
+            value: 'longer_less_frequent'
+          },
+          {
+            id: 'bp-3',
+            text: 'As needed - I take breaks when I feel I need them',
+            value: 'as_needed'
+          },
+          {
+            id: 'bp-4',
+            text: 'Structured breaks at specific times',
+            value: 'structured'
+          },
+          {
+            id: 'bp-5',
+            text: 'I prefer to work through without many breaks',
+            value: 'minimal'
+          }
+        ]
+      },
+      {
+        id: 'transition-needs',
+        type: 'multiple-choice',
+        text: 'How do you handle transitions between different activities?',
+        required: true,
+        category: 'transitions',
+        weight: 0.8,
+        options: [
+          {
+            id: 'tn-1',
+            text: 'I need time to mentally prepare for transitions',
+            value: 'need_preparation'
+          },
+          {
+            id: 'tn-2',
+            text: 'I can switch quickly between different tasks',
+            value: 'quick_switch'
+          },
+          {
+            id: 'tn-3',
+            text: 'I prefer to group similar activities together',
+            value: 'group_similar'
+          },
+          {
+            id: 'tn-4',
+            text: 'I like to have clear rituals between activities',
+            value: 'clear_rituals'
+          },
+          {
+            id: 'tn-5',
+            text: 'I don\'t think much about transitions',
+            value: 'no_preference'
+          }
+        ]
+      },
+      {
+        id: 'stress-management',
+        type: 'multiple-choice',
+        text: 'What helps you manage stress during your day?',
+        required: true,
+        category: 'stress',
+        weight: 1.0,
+        options: [
+          {
+            id: 'sm-1',
+            text: 'Physical activity or exercise',
+            value: 'physical_activity'
+          },
+          {
+            id: 'sm-2',
+            text: 'Mindfulness or meditation',
+            value: 'mindfulness'
+          },
+          {
+            id: 'sm-3',
+            text: 'Social interaction or talking to others',
+            value: 'social_interaction'
+          },
+          {
+            id: 'sm-4',
+            text: 'Creative activities or hobbies',
+            value: 'creative_activities'
+          },
+          {
+            id: 'sm-5',
+            text: 'Alone time or quiet reflection',
+            value: 'alone_time'
+          },
+          {
+            id: 'sm-6',
+            text: 'I don\'t have specific stress management strategies',
+            value: 'none'
+          }
+        ]
+      },
+      {
+        id: 'productivity-focus',
+        type: 'multiple-choice',
+        text: 'What is your primary focus for routine optimization?',
+        required: true,
+        category: 'focus',
+        weight: 1.3,
+        options: [
+          {
+            id: 'pf-1',
+            text: 'Increasing productivity and getting more done',
+            value: 'productivity'
+          },
+          {
+            id: 'pf-2',
+            text: 'Improving work-life balance',
+            value: 'work_life_balance'
+          },
+          {
+            id: 'pf-3',
+            text: 'Reducing stress and improving wellbeing',
+            value: 'stress_reduction'
+          },
+          {
+            id: 'pf-4',
+            text: 'Creating more time for personal goals',
+            value: 'personal_goals'
+          },
+          {
+            id: 'pf-5',
+            text: 'Building better habits and consistency',
+            value: 'habits_consistency'
+          },
+          {
+            id: 'pf-6',
+            text: 'Other',
+            value: 'other'
+          }
+        ]
+      },
+      {
+        id: 'schedule-flexibility',
+        type: 'multiple-choice',
+        text: 'How much flexibility do you need in your daily schedule?',
+        required: true,
+        category: 'flexibility',
+        weight: 1.0,
+        options: [
+          {
+            id: 'sf-1',
+            text: 'Very structured - I prefer a fixed schedule',
+            value: 'very_structured'
+          },
+          {
+            id: 'sf-2',
+            text: 'Somewhat structured - I like a framework but with flexibility',
+            value: 'somewhat_structured'
+          },
+          {
+            id: 'sf-3',
+            text: 'Flexible - I prefer to adapt to what comes up',
+            value: 'flexible'
+          },
+          {
+            id: 'sf-4',
+            text: 'Very flexible - I prefer to go with the flow',
+            value: 'very_flexible'
+          }
+        ]
+      },
+      {
+        id: 'current-challenges',
+        type: 'text',
+        text: 'What are the biggest challenges you face with your current routine?',
+        description: 'Be specific about what\'s not working for you',
+        required: true,
+        category: 'challenges',
+        weight: 1.2,
+        placeholder: 'Example: I struggle to find time for exercise, or I get distracted during work hours'
+      },
+      {
+        id: 'ideal-outcome',
+        type: 'text',
+        text: 'What would an ideal daily routine look like for you?',
+        description: 'Describe your vision of a perfect day',
+        required: true,
+        category: 'outcome',
+        weight: 1.4,
+        placeholder: 'Example: I would wake up early, exercise, work productively, and have time for family and hobbies'
+      },
+      {
+        id: 'commitment-level',
+        type: 'multiple-choice',
+        text: 'How committed are you to implementing a new routine?',
+        required: true,
+        category: 'commitment',
+        weight: 1.1,
+        options: [
+          {
+            id: 'cl-1',
+            text: 'Very committed - I\'m ready to make significant changes',
+            value: 'very_committed'
+          },
+          {
+            id: 'cl-2',
+            text: 'Moderately committed - I\'m willing to try new approaches',
+            value: 'moderately_committed'
+          },
+          {
+            id: 'cl-3',
+            text: 'Somewhat committed - I\'ll try but may need support',
+            value: 'somewhat_committed'
+          },
+          {
+            id: 'cl-4',
+            text: 'Not very committed - I\'m just exploring options',
+            value: 'not_committed'
+          }
+        ]
+      },
+      {
+        id: 'support-needs',
+        type: 'multiple-choice',
+        text: 'What type of support would help you implement a new routine?',
+        required: true,
+        category: 'support',
+        weight: 0.9,
+        options: [
+          {
+            id: 'sn-1',
+            text: 'Accountability partner or coach',
+            value: 'accountability'
+          },
+          {
+            id: 'sn-2',
+            text: 'Reminders and tracking tools',
+            value: 'reminders_tracking'
+          },
+          {
+            id: 'sn-3',
+            text: 'Community or group support',
+            value: 'community'
+          },
+          {
+            id: 'sn-4',
+            text: 'Educational resources and guidance',
+            value: 'education'
+          },
+          {
+            id: 'sn-5',
+            text: 'I prefer to implement changes independently',
+            value: 'independent'
+          }
+        ]
       }
-      // Additional questions would be added here
     ],
     scoringConfig: {
       type: 'simple',

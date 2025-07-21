@@ -58,181 +58,47 @@ export function ContentABTestingDashboard({ contents }: ContentABTestingDashboar
       setLoading(true)
       
       try {
-        // In a real implementation, this would be an API call
-        // For now, we'll use mock data
-        const mockTests: ABTest[] = [
-          {
-            id: 'test-1',
-            name: 'Hero Section Hook Variations',
-            status: 'active',
-            startDate: '2024-07-10T00:00:00Z',
-            variants: [
-              {
-                id: 'variant-1',
-                name: 'Original',
-                type: 'hook',
-                value: 'What if you\'re only using 10% of your true potential?',
-                impressions: 1245,
-                conversions: 187,
-                conversionRate: 15.02
-              },
-              {
-                id: 'variant-2',
-                name: 'Question Focus',
-                type: 'hook',
-                value: 'Are you ready to discover your hidden 90%?',
-                impressions: 1267,
-                conversions: 203,
-                conversionRate: 16.02
-              },
-              {
-                id: 'variant-3',
-                name: 'Benefit Focus',
-                type: 'hook',
-                value: 'Unlock the 90% of your potential that most people never discover',
-                impressions: 1289,
-                conversions: 232,
-                conversionRate: 18.00
-              }
-            ],
-            targetMetric: 'conversion',
-            targetAudience: 'all',
-            sampleSize: 3801,
-            confidenceLevel: 95
-          },
-          {
-            id: 'test-2',
-            name: 'Success Gap CTA Variations',
-            status: 'active',
-            startDate: '2024-07-05T00:00:00Z',
-            variants: [
-              {
-                id: 'variant-1',
-                name: 'Original',
-                type: 'cta',
-                value: 'Calculate Your Success Score',
-                impressions: 876,
-                conversions: 98,
-                conversionRate: 11.19
-              },
-              {
-                id: 'variant-2',
-                name: 'Curiosity',
-                type: 'cta',
-                value: 'See What\'s Holding You Back',
-                impressions: 891,
-                conversions: 124,
-                conversionRate: 13.92
-              }
-            ],
-            targetMetric: 'conversion',
-            targetAudience: 'new-visitors',
-            sampleSize: 1767,
-            confidenceLevel: 90
-          },
-          {
-            id: 'test-3',
-            name: 'Content Format Comparison',
-            status: 'completed',
-            startDate: '2024-06-15T00:00:00Z',
-            endDate: '2024-07-01T00:00:00Z',
-            variants: [
-              {
-                id: 'variant-1',
-                name: 'Text Only',
-                type: 'content-format',
-                value: 'Text article with no visuals',
-                contentId: contents[0]?.id,
-                impressions: 1432,
-                conversions: 187,
-                conversionRate: 13.06
-              },
-              {
-                id: 'variant-2',
-                name: 'Text with Images',
-                type: 'content-format',
-                value: 'Text article with supporting images',
-                contentId: contents[1]?.id,
-                impressions: 1456,
-                conversions: 203,
-                conversionRate: 13.94
-              },
-              {
-                id: 'variant-3',
-                name: 'Text with Video',
-                type: 'content-format',
-                value: 'Text article with embedded video',
-                contentId: contents[2]?.id,
-                impressions: 1478,
-                conversions: 259,
-                conversionRate: 17.52
-              }
-            ],
-            targetMetric: 'engagement',
-            targetAudience: 'all',
-            sampleSize: 4366,
-            confidenceLevel: 99
-          },
-          {
-            id: 'test-4',
-            name: 'Title Variations for Habit Article',
-            status: 'completed',
-            startDate: '2024-06-01T00:00:00Z',
-            endDate: '2024-06-15T00:00:00Z',
-            variants: [
-              {
-                id: 'variant-1',
-                name: 'Original',
-                type: 'title',
-                value: 'How to Build Better Habits in 21 Days',
-                impressions: 2134,
-                conversions: 298,
-                conversionRate: 13.96
-              },
-              {
-                id: 'variant-2',
-                name: 'Question',
-                type: 'title',
-                value: 'Why Do Your Habits Fail? The Science of Lasting Change',
-                impressions: 2187,
-                conversions: 371,
-                conversionRate: 16.96
-              },
-              {
-                id: 'variant-3',
-                name: 'Number',
-                type: 'title',
-                value: '7 Proven Steps to Make Any Habit Stick Forever',
-                impressions: 2156,
-                conversions: 345,
-                conversionRate: 16.00
-              }
-            ],
-            targetMetric: 'engagement',
-            targetAudience: 'all',
-            sampleSize: 6477,
-            confidenceLevel: 95
-          }
-        ]
+        // Use real A/B testing service
+        const { abTestingService } = await import('../../lib/ab-testing-service')
         
-        setActiveTests(mockTests.filter(test => test.status === 'active'))
-        setCompletedTests(mockTests.filter(test => test.status === 'completed'))
+        const [activeTests, completedTests] = await Promise.all([
+          abTestingService.getTests('active'),
+          abTestingService.getTests('completed')
+        ])
         
-        // Set first active test as selected by default
-        if (mockTests.find(test => test.status === 'active')) {
-          setSelectedTest(mockTests.find(test => test.status === 'active') || null)
-        } else if (mockTests.length > 0) {
-          setSelectedTest(mockTests[0])
-        }
+        // Get full test data with variants for each test
+        const activeTestsWithVariants = await Promise.all(
+          activeTests.map(async test => {
+            const testData = await abTestingService.getTest(test.id)
+            return testData?.test || test
+          })
+        )
+        
+        const completedTestsWithVariants = await Promise.all(
+          completedTests.map(async test => {
+            const testData = await abTestingService.getTest(test.id)
+            return testData?.test || test
+          })
+        )
+        
+        setActiveTests(activeTestsWithVariants)
+        setCompletedTests(completedTestsWithVariants)
       } catch (error) {
         console.error('Error fetching A/B tests:', error)
+        // Fallback to empty arrays if service fails
+        setActiveTests([])
+        setCompletedTests([])
       } finally {
         setLoading(false)
       }
     }
     
     fetchTests()
-  }, [contents])
+  }, [])
+          
+            confidenceLevel: 95
+
+
   
   // Handle test selection
   const handleSelectTest = (testId: string) => {

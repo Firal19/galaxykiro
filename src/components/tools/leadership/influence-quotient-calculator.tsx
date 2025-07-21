@@ -16,7 +16,6 @@ export function InfluenceQuotientCalculator() {
     title: 'Influence Quotient Calculator',
     description: 'Measure your ability to influence others effectively',
     questions: [
-      // Questions would go here - simplified for brevity
       {
         id: 'communication-clarity',
         type: 'scale',
@@ -44,8 +43,285 @@ export function InfluenceQuotientCalculator() {
           min: 'Difficult for Me',
           max: 'Very Effective'
         }
+      },
+      {
+        id: 'active-listening',
+        type: 'scale',
+        text: 'How well do you listen to understand others\' perspectives and concerns?',
+        required: true,
+        category: 'communication',
+        weight: 1.4,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'I Often Interrupt',
+          max: 'Deep Understanding'
+        }
+      },
+      {
+        id: 'emotional-intelligence',
+        type: 'scale',
+        text: 'How well can you read and respond to others\' emotions?',
+        required: true,
+        category: 'emotional-intelligence',
+        weight: 1.5,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Often Miss Cues',
+          max: 'Highly Attuned'
+        }
+      },
+      {
+        id: 'credibility-establishment',
+        type: 'scale',
+        text: 'How effectively do you establish credibility and expertise in your field?',
+        required: true,
+        category: 'credibility',
+        weight: 1.3,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Struggle to Show Value',
+          max: 'Highly Respected'
+        }
+      },
+      {
+        id: 'persuasion-techniques',
+        type: 'multiple-choice',
+        text: 'Which persuasion approach do you use most effectively?',
+        required: true,
+        category: 'persuasion',
+        weight: 1.2,
+        options: [
+          {
+            id: 'pt-1',
+            text: 'Logical arguments and data',
+            value: 'logical'
+          },
+          {
+            id: 'pt-2',
+            text: 'Stories and emotional appeals',
+            value: 'emotional'
+          },
+          {
+            id: 'pt-3',
+            text: 'Social proof and testimonials',
+            value: 'social_proof'
+          },
+          {
+            id: 'pt-4',
+            text: 'Reciprocity and mutual benefit',
+            value: 'reciprocity'
+          },
+          {
+            id: 'pt-5',
+            text: 'Authority and expertise',
+            value: 'authority'
+          },
+          {
+            id: 'pt-6',
+            text: 'Scarcity and urgency',
+            value: 'scarcity'
+          }
+        ]
+      },
+      {
+        id: 'influence-context',
+        type: 'multiple-choice',
+        text: 'In what context do you most often need to influence others?',
+        required: true,
+        category: 'context',
+        weight: 1.1,
+        options: [
+          {
+            id: 'ic-1',
+            text: 'Workplace and professional settings',
+            value: 'workplace'
+          },
+          {
+            id: 'ic-2',
+            text: 'Sales and business development',
+            value: 'sales'
+          },
+          {
+            id: 'ic-3',
+            text: 'Leadership and team management',
+            value: 'leadership'
+          },
+          {
+            id: 'ic-4',
+            text: 'Personal relationships and family',
+            value: 'personal'
+          },
+          {
+            id: 'ic-5',
+            text: 'Public speaking and presentations',
+            value: 'public_speaking'
+          },
+          {
+            id: 'ic-6',
+            text: 'Negotiations and conflict resolution',
+            value: 'negotiation'
+          }
+        ]
+      },
+      {
+        id: 'resistance-handling',
+        type: 'scale',
+        text: 'How effectively do you handle resistance and objections?',
+        required: true,
+        category: 'resistance',
+        weight: 1.4,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Often Get Stuck',
+          max: 'Skilled at Overcoming'
+        }
+      },
+      {
+        id: 'influence-style',
+        type: 'multiple-choice',
+        text: 'What best describes your natural influence style?',
+        required: true,
+        category: 'style',
+        weight: 1.3,
+        options: [
+          {
+            id: 'is-1',
+            text: 'Direct and assertive',
+            value: 'direct'
+          },
+          {
+            id: 'is-2',
+            text: 'Collaborative and inclusive',
+            value: 'collaborative'
+          },
+          {
+            id: 'is-3',
+            text: 'Analytical and data-driven',
+            value: 'analytical'
+          },
+          {
+            id: 'is-4',
+            text: 'Inspirational and visionary',
+            value: 'inspirational'
+          },
+          {
+            id: 'is-5',
+            text: 'Supportive and encouraging',
+            value: 'supportive'
+          },
+          {
+            id: 'is-6',
+            text: 'Adaptive - I adjust to the situation',
+            value: 'adaptive'
+          }
+        ]
+      },
+      {
+        id: 'network-building',
+        type: 'scale',
+        text: 'How effectively do you build and maintain professional networks?',
+        required: true,
+        category: 'networking',
+        weight: 1.2,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Find It Challenging',
+          max: 'Natural Networker'
+        }
+      },
+      {
+        id: 'follow-through',
+        type: 'scale',
+        text: 'How consistently do you follow through on commitments and promises?',
+        required: true,
+        category: 'reliability',
+        weight: 1.3,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Sometimes Fall Short',
+          max: 'Always Deliver'
+        }
+      },
+      {
+        id: 'influence-challenge',
+        type: 'text',
+        text: 'What is your biggest challenge when trying to influence others?',
+        description: 'Describe a specific situation where you struggled to influence someone',
+        required: true,
+        category: 'challenges',
+        weight: 1.4,
+        placeholder: 'Describe your influence challenge...'
+      },
+      {
+        id: 'success-story',
+        type: 'text',
+        text: 'Describe a time when you successfully influenced someone or a group:',
+        description: 'What made this influence attempt successful?',
+        required: true,
+        category: 'success',
+        weight: 1.5,
+        placeholder: 'Describe your influence success story...'
+      },
+      {
+        id: 'influence-goal',
+        type: 'multiple-choice',
+        text: 'What aspect of influence would you most like to improve?',
+        required: true,
+        category: 'improvement',
+        weight: 1.2,
+        options: [
+          {
+            id: 'ig-1',
+            text: 'Communication and presentation skills',
+            value: 'communication'
+          },
+          {
+            id: 'ig-2',
+            text: 'Building relationships and trust',
+            value: 'relationships'
+          },
+          {
+            id: 'ig-3',
+            text: 'Handling resistance and objections',
+            value: 'resistance'
+          },
+          {
+            id: 'ig-4',
+            text: 'Establishing credibility and authority',
+            value: 'credibility'
+          },
+          {
+            id: 'ig-5',
+            text: 'Understanding others\' motivations',
+            value: 'motivations'
+          },
+          {
+            id: 'ig-6',
+            text: 'Using different influence techniques',
+            value: 'techniques'
+          }
+        ]
+      },
+      {
+        id: 'influence-impact',
+        type: 'scale',
+        text: 'How much impact do you believe you currently have on others\' decisions and actions?',
+        required: true,
+        category: 'impact',
+        weight: 1.1,
+        min: 1,
+        max: 10,
+        labels: {
+          min: 'Minimal Impact',
+          max: 'Significant Impact'
+        }
       }
-      // Additional questions would be added here
     ],
     scoringConfig: {
       type: 'simple',

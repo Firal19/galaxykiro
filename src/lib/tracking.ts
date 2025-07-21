@@ -1,6 +1,6 @@
 import { supabase } from '../../lib/supabase'
 import { InteractionCreateData } from './validations'
-import { scoreTracker, ScoreAction } from './score-tracking'
+import { scoreTrackingSystem, ScoreAction } from './score-tracking'
 
 export interface UserJourneyEvent {
   userId?: string
@@ -231,7 +231,7 @@ class TrackingService {
 
     const scoreAction = scoreActionMap[eventType]
     if (scoreAction) {
-      scoreTracker.trackAction({
+      scoreTrackingSystem.trackAction({
         action: scoreAction,
         userId,
         metadata: eventData

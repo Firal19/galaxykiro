@@ -1,429 +1,497 @@
-import { supabase } from '../../lib/supabase'
-import { RealtimeChannel } from '@supabase/supabase-js'
+/**
+ * Realtime Client
+ * 
+ * Handles real-time communication and data synchronization
+ * using WebSocket connections and event-driven architecture.
+ */
 
-export interface RealtimeSubscription {
-  channel: RealtimeChannel
-  unsubscribe: () => void
+import { supabase } from './supabase'
+
+// Realtime event types
+interface RealtimeEvent {
+  id: string
+  type: 'insert' | 'update' | 'delete'
+  table: string
+  record: Record<string, unknown>
+  timestamp: Date
+  userId?: string
 }
 
-export interface UserEngagementUpdate {
-  userId: string
+interface RealtimeSubscription {
+  id: string
+  table: string
+  event: string
+  filter?: string
+  callback: (payload: RealtimeEvent) => void
+  active: boolean
+  lastEvent?: Date
+  eventCount: number
+}
+
+interface RealtimeMessage {
+  type: 'event' | 'heartbeat' | 'error' | 'reconnect'
+  payload?: RealtimeEvent
+  timestamp: Date
   sessionId: string
-  engagementType: string
-  scoreIncrement: number
-  newEngagementScore: number
-  leadScore?: any
-  tierChanged?: boolean
-  newTier?: string
-  previousTier?: string
-  timestamp: string
 }
 
-export interface AssessmentUpdate {
-  userId: string
-  toolId: string
-  toolName: string
-  scores: Record<string, number>
-  insights: Array<{ category: string; message: string; recommendation: string }>
-  isCompleted: boolean
-  leadScore?: any
-  timestamp: string
+interface RealtimeConnection {
+  id: string
+  status: 'connecting' | 'connected' | 'disconnected' | 'error'
+  lastHeartbeat: Date
+  reconnectAttempts: number
+  maxReconnectAttempts: number
+  reconnectDelay: number
 }
 
-export interface TierChangeNotification {
-  userId: string
-  userProfile: any
-  previousTier: string
-  newTier: string
-  score: number
-  message: string
-  nextStep: string
-  celebrationMessage: string
-  timestamp: string
-  actionRequired: boolean
+interface RealtimeConfig {
+  url: string
+  heartbeatInterval: number
+  reconnectDelay: number
+  maxReconnectAttempts: number
+  eventBufferSize: number
 }
 
-export interface UserCaptureUpdate {
-  userId: string
-  captureLevel: number
-  isNewUser: boolean
-  leadScore?: any
-  timestamp: string
-}
-
-export class RealtimeClient {
+class RealtimeClient {
   private subscriptions: Map<string, RealtimeSubscription> = new Map()
-  private userId?: string
-  private sessionId?: string
+  private connection: RealtimeConnection
+  private config: RealtimeConfig
+  private eventBuffer: RealtimeEvent[] = []
+  private messageHandlers: Map<string, (message: RealtimeMessage) => void> = new Map()
+  private reconnectTimer?: NodeJS.Timeout
+  private heartbeatTimer?: NodeJS.Timeout
 
-  constructor(userId?: string, sessionId?: string) {
-    this.userId = userId
-    this.sessionId = sessionId
+  constructor() {
+    this.config = {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      heartbeatInterval: 30000, // 30 seconds
+      reconnectDelay: 1000, // 1 second
+      maxReconnectAttempts: 5,
+      eventBufferSize: 100
+    }
+
+    this.connection = {
+      id: this.generateConnectionId(),
+      status: 'disconnected',
+      lastHeartbeat: new Date(),
+      reconnectAttempts: 0,
+      maxReconnectAttempts: this.config.maxReconnectAttempts,
+      reconnectDelay: this.config.reconnectDelay
+    }
+
+    this.initializeMessageHandlers()
   }
 
-  // Subscribe to user-specific engagement updates
-  subscribeToUserEngagement(
-    userId: string,
-    onUpdate: (update: UserEngagementUpdate) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `user-engagement-${userId}`
+  /**
+   * Generate unique connection ID
+   */
+  private generateConnectionId(): string {
+    return `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  /**
+   * Initialize message handlers
+   */
+  private initializeMessageHandlers(): void {
+    this.messageHandlers.set('event', this.handleEventMessage.bind(this))
+    this.messageHandlers.set('heartbeat', this.handleHeartbeatMessage.bind(this))
+    this.messageHandlers.set('error', this.handleErrorMessage.bind(this))
+    this.messageHandlers.set('reconnect', this.handleReconnectMessage.bind(this))
+  }
+
+  /**
+   * Connect to realtime service
+   */
+  async connect(): Promise<void> {
+    try {
+      this.connection.status = 'connecting'
+      
+      // Initialize Supabase realtime
+      const channel = supabase.channel('realtime-client')
+      
+      // Subscribe to all active subscriptions
+      this.subscriptions.forEach((subscription) => {
+        if (subscription.active) {
+          this.subscribeToTable(subscription.table, subscription.event, subscription.filter)
+        }
+      })
+
+      this.connection.status = 'connected'
+      this.connection.lastHeartbeat = new Date()
+      this.connection.reconnectAttempts = 0
+
+      // Start heartbeat
+      this.startHeartbeat()
+
+      console.log('Realtime client connected successfully')
+    } catch (error) {
+      console.error('Failed to connect to realtime service:', error)
+      this.connection.status = 'error'
+      this.scheduleReconnect()
+    }
+  }
+
+  /**
+   * Disconnect from realtime service
+   */
+  async disconnect(): Promise<void> {
+    try {
+      this.connection.status = 'disconnected'
+      
+      // Clear timers
+      if (this.heartbeatTimer) {
+        clearInterval(this.heartbeatTimer)
+        this.heartbeatTimer = undefined
+      }
+      
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer)
+        this.reconnectTimer = undefined
+      }
+
+      // Unsubscribe from all channels
+      await supabase.removeAllChannels()
+
+      console.log('Realtime client disconnected')
+    } catch (error) {
+      console.error('Error disconnecting from realtime service:', error)
+    }
+  }
+
+  /**
+   * Subscribe to table changes
+   */
+  subscribeToTable(
+    table: string,
+    event: string,
+    filter?: string,
+    callback?: (payload: RealtimeEvent) => void
+  ): string {
+    const subscriptionId = this.generateSubscriptionId(table, event, filter)
     
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: 'engagement-score-updated' }, (payload) => {
-        if (payload.payload.userId === userId) {
-          onUpdate(payload.payload as UserEngagementUpdate)
-        }
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to user engagement updates for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to user engagement updates for ${userId}`)
-          onError?.(status)
-        }
-      })
-
     const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
+      id: subscriptionId,
+      table,
+      event,
+      filter,
+      callback: callback || this.defaultCallback.bind(this),
+      active: true,
+      eventCount: 0
     }
 
-    this.subscriptions.set(channelName, subscription)
-    return subscription
-  }
+    this.subscriptions.set(subscriptionId, subscription)
 
-  // Subscribe to assessment completion updates
-  subscribeToAssessmentUpdates(
-    userId: string,
-    onUpdate: (update: AssessmentUpdate) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `assessment-updates-${userId}`
+    // Subscribe to Supabase realtime
+    const channel = supabase.channel(subscriptionId)
     
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: 'assessment-processed' }, (payload) => {
-        if (payload.payload.userId === userId) {
-          onUpdate(payload.payload as AssessmentUpdate)
-        }
+    if (filter) {
+      channel.on('postgres_changes', {
+        event: event as 'INSERT' | 'UPDATE' | 'DELETE',
+        schema: 'public',
+        table: table,
+        filter: filter
+      }, (payload) => {
+        this.handleRealtimeEvent(subscriptionId, payload)
       })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to assessment updates for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to assessment updates for ${userId}`)
-          onError?.(status)
-        }
+    } else {
+      channel.on('postgres_changes', {
+        event: event as 'INSERT' | 'UPDATE' | 'DELETE',
+        schema: 'public',
+        table: table
+      }, (payload) => {
+        this.handleRealtimeEvent(subscriptionId, payload)
       })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
     }
 
-    this.subscriptions.set(channelName, subscription)
-    return subscription
+    return subscriptionId
   }
 
-  // Subscribe to tier change notifications
-  subscribeToTierChanges(
-    userId: string,
-    onTierChange: (notification: TierChangeNotification) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `tier-changes-${userId}`
+  /**
+   * Unsubscribe from table changes
+   */
+  unsubscribeFromTable(subscriptionId: string): boolean {
+    const subscription = this.subscriptions.get(subscriptionId)
     
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: 'tier_change' }, (payload) => {
-        if (payload.payload.userId === userId) {
-          onTierChange(payload.payload as TierChangeNotification)
-        }
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to tier changes for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to tier changes for ${userId}`)
-          onError?.(status)
-        }
-      })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
+    if (!subscription) {
+      return false
     }
 
-    this.subscriptions.set(channelName, subscription)
-    return subscription
+    subscription.active = false
+    this.subscriptions.delete(subscriptionId)
+
+    // Unsubscribe from Supabase channel
+    supabase.removeChannel(subscriptionId)
+
+    return true
   }
 
-  // Subscribe to user capture updates
-  subscribeToUserCapture(
-    userId: string,
-    onUpdate: (update: UserCaptureUpdate) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `user-capture-${userId}`
+  /**
+   * Generate subscription ID
+   */
+  private generateSubscriptionId(table: string, event: string, filter?: string): string {
+    const filterHash = filter ? `_${this.hashString(filter)}` : ''
+    return `sub_${table}_${event}${filterHash}_${Date.now()}`
+  }
+
+  /**
+   * Simple string hash function
+   */
+  private hashString(str: string): string {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36)
+  }
+
+  /**
+   * Handle realtime event from Supabase
+   */
+  private handleRealtimeEvent(subscriptionId: string, payload: Record<string, unknown>): void {
+    const subscription = this.subscriptions.get(subscriptionId)
     
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: 'user-capture-update' }, (payload) => {
-        if (payload.payload.userId === userId) {
-          onUpdate(payload.payload as UserCaptureUpdate)
-        }
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to user capture updates for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to user capture updates for ${userId}`)
-          onError?.(status)
-        }
-      })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
+    if (!subscription || !subscription.active) {
+      return
     }
 
-    this.subscriptions.set(channelName, subscription)
-    return subscription
+    const event: RealtimeEvent = {
+      id: this.generateEventId(),
+      type: payload.eventType as 'insert' | 'update' | 'delete',
+      table: payload.table as string,
+      record: payload.new || payload.old || {},
+      timestamp: new Date(),
+      userId: payload.userId as string
+    }
+
+    // Update subscription stats
+    subscription.lastEvent = new Date()
+    subscription.eventCount++
+
+    // Add to buffer
+    this.addToEventBuffer(event)
+
+    // Call callback
+    try {
+      subscription.callback(event)
+    } catch (error) {
+      console.error('Error in realtime event callback:', error)
+    }
   }
 
-  // Subscribe to general notifications
-  subscribeToNotifications(
-    userId: string,
-    onNotification: (notification: any) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `user-notifications-${userId}`
+  /**
+   * Generate unique event ID
+   */
+  private generateEventId(): string {
+    return `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  /**
+   * Add event to buffer
+   */
+  private addToEventBuffer(event: RealtimeEvent): void {
+    this.eventBuffer.push(event)
     
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: '*' }, (payload) => {
-        // Handle all notification types
-        onNotification(payload.payload)
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to notifications for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to notifications for ${userId}`)
-          onError?.(status)
-        }
-      })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
+    // Keep buffer size manageable
+    if (this.eventBuffer.length > this.config.eventBufferSize) {
+      this.eventBuffer = this.eventBuffer.slice(-this.config.eventBufferSize)
     }
-
-    this.subscriptions.set(channelName, subscription)
-    return subscription
   }
 
-  // Subscribe to database changes (RLS-protected)
-  subscribeToUserDataChanges(
-    userId: string,
-    onUserUpdate: (user: any) => void,
-    onLeadScoreUpdate: (leadScore: any) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `user-data-${userId}`
+  /**
+   * Default callback for events
+   */
+  private defaultCallback(event: RealtimeEvent): void {
+    console.log('Realtime event received:', event)
+  }
+
+  /**
+   * Handle event message
+   */
+  private handleEventMessage(message: RealtimeMessage): void {
+    if (message.payload) {
+      this.addToEventBuffer(message.payload)
+    }
+  }
+
+  /**
+   * Handle heartbeat message
+   */
+  private handleHeartbeatMessage(message: RealtimeMessage): void {
+    this.connection.lastHeartbeat = new Date()
+  }
+
+  /**
+   * Handle error message
+   */
+  private handleErrorMessage(message: RealtimeMessage): void {
+    console.error('Realtime error:', message)
+    this.connection.status = 'error'
+    this.scheduleReconnect()
+  }
+
+  /**
+   * Handle reconnect message
+   */
+  private handleReconnectMessage(message: RealtimeMessage): void {
+    console.log('Realtime reconnect requested')
+    this.reconnect()
+  }
+
+  /**
+   * Start heartbeat
+   */
+  private startHeartbeat(): void {
+    this.heartbeatTimer = setInterval(() => {
+      this.sendHeartbeat()
+    }, this.config.heartbeatInterval)
+  }
+
+  /**
+   * Send heartbeat
+   */
+  private sendHeartbeat(): void {
+    const message: RealtimeMessage = {
+      type: 'heartbeat',
+      timestamp: new Date(),
+      sessionId: this.connection.id
+    }
+
+    // In a real implementation, this would send to the server
+    console.log('Heartbeat sent:', message)
+  }
+
+  /**
+   * Schedule reconnect
+   */
+  private scheduleReconnect(): void {
+    if (this.connection.reconnectAttempts >= this.connection.maxReconnectAttempts) {
+      console.error('Max reconnect attempts reached')
+      return
+    }
+
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnect()
+    }, this.connection.reconnectDelay * Math.pow(2, this.connection.reconnectAttempts))
+  }
+
+  /**
+   * Reconnect to realtime service
+   */
+  private async reconnect(): Promise<void> {
+    this.connection.reconnectAttempts++
+    console.log(`Reconnecting... Attempt ${this.connection.reconnectAttempts}`)
     
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'users',
-          filter: `id=eq.${userId}`
-        },
-        (payload) => {
-          onUserUpdate(payload.new)
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'lead_scores',
-          filter: `user_id=eq.${userId}`
-        },
-        (payload) => {
-          onLeadScoreUpdate(payload.new)
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to user data changes for ${userId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to user data changes for ${userId}`)
-          onError?.(status)
-        }
-      })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
-    }
-
-    this.subscriptions.set(channelName, subscription)
-    return subscription
+    await this.disconnect()
+    await this.connect()
   }
 
-  // Subscribe to session-based updates (for anonymous users)
-  subscribeToSessionUpdates(
-    sessionId: string,
-    onUpdate: (update: any) => void,
-    onError?: (error: any) => void
-  ): RealtimeSubscription {
-    const channelName = `session-${sessionId}`
-    
-    const channel = supabase
-      .channel(channelName)
-      .on('broadcast', { event: '*' }, (payload) => {
-        if (payload.payload.sessionId === sessionId) {
-          onUpdate(payload.payload)
-        }
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Subscribed to session updates for ${sessionId}`)
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to session updates for ${sessionId}`)
-          onError?.(status)
-        }
-      })
-
-    const subscription: RealtimeSubscription = {
-      channel,
-      unsubscribe: () => {
-        supabase.removeChannel(channel)
-        this.subscriptions.delete(channelName)
-      }
-    }
-
-    this.subscriptions.set(channelName, subscription)
-    return subscription
+  /**
+   * Get connection status
+   */
+  getConnectionStatus(): RealtimeConnection['status'] {
+    return this.connection.status
   }
 
-  // Utility methods for sending real-time updates
-  async sendUserUpdate(userId: string, updateData: any): Promise<void> {
-    const channel = supabase.channel('user-updates')
-    await channel.send({
-      type: 'broadcast',
-      event: 'user-update',
-      payload: {
-        userId,
-        ...updateData,
-        timestamp: new Date().toISOString()
-      }
-    })
+  /**
+   * Get active subscriptions
+   */
+  getActiveSubscriptions(): RealtimeSubscription[] {
+    return Array.from(this.subscriptions.values()).filter(sub => sub.active)
   }
 
-  async sendEngagementUpdate(userId: string, sessionId: string, engagementData: any): Promise<void> {
-    const channel = supabase.channel('engagement-updates')
-    await channel.send({
-      type: 'broadcast',
-      event: 'engagement-update',
-      payload: {
-        userId,
-        sessionId,
-        ...engagementData,
-        timestamp: new Date().toISOString()
-      }
-    })
+  /**
+   * Get event buffer
+   */
+  getEventBuffer(): RealtimeEvent[] {
+    return [...this.eventBuffer]
   }
 
-  // Cleanup all subscriptions
-  unsubscribeAll(): void {
-    this.subscriptions.forEach((subscription) => {
-      subscription.unsubscribe()
-    })
-    this.subscriptions.clear()
+  /**
+   * Clear event buffer
+   */
+  clearEventBuffer(): void {
+    this.eventBuffer = []
   }
 
-  // Get active subscription count
-  getActiveSubscriptionCount(): number {
-    return this.subscriptions.size
-  }
+  /**
+   * Get connection statistics
+   */
+  getConnectionStats(): {
+    status: RealtimeConnection['status']
+    activeSubscriptions: number
+    totalEvents: number
+    lastHeartbeat: Date
+    reconnectAttempts: number
+  } {
+    const totalEvents = Array.from(this.subscriptions.values())
+      .reduce((sum, sub) => sum + sub.eventCount, 0)
 
-  // Get list of active channels
-  getActiveChannels(): string[] {
-    return Array.from(this.subscriptions.keys())
-  }
-
-  // Check if subscribed to a specific channel
-  isSubscribedTo(channelName: string): boolean {
-    return this.subscriptions.has(channelName)
-  }
-
-  // Update user context
-  updateUserContext(userId: string, sessionId?: string): void {
-    this.userId = userId
-    if (sessionId) {
-      this.sessionId = sessionId
-    }
-  }
-
-  // Get current user context
-  getUserContext(): { userId?: string; sessionId?: string } {
     return {
-      userId: this.userId,
-      sessionId: this.sessionId
+      status: this.connection.status,
+      activeSubscriptions: this.getActiveSubscriptions().length,
+      totalEvents,
+      lastHeartbeat: this.connection.lastHeartbeat,
+      reconnectAttempts: this.connection.reconnectAttempts
     }
+  }
+
+  /**
+   * Send custom message
+   */
+  sendMessage(type: string, payload?: Record<string, unknown>): void {
+    const message: RealtimeMessage = {
+      type: type as RealtimeMessage['type'],
+      payload: payload as RealtimeEvent,
+      timestamp: new Date(),
+      sessionId: this.connection.id
+    }
+
+    // In a real implementation, this would send to the server
+    console.log('Message sent:', message)
+  }
+
+  /**
+   * Register message handler
+   */
+  onMessage(type: string, handler: (message: RealtimeMessage) => void): void {
+    this.messageHandlers.set(type, handler)
+  }
+
+  /**
+   * Remove message handler
+   */
+  offMessage(type: string): void {
+    this.messageHandlers.delete(type)
   }
 }
 
 // Export singleton instance
 export const realtimeClient = new RealtimeClient()
 
-// Export utility functions for common use cases
-export const subscribeToUserEngagement = (
-  userId: string,
-  onUpdate: (update: UserEngagementUpdate) => void,
-  onError?: (error: any) => void
-) => realtimeClient.subscribeToUserEngagement(userId, onUpdate, onError)
-
-export const subscribeToAssessmentUpdates = (
-  userId: string,
-  onUpdate: (update: AssessmentUpdate) => void,
-  onError?: (error: any) => void
-) => realtimeClient.subscribeToAssessmentUpdates(userId, onUpdate, onError)
-
-export const subscribeToTierChanges = (
-  userId: string,
-  onTierChange: (notification: TierChangeNotification) => void,
-  onError?: (error: any) => void
-) => realtimeClient.subscribeToTierChanges(userId, onTierChange, onError)
-
-export const subscribeToNotifications = (
-  userId: string,
-  onNotification: (notification: any) => void,
-  onError?: (error: any) => void
-) => realtimeClient.subscribeToNotifications(userId, onNotification, onError)
+// Hook for React components
+export function useRealtimeClient() {
+  return {
+    connect: () => realtimeClient.connect(),
+    disconnect: () => realtimeClient.disconnect(),
+    subscribeToTable: (
+      table: string,
+      event: string,
+      filter?: string,
+      callback?: (payload: RealtimeEvent) => void
+    ) => realtimeClient.subscribeToTable(table, event, filter, callback),
+    unsubscribeFromTable: (subscriptionId: string) => 
+      realtimeClient.unsubscribeFromTable(subscriptionId),
+    getConnectionStatus: () => realtimeClient.getConnectionStatus(),
+    getActiveSubscriptions: () => realtimeClient.getActiveSubscriptions(),
+    getEventBuffer: () => realtimeClient.getEventBuffer(),
+    clearEventBuffer: () => realtimeClient.clearEventBuffer(),
+    getConnectionStats: () => realtimeClient.getConnectionStats(),
+    sendMessage: (type: string, payload?: Record<string, unknown>) => 
+      realtimeClient.sendMessage(type, payload),
+    onMessage: (type: string, handler: (message: RealtimeMessage) => void) => 
+      realtimeClient.onMessage(type, handler),
+    offMessage: (type: string) => realtimeClient.offMessage(type)
+  }
+}

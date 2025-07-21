@@ -24,7 +24,7 @@ export function ChangeParadoxSection({ className }: ChangeParadoxSectionProps) {
         ? localStorage.getItem('session_id') || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
         : `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       
-      const response = await fetch('/.netlify/functions/capture-user-info', {
+      const response = await fetch('/api/capture-user-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,23 +171,23 @@ function HabitLoopVisualization() {
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
-    { 
-      id: 'cue', 
-      label: 'Cue', 
+    {
+      id: 'cue',
+      label: 'Cue',
       description: 'Environmental trigger',
       icon: Zap,
       color: 'var(--color-energy-500)'
     },
-    { 
-      id: 'routine', 
-      label: 'Routine', 
+    {
+      id: 'routine',
+      label: 'Routine',
       description: 'The behavior itself',
       icon: RefreshCw,
       color: 'var(--color-transformation-500)'
     },
-    { 
-      id: 'reward', 
-      label: 'Reward', 
+    {
+      id: 'reward',
+      label: 'Reward',
       description: 'The benefit you get',
       icon: Target,
       color: 'var(--color-growth-500)'
@@ -196,92 +196,135 @@ function HabitLoopVisualization() {
 
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Central Circle */}
-      <div className="relative w-64 h-64 mx-auto">
-        {/* Habit Loop Circle */}
+      {/* Glassmorphic Animated Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360, opacity: [0.12, 0.18, 0.12] }}
+          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+          className="absolute top-8 left-8 w-64 h-64 bg-gradient-to-br from-[var(--color-energy-400)]/30 to-[var(--color-transformation-400)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        <motion.div
+          animate={{ rotate: -360, opacity: [0.10, 0.16, 0.10] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute bottom-8 right-8 w-72 h-72 bg-gradient-to-br from-[var(--color-growth-400)]/30 to-[var(--color-ethiopian-gold)]/30 rounded-full blur-3xl shadow-2xl"
+        />
+        {/* Ethiopian pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
+          <defs>
+            <pattern id="ethiopianPattern3" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FFD700" strokeWidth="2" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#ethiopianPattern3)" />
+        </svg>
+      </div>
+      {/* Habit Loop Visualization */}
+      <div className="relative w-72 h-72 mx-auto z-10">
+        {/* Glassy Rotating Circle */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 border-4 border-dashed border-[var(--color-transformation-300)] rounded-full"
+          className="absolute inset-0 border-4 border-dashed border-[var(--color-transformation-300)] rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md shadow-2xl"
         />
-
-        {/* Steps */}
+        {/* Steps with Animated Glow and Glassy Labels */}
         {steps.map((step, index) => {
-          const angle = (index * 120) - 90 // Start from top
-          const x = Math.cos(angle * Math.PI / 180) * 100
-          const y = Math.sin(angle * Math.PI / 180) * 100
-
+          const radius = 90
+          const x = Math.cos((index * 120 - 90) * Math.PI / 180) * radius
+          const y = Math.sin((index * 120 - 90) * Math.PI / 180) * radius
           return (
             <motion.div
               key={step.id}
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              initial={{ scale: 0, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.7, delay: index * 0.2 }}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
               style={{
                 transform: `translate(${x}px, ${y}px) translate(-50%, -50%)`
               }}
               onMouseEnter={() => setActiveStep(index)}
+              onMouseLeave={() => setActiveStep(-1)}
             >
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-                activeStep === index 
-                  ? 'bg-white dark:bg-gray-800 scale-110' 
-                  : 'bg-white/80 dark:bg-gray-800/80'
-              }`}>
-                <step.icon 
-                  className="h-6 w-6" 
-                  style={{ color: step.color }}
+              <div className={`relative transition-all duration-300 ${activeStep === index ? 'scale-110' : ''}`}>
+                {/* Animated Glow */}
+                <motion.div
+                  animate={{
+                    opacity: activeStep === index ? 0.7 : 0.3,
+                    scale: activeStep === index ? 1.15 : 1
+                  }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute -inset-3 rounded-full border-2 border-dashed shadow-lg"
+                  style={{
+                    borderColor: step.color,
+                    boxShadow: activeStep === index ? `0 0 16px 4px ${step.color}` : undefined
+                  }}
                 />
-              </div>
-              <div className="text-center mt-2">
-                <div className="text-sm font-medium">{step.label}</div>
-                <div className="text-xs text-muted-foreground">{step.description}</div>
+                {/* Icon Container with Glow */}
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 bg-white/80 dark:bg-gray-900/80 border-2 border-white/40 ${activeStep === index ? 'ring-4 ring-[var(--color-energy-400)]/40' : ''}`}>
+                  <step.icon
+                    className="h-8 w-8 drop-shadow-glow"
+                    style={{ color: step.color }}
+                  />
+                </div>
+                {/* Glassy Label with Animated Gradient Text */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 text-center px-4 py-2 bg-white/90 dark:bg-gray-900/90 rounded-xl shadow-lg border border-white/30 min-w-[90px]">
+                  <span className="font-bold text-base bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x">{step.label}</span>
+                  <div className="text-xs text-muted-foreground mt-1">{step.description}</div>
+                </div>
               </div>
             </motion.div>
           )
         })}
-
-        {/* Center Content */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[var(--color-transformation-600)]">95%</div>
-            <div className="text-sm text-muted-foreground">Automatic</div>
-          </div>
-        </div>
-
-        {/* Arrows */}
+        {/* Animated Arrows */}
         {steps.map((_, index) => {
-          const angle = (index * 120) - 90 + 60 // Between current and next
-          const x = Math.cos(angle * Math.PI / 180) * 80
-          const y = Math.sin(angle * Math.PI / 180) * 80
-
+          const angle = (index * 120) - 90 + 60
+          const radius = 70
+          const x = Math.cos(angle * Math.PI / 180) * radius
+          const y = Math.sin(angle * Math.PI / 180) * radius
           return (
             <motion.div
               key={`arrow-${index}`}
               initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+              whileInView={{ opacity: 0.18 }}
               transition={{ duration: 0.5, delay: 1 + index * 0.2 }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0"
               style={{
                 transform: `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${angle + 90}deg)`
               }}
             >
-              <ArrowRight className="h-4 w-4 text-[var(--color-transformation-400)]" />
+              <ArrowRight className="h-6 w-6 text-[var(--color-transformation-400)] animate-pulse" />
             </motion.div>
           )
         })}
+        {/* Center Content with Glassmorphism */}
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="text-center px-6 py-4 bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-xl border border-white/30 backdrop-blur-md">
+            <div className="text-4xl font-extrabold text-[var(--color-transformation-600)] drop-shadow-lg animate-pulse">95%</div>
+            <div className="text-base text-muted-foreground drop-shadow">Automatic</div>
+          </div>
+        </div>
       </div>
-
-      {/* Legend */}
+      {/* Glassy Legend */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.5 }}
-        className="mt-8 text-center"
+        transition={{ duration: 0.8, delay: 2 }}
+        className="mt-10 text-center px-4 py-4 bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl inline-block border border-white/30 backdrop-blur-md"
       >
-        <p className="text-sm text-muted-foreground">
-          Your brain runs this loop automatically. Understanding it is the key to lasting change.
-        </p>
+        <p className="text-base font-semibold bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent animate-gradient-x mb-2">Your brain runs this loop automatically. Understanding it is the key to lasting change.</p>
+        <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+          <div className="flex items-center gap-2 px-3 py-1 bg-[var(--color-energy-100)]/60 rounded-full">
+            <Zap className="h-4 w-4 text-[var(--color-energy-500)] animate-pulse" />
+            <span>Cue</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 bg-[var(--color-transformation-100)]/60 rounded-full">
+            <RefreshCw className="h-4 w-4 text-[var(--color-transformation-500)] animate-pulse" />
+            <span>Routine</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 bg-[var(--color-growth-100)]/60 rounded-full">
+            <Target className="h-4 w-4 text-[var(--color-growth-500)] animate-pulse" />
+            <span>Reward</span>
+          </div>
+        </div>
       </motion.div>
     </div>
   )

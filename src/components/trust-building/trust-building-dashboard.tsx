@@ -141,13 +141,24 @@ export function TrustBuildingDashboard({
       </div>
 
       {/* Trust Level Status */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="flex items-center justify-between">
+      <Card className="p-6 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-2 border-gradient-ethiopian animate-border-glow shadow-2xl relative overflow-hidden">
+        {/* Ethiopian pattern accent */}
+        <div className="absolute inset-0 pointer-events-none rounded-2xl opacity-10">
+          <svg className="w-full h-full" aria-hidden="true">
+            <defs>
+              <pattern id="ethiopianPatternTrust" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="16" fill="none" stroke="#FFD700" strokeWidth="1.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#ethiopianPatternTrust)" />
+          </svg>
+        </div>
+        <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="text-4xl">🛡️</div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">Your Trust Journey</h3>
-              <Badge className={getTrustLevelColor(userTrustLevel)}>
+              <Badge className={getTrustLevelColor(userTrustLevel) + ' font-semibold px-3 py-1 rounded-full shadow'}>
                 {getTrustLevelName(userTrustLevel)}
               </Badge>
             </div>
@@ -155,6 +166,8 @@ export function TrustBuildingDashboard({
           <Button 
             onClick={() => setActiveSection('overview')}
             variant={activeSection === 'overview' ? 'default' : 'outline'}
+            className={activeSection === 'overview' ? 'bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-growth-500)] text-white shadow-lg border-0 animate-border-glow' : 'border-2 border-gray-300 dark:border-gray-700'}
+            aria-label="View Trust Progress"
           >
             View Progress
           </Button>
@@ -171,7 +184,13 @@ export function TrustBuildingDashboard({
                 variant={activeSection === section.id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setActiveSection(section.id)}
-                className="flex items-center space-x-2"
+                className={
+                  `flex items-center space-x-2 rounded-full px-5 py-2 font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-energy-400)]
+                  ${activeSection === section.id ? 'bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-growth-500)] text-white shadow-lg border-0 animate-border-glow' : 'border-2 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-growth-700'}`
+                }
+                aria-label={`Go to ${section.name}`}
+                tabIndex={0}
+                role="tab"
               >
                 <span>{section.icon}</span>
                 <span>{section.name}</span>
@@ -190,7 +209,7 @@ export function TrustBuildingDashboard({
                 <LiveCountersWidget />
                 <div className="grid md:grid-cols-2 gap-6">
                   <ActivityFeedWidget />
-                  <Card className="p-4">
+                  <Card className="p-4 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-2 border-gradient-ethiopian animate-border-glow shadow-xl">
                     <h4 className="font-semibold mb-3">Why This Matters</h4>
                     <div className="space-y-3 text-sm text-gray-600">
                       <p>
@@ -211,7 +230,7 @@ export function TrustBuildingDashboard({
             {activeSection === 'testimonials' && (
               <div className="space-y-6">
                 <TestimonialCarousel />
-                <Card className="p-4 bg-green-50">
+                <Card className="p-4 bg-green-50 border-2 border-gradient-ethiopian animate-border-glow shadow-xl">
                   <div className="text-center">
                     <h4 className="font-semibold text-green-800 mb-2">Verification Promise</h4>
                     <p className="text-sm text-green-700">
@@ -235,8 +254,19 @@ export function TrustBuildingDashboard({
       )}
 
       {/* Trust Building Summary */}
-      <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50">
-        <div className="text-center">
+      <Card className="p-6 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-2 border-gradient-ethiopian animate-border-glow shadow-2xl relative overflow-hidden">
+        {/* Ethiopian pattern accent */}
+        <div className="absolute inset-0 pointer-events-none rounded-2xl opacity-10">
+          <svg className="w-full h-full" aria-hidden="true">
+            <defs>
+              <pattern id="ethiopianPatternTrustSummary" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="16" fill="none" stroke="#FFD700" strokeWidth="1.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#ethiopianPatternTrustSummary)" />
+          </svg>
+        </div>
+        <div className="relative z-10 text-center">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
             Our Commitment to You
           </h3>

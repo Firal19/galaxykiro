@@ -239,39 +239,27 @@ async function sendEmail(emailData: {
   content: string
   language: string
 }): Promise<void> {
-  // This is a placeholder for actual email sending
-  // In a real implementation, you would integrate with:
-  // - SendGrid
-  // - Mailgun
-  // - AWS SES
-  // - Or another email service
-  
-  console.log('Sending email:', {
-    to: emailData.to,
-    subject: emailData.subject,
-    language: emailData.language
-  })
-  
-  // Simulate email sending delay
-  await new Promise(resolve => setTimeout(resolve, 100))
-  
-  // For now, we'll just log the email
-  // In production, replace this with actual email sending logic
-  
-  // Example with SendGrid:
-  /*
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-  
-  const msg = {
-    to: emailData.to,
-    from: process.env.FROM_EMAIL,
-    subject: emailData.subject,
-    html: emailData.content,
+  try {
+    // Use the email service to send the email
+    const { emailService } = await import('../../src/lib/email-service')
+    
+    const result = await emailService.sendEmail({
+      to: emailData.to,
+      subject: emailData.subject,
+      htmlContent: emailData.content,
+      textContent: emailData.content.replace(/<[^>]*>/g, '') // Strip HTML for text version
+    })
+    
+    if (!result.success) {
+      console.error('Failed to send sequence email:', result.error)
+      throw new Error(`Email sending failed: ${result.error}`)
+    }
+    
+    console.log('Sequence email sent successfully:', result.messageId)
+  } catch (error) {
+    console.error('Error sending sequence email:', error)
+    throw error
   }
-  
-  await sgMail.send(msg)
-  */
 }
 
 export { handler }

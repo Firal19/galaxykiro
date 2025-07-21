@@ -197,33 +197,22 @@ async function sendEmail(emailData: {
   // - AWS SES
   // - Or another email service
   
-  console.log('Sending email:', {
+  // Use the email service to send the email
+  const { emailService } = await import('../../src/lib/email-service')
+  
+  const result = await emailService.sendEmail({
     to: emailData.to,
     subject: emailData.subject,
-    language: emailData.language
+    htmlContent: emailData.htmlContent,
+    textContent: emailData.textContent
   })
   
-  // Simulate email sending delay
-  await new Promise(resolve => setTimeout(resolve, 100))
-  
-  // For now, we'll just log the email
-  // In production, replace this with actual email sending logic
-  
-  // Example with SendGrid:
-  /*
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-  
-  const msg = {
-    to: emailData.to,
-    from: process.env.FROM_EMAIL,
-    subject: emailData.subject,
-    html: emailData.htmlContent,
-    text: emailData.textContent,
+  if (!result.success) {
+    console.error('Failed to send email:', result.error)
+    throw new Error(`Email sending failed: ${result.error}`)
   }
   
-  await sgMail.send(msg)
-  */
+  console.log('Email sent successfully:', result.messageId)
 }
 
 /**

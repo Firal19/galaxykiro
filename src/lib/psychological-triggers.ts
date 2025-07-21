@@ -1,872 +1,606 @@
-'use client'
+/**
+ * Psychological Triggers Engine
+ * 
+ * Implements various psychological triggers and persuasion techniques
+ * to enhance user engagement and conversion rates.
+ */
 
-import React from 'react'
-import { trackingService } from './tracking'
+import { useAppStore } from './store'
 
-// Psychological Trigger Types
-export type PsychologicalTrigger = 
-  | 'curiosity' 
-  | 'urgency' 
-  | 'social-proof' 
-  | 'personalization' 
-  | 'scarcity'
-  | 'authority'
-  | 'reciprocity'
-  | 'commitment'
-  | 'loss-aversion'
-  | 'anchoring'
-
-// Trigger Configuration Interface
-export interface TriggerConfig {
-  type: PsychologicalTrigger
-  intensity: 'low' | 'medium' | 'high'
-  context: string[]
-  timing: TriggerTiming
-  content: TriggerContent
-  conditions: TriggerConditions
+// Psychological trigger types
+interface TriggerContext {
+  userId?: string
+  userAgent: string
+  referrer: string
+  currentPage: string
+  timeOnSite: number
+  previousInteractions: number
+  deviceType: 'mobile' | 'tablet' | 'desktop'
+  location?: string
 }
 
-export interface TriggerTiming {
-  delay?: number // seconds
-  duration?: number // seconds
-  frequency?: 'once' | 'session' | 'daily' | 'always'
-  triggers: ('immediate' | 'scroll' | 'time' | 'interaction' | 'exit-intent')[]
-  scrollPercentage?: number
+interface TriggerResult {
+  applied: boolean
+  triggerType: string
+  message: string
+  urgency?: 'low' | 'medium' | 'high'
+  socialProof?: {
+    count: number
+    type: 'reviews' | 'users' | 'downloads' | 'testimonials'
+  }
+  scarcity?: {
+    remaining: number
+    timeLeft?: number
+    type: 'time' | 'quantity' | 'access'
+  }
+  authority?: {
+    credentials: string[]
+    endorsements: string[]
+    achievements: string[]
+  }
 }
 
-export interface TriggerContent {
-  text: string
-  subtext?: string
-  icon?: string
-  color?: string
-  animation?: string
-  sound?: boolean
+interface SocialProofData {
+  totalUsers: number
+  activeUsers: number
+  testimonials: number
+  successStories: number
+  averageRating: number
+  recentActivity: Array<{
+    type: 'signup' | 'achievement' | 'testimonial'
+    timestamp: Date
+    description: string
+  }>
 }
 
-export interface TriggerConditions {
-  userTier?: ('browser' | 'engaged' | 'soft-member')[]
-  engagementScore?: { min?: number; max?: number }
-  behaviorPattern?: string[]
-  timeOnPage?: number
-  sectionsViewed?: string[]
-  toolsUsed?: string[]
-  deviceType?: ('mobile' | 'desktop' | 'tablet')[]
-  returningUser?: boolean
-  excludeIfCompleted?: string[]
+interface ScarcityData {
+  totalSpots: number
+  remainingSpots: number
+  timeUntilExpiry: number
+  accessLevel: 'basic' | 'premium' | 'exclusive'
+  waitlistSize: number
 }
 
-// Predefined Psychological Triggers
-const PSYCHOLOGICAL_TRIGGERS: { [key in PsychologicalTrigger]: TriggerConfig[] } = {
-  curiosity: [
-    {
-      type: 'curiosity',
-      intensity: 'low',
-      context: ['assessment', 'tool', 'content'],
-      timing: {
-        delay: 0,
-        frequency: 'always',
-        triggers: ['immediate']
-      },
-      content: {
-        text: 'See Your Score',
-        subtext: 'Quick 2-minute assessment',
-        icon: '🎯',
-        color: 'blue',
-        animation: 'pulse'
-      },
-      conditions: {
-        userTier: ['browser'],
-        engagementScore: { max: 30 }
-      }
-    },
-    {
-      type: 'curiosity',
-      intensity: 'medium',
-      context: ['insight', 'revelation'],
-      timing: {
-        delay: 30,
-        frequency: 'once',
-        triggers: ['time', 'scroll'],
-        scrollPercentage: 25
-      },
-      content: {
-        text: 'Discover What\'s Holding You Back',
-        subtext: 'Most people never find out...',
-        icon: '🔍',
-        color: 'purple',
-        animation: 'bounce'
-      },
-      conditions: {
-        userTier: ['browser', 'engaged'],
-        timeOnPage: 30
-      }
-    },
-    {
-      type: 'curiosity',
-      intensity: 'high',
-      context: ['transformation', 'potential'],
-      timing: {
-        delay: 60,
-        frequency: 'session',
-        triggers: ['time', 'interaction']
-      },
-      content: {
-        text: 'What If You\'re Only Using 10% of Your Potential?',
-        subtext: 'The hidden 90% is waiting to be unlocked',
-        icon: '🚀',
-        color: 'gradient',
-        animation: 'glow'
-      },
-      conditions: {
-        engagementScore: { min: 20 },
-        sectionsViewed: ['success-gap', 'change-paradox']
-      }
-    }
-  ],
-
-  urgency: [
-    {
-      type: 'urgency',
-      intensity: 'low',
-      context: ['action', 'decision'],
-      timing: {
-        delay: 120,
-        frequency: 'session',
-        triggers: ['time']
-      },
-      content: {
-        text: 'Don\'t Wait - Start Today',
-        subtext: 'Every day you wait is a day lost',
-        icon: '⏰',
-        color: 'orange',
-        animation: 'shake'
-      },
-      conditions: {
-        timeOnPage: 120,
-        userTier: ['engaged']
-      }
-    },
-    {
-      type: 'urgency',
-      intensity: 'medium',
-      context: ['opportunity', 'limited-time'],
-      timing: {
-        delay: 180,
-        frequency: 'once',
-        triggers: ['time', 'exit-intent']
-      },
-      content: {
-        text: 'Limited Time - Act Now',
-        subtext: 'This opportunity won\'t last forever',
-        icon: '🔥',
-        color: 'red',
-        animation: 'pulse'
-      },
-      conditions: {
-        engagementScore: { min: 40 },
-        sectionsViewed: ['decision-door']
-      }
-    },
-    {
-      type: 'urgency',
-      intensity: 'high',
-      context: ['transformation', 'growth'],
-      timing: {
-        delay: 300,
-        frequency: 'once',
-        triggers: ['exit-intent']
-      },
-      content: {
-        text: 'Your Future Self Is Waiting',
-        subtext: 'Every moment of delay has a cost',
-        icon: '⚡',
-        color: 'red',
-        animation: 'flash'
-      },
-      conditions: {
-        engagementScore: { min: 60 },
-        userTier: ['engaged', 'soft-member']
-      }
-    }
-  ],
-
-  'social-proof': [
-    {
-      type: 'social-proof',
-      intensity: 'low',
-      context: ['community', 'numbers'],
-      timing: {
-        delay: 15,
-        frequency: 'always',
-        triggers: ['immediate', 'scroll'],
-        scrollPercentage: 10
-      },
-      content: {
-        text: '10,000+ People Transformed',
-        subtext: 'Join the community of achievers',
-        icon: '👥',
-        color: 'green',
-        animation: 'fade-in'
-      },
-      conditions: {
-        userTier: ['browser']
-      }
-    },
-    {
-      type: 'social-proof',
-      intensity: 'medium',
-      context: ['testimonials', 'success'],
-      timing: {
-        delay: 45,
-        frequency: 'session',
-        triggers: ['scroll'],
-        scrollPercentage: 50
-      },
-      content: {
-        text: '94% See Results in 30 Days',
-        subtext: 'Real people, real transformations',
-        icon: '📈',
-        color: 'blue',
-        animation: 'slide-up'
-      },
-      conditions: {
-        engagementScore: { min: 25 },
-        sectionsViewed: ['success-gap']
-      }
-    },
-    {
-      type: 'social-proof',
-      intensity: 'high',
-      context: ['authority', 'expertise'],
-      timing: {
-        delay: 90,
-        frequency: 'once',
-        triggers: ['time', 'interaction']
-      },
-      content: {
-        text: 'Trusted by Fortune 500 Leaders',
-        subtext: 'The same system used by top performers',
-        icon: '🏆',
-        color: 'gold',
-        animation: 'glow'
-      },
-      conditions: {
-        engagementScore: { min: 50 },
-        userTier: ['engaged', 'soft-member']
-      }
-    }
-  ],
-
-  personalization: [
-    {
-      type: 'personalization',
-      intensity: 'low',
-      context: ['name', 'location'],
-      timing: {
-        delay: 0,
-        frequency: 'always',
-        triggers: ['immediate']
-      },
-      content: {
-        text: 'Your Personal Assessment',
-        subtext: 'Customized just for you',
-        icon: '👤',
-        color: 'purple',
-        animation: 'none'
-      },
-      conditions: {
-        userTier: ['engaged', 'soft-member']
-      }
-    },
-    {
-      type: 'personalization',
-      intensity: 'medium',
-      context: ['behavior', 'preferences'],
-      timing: {
-        delay: 60,
-        frequency: 'session',
-        triggers: ['interaction']
-      },
-      content: {
-        text: 'Based on Your Interests',
-        subtext: 'Tailored recommendations for you',
-        icon: '🎯',
-        color: 'blue',
-        animation: 'pulse'
-      },
-      conditions: {
-        engagementScore: { min: 30 },
-        toolsUsed: ['potential-assessment']
-      }
-    },
-    {
-      type: 'personalization',
-      intensity: 'high',
-      context: ['journey', 'progress'],
-      timing: {
-        delay: 120,
-        frequency: 'once',
-        triggers: ['time']
-      },
-      content: {
-        text: 'Your Transformation Journey',
-        subtext: 'Designed specifically for your goals',
-        icon: '🌟',
-        color: 'gradient',
-        animation: 'glow'
-      },
-      conditions: {
-        engagementScore: { min: 60 },
-        sectionsViewed: ['vision-void', 'leadership-lever']
-      }
-    }
-  ],
-
-  scarcity: [
-    {
-      type: 'scarcity',
-      intensity: 'low',
-      context: ['availability', 'spots'],
-      timing: {
-        delay: 180,
-        frequency: 'session',
-        triggers: ['time']
-      },
-      content: {
-        text: 'Limited Spots Available',
-        subtext: 'Only a few spaces left',
-        icon: '🎫',
-        color: 'orange',
-        animation: 'pulse'
-      },
-      conditions: {
-        engagementScore: { min: 40 },
-        userTier: ['engaged']
-      }
-    },
-    {
-      type: 'scarcity',
-      intensity: 'medium',
-      context: ['exclusive', 'access'],
-      timing: {
-        delay: 240,
-        frequency: 'once',
-        triggers: ['time', 'exit-intent']
-      },
-      content: {
-        text: 'Exclusive Access Ending Soon',
-        subtext: 'Don\'t miss this opportunity',
-        icon: '🔒',
-        color: 'red',
-        animation: 'shake'
-      },
-      conditions: {
-        engagementScore: { min: 55 },
-        sectionsViewed: ['decision-door']
-      }
-    },
-    {
-      type: 'scarcity',
-      intensity: 'high',
-      context: ['final-chance', 'closing'],
-      timing: {
-        delay: 300,
-        frequency: 'once',
-        triggers: ['exit-intent']
-      },
-      content: {
-        text: 'Final Chance - Closing Tonight',
-        subtext: 'This won\'t be available again',
-        icon: '🚨',
-        color: 'red',
-        animation: 'flash'
-      },
-      conditions: {
-        engagementScore: { min: 70 },
-        userTier: ['soft-member']
-      }
-    }
-  ],
-
-  authority: [
-    {
-      type: 'authority',
-      intensity: 'low',
-      context: ['credentials', 'experience'],
-      timing: {
-        delay: 30,
-        frequency: 'always',
-        triggers: ['scroll'],
-        scrollPercentage: 20
-      },
-      content: {
-        text: '15+ Years of Expertise',
-        subtext: 'Proven track record of success',
-        icon: '🎓',
-        color: 'blue',
-        animation: 'fade-in'
-      },
-      conditions: {
-        userTier: ['browser', 'engaged']
-      }
-    },
-    {
-      type: 'authority',
-      intensity: 'medium',
-      context: ['research', 'science'],
-      timing: {
-        delay: 90,
-        frequency: 'session',
-        triggers: ['interaction']
-      },
-      content: {
-        text: 'Research-Backed Methods',
-        subtext: 'Based on proven psychological principles',
-        icon: '🔬',
-        color: 'green',
-        animation: 'slide-up'
-      },
-      conditions: {
-        engagementScore: { min: 35 },
-        sectionsViewed: ['change-paradox']
-      }
-    }
-  ],
-
-  reciprocity: [
-    {
-      type: 'reciprocity',
-      intensity: 'low',
-      context: ['free', 'gift'],
-      timing: {
-        delay: 60,
-        frequency: 'session',
-        triggers: ['time']
-      },
-      content: {
-        text: 'Free Assessment Gift',
-        subtext: 'Our gift to help you get started',
-        icon: '🎁',
-        color: 'green',
-        animation: 'bounce'
-      },
-      conditions: {
-        userTier: ['browser'],
-        timeOnPage: 60
-      }
-    }
-  ],
-
-  commitment: [
-    {
-      type: 'commitment',
-      intensity: 'medium',
-      context: ['promise', 'pledge'],
-      timing: {
-        delay: 120,
-        frequency: 'once',
-        triggers: ['interaction']
-      },
-      content: {
-        text: 'Make a Commitment to Yourself',
-        subtext: 'Your future self will thank you',
-        icon: '🤝',
-        color: 'purple',
-        animation: 'glow'
-      },
-      conditions: {
-        engagementScore: { min: 50 },
-        sectionsViewed: ['vision-void']
-      }
-    }
-  ],
-
-  'loss-aversion': [
-    {
-      type: 'loss-aversion',
-      intensity: 'medium',
-      context: ['missed-opportunity', 'regret'],
-      timing: {
-        delay: 180,
-        frequency: 'once',
-        triggers: ['exit-intent']
-      },
-      content: {
-        text: 'Don\'t Let This Opportunity Slip Away',
-        subtext: 'You\'ll regret not taking action today',
-        icon: '⚠️',
-        color: 'orange',
-        animation: 'shake'
-      },
-      conditions: {
-        engagementScore: { min: 45 },
-        userTier: ['engaged']
-      }
-    }
-  ],
-
-  anchoring: [
-    {
-      type: 'anchoring',
-      intensity: 'low',
-      context: ['value', 'comparison'],
-      timing: {
-        delay: 90,
-        frequency: 'session',
-        triggers: ['scroll'],
-        scrollPercentage: 60
-      },
-      content: {
-        text: 'Incredible Value',
-        subtext: 'Available to you today',
-        icon: '💎',
-        color: 'gold',
-        animation: 'glow'
-      },
-      conditions: {
-        engagementScore: { min: 40 },
-        sectionsViewed: ['decision-door']
-      }
-    }
-  ]
+interface AuthorityData {
+  credentials: string[]
+  certifications: string[]
+  awards: string[]
+  mediaMentions: string[]
+  clientList: string[]
+  yearsExperience: number
 }
 
-// Psychological Triggers Service
-class PsychologicalTriggersService {
-  private activeTriggers: Map<string, TriggerConfig> = new Map()
-  private triggerHistory: Map<string, Date[]> = new Map()
-  private userContext: any = {}
+class PsychologicalTriggersEngine {
+  private socialProofData: SocialProofData
+  private scarcityData: ScarcityData
+  private authorityData: AuthorityData
 
   constructor() {
-    this.loadTriggerHistory()
+    this.initializeData()
   }
 
-  // Get appropriate triggers for current context
-  getTriggersForContext(
-    context: string,
-    userTier: string,
-    engagementScore: number,
-    behaviorPattern: string,
-    sectionsViewed: string[],
-    toolsUsed: string[],
-    timeOnPage: number,
-    deviceType: string = 'desktop',
-    returningUser: boolean = false
-  ): TriggerConfig[] {
-    const applicableTriggers: TriggerConfig[] = []
-
-    // Check each trigger type
-    Object.values(PSYCHOLOGICAL_TRIGGERS).forEach(triggerGroup => {
-      triggerGroup.forEach(trigger => {
-        if (this.shouldShowTrigger(trigger, {
-          context,
-          userTier,
-          engagementScore,
-          behaviorPattern,
-          sectionsViewed,
-          toolsUsed,
-          timeOnPage,
-          deviceType,
-          returningUser
-        })) {
-          applicableTriggers.push(trigger)
+  /**
+   * Initialize default psychological trigger data
+   */
+  private initializeData(): void {
+    this.socialProofData = {
+      totalUsers: 15420,
+      activeUsers: 8920,
+      testimonials: 342,
+      successStories: 156,
+      averageRating: 4.8,
+      recentActivity: [
+        {
+          type: 'signup',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+          description: 'Sarah from Toronto just joined'
+        },
+        {
+          type: 'achievement',
+          timestamp: new Date(Date.now() - 12 * 60 * 1000), // 12 minutes ago
+          description: 'Mike completed his first assessment'
+        },
+        {
+          type: 'testimonial',
+          timestamp: new Date(Date.now() - 25 * 60 * 1000), // 25 minutes ago
+          description: 'Jennifer left a 5-star review'
         }
-      })
-    })
-
-    // Sort by intensity and relevance
-    return applicableTriggers.sort((a, b) => {
-      const intensityOrder = { low: 1, medium: 2, high: 3 }
-      return intensityOrder[b.intensity] - intensityOrder[a.intensity]
-    })
-  }
-
-  // Check if trigger should be shown
-  private shouldShowTrigger(trigger: TriggerConfig, userContext: any): boolean {
-    const conditions = trigger.conditions
-
-    // Check user tier
-    if (conditions.userTier && !conditions.userTier.includes(userContext.userTier)) {
-      return false
+      ]
     }
 
-    // Check engagement score
-    if (conditions.engagementScore) {
-      if (conditions.engagementScore.min && userContext.engagementScore < conditions.engagementScore.min) {
-        return false
-      }
-      if (conditions.engagementScore.max && userContext.engagementScore > conditions.engagementScore.max) {
-        return false
-      }
+    this.scarcityData = {
+      totalSpots: 100,
+      remainingSpots: 23,
+      timeUntilExpiry: 3600, // 1 hour in seconds
+      accessLevel: 'premium',
+      waitlistSize: 45
     }
 
-    // Check behavior pattern
-    if (conditions.behaviorPattern && !conditions.behaviorPattern.includes(userContext.behaviorPattern)) {
-      return false
-    }
-
-    // Check time on page
-    if (conditions.timeOnPage && userContext.timeOnPage < conditions.timeOnPage) {
-      return false
-    }
-
-    // Check sections viewed
-    if (conditions.sectionsViewed && 
-        !conditions.sectionsViewed.some(section => userContext.sectionsViewed.includes(section))) {
-      return false
-    }
-
-    // Check tools used
-    if (conditions.toolsUsed && 
-        !conditions.toolsUsed.some(tool => userContext.toolsUsed.includes(tool))) {
-      return false
-    }
-
-    // Check device type
-    if (conditions.deviceType && !conditions.deviceType.includes(userContext.deviceType)) {
-      return false
-    }
-
-    // Check returning user
-    if (conditions.returningUser !== undefined && conditions.returningUser !== userContext.returningUser) {
-      return false
-    }
-
-    // Check exclusions
-    if (conditions.excludeIfCompleted && 
-        conditions.excludeIfCompleted.some(item => userContext.toolsUsed.includes(item))) {
-      return false
-    }
-
-    // Check frequency limits
-    if (!this.checkFrequencyLimit(trigger)) {
-      return false
-    }
-
-    return true
-  }
-
-  // Check frequency limits
-  private checkFrequencyLimit(trigger: TriggerConfig): boolean {
-    const triggerId = this.getTriggerKey(trigger)
-    const history = this.triggerHistory.get(triggerId) || []
-    const now = new Date()
-
-    switch (trigger.timing.frequency) {
-      case 'once':
-        return history.length === 0
-      case 'session':
-        // Check if shown in current session (last 30 minutes)
-        const sessionStart = new Date(now.getTime() - 30 * 60 * 1000)
-        return !history.some(date => date > sessionStart)
-      case 'daily':
-        // Check if shown today
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-        return !history.some(date => date > today)
-      case 'always':
-        return true
-      default:
-        return true
+    this.authorityData = {
+      credentials: [
+        'Certified Professional Coach (ICF)',
+        'Master's in Organizational Psychology',
+        '15+ Years Leadership Development'
+      ],
+      certifications: [
+        'Gallup Strengths Coach',
+        'DISC Certified Trainer',
+        'Emotional Intelligence Assessor'
+      ],
+      awards: [
+        'Top 100 Leadership Coaches 2023',
+        'Excellence in Professional Development',
+        'Innovation in Learning Award'
+      ],
+      mediaMentions: [
+        'Featured in Harvard Business Review',
+        'Guest on TEDx Talks',
+        'Quoted in Forbes Leadership'
+      ],
+      clientList: [
+        'Fortune 500 Companies',
+        'Startup Founders',
+        'Government Agencies'
+      ],
+      yearsExperience: 15
     }
   }
 
-  // Generate trigger key
-  private getTriggerKey(trigger: TriggerConfig): string {
-    return `${trigger.type}-${trigger.intensity}-${trigger.context.join('-')}`
-  }
+  /**
+   * Apply social proof triggers
+   */
+  applySocialProof(context: TriggerContext): TriggerResult {
+    const { currentPage, timeOnSite, previousInteractions } = context
 
-  // Track trigger display
-  trackTriggerDisplay(trigger: TriggerConfig, userId?: string): void {
-    const triggerId = this.getTriggerKey(trigger)
-    const history = this.triggerHistory.get(triggerId) || []
-    history.push(new Date())
-    this.triggerHistory.set(triggerId, history)
+    // Determine if social proof should be shown
+    const shouldShow = this.shouldShowSocialProof(context)
     
-    this.saveTriggerHistory()
-    
-    // Track in external service
-    if (userId) {
-      trackingService.trackPsychologicalTrigger(trigger.type, trigger.intensity, userId, {
-        context: trigger.context,
-        content: trigger.content.text
-      })
-    }
-  }
-
-  // Track trigger interaction
-  trackTriggerInteraction(trigger: TriggerConfig, action: string, userId?: string): void {
-    if (userId) {
-      trackingService.trackTriggerInteraction(trigger.type, action, userId, {
-        intensity: trigger.intensity,
-        context: trigger.context,
-        content: trigger.content.text
-      })
-    }
-  }
-
-  // Get trigger content with personalization
-  getPersonalizedContent(trigger: TriggerConfig, userContext: any): TriggerContent {
-    const content = { ...trigger.content }
-
-    // Personalize based on user context
-    if (trigger.type === 'personalization') {
-      if (userContext.name) {
-        content.text = content.text.replace('Your', `${userContext.name}'s`)
-      }
-      if (userContext.city) {
-        content.subtext = `${content.subtext} in ${userContext.city}`
+    if (!shouldShow) {
+      return {
+        applied: false,
+        triggerType: 'social_proof',
+        message: ''
       }
     }
 
-    // Add social proof numbers
-    if (trigger.type === 'social-proof') {
-      const numbers = this.getSocialProofNumbers()
-      content.text = content.text.replace(/\d+,?\d*/g, numbers.users.toLocaleString())
-      if (content.subtext) {
-        content.subtext = content.subtext.replace(/\d+%/g, `${numbers.successRate}%`)
-      }
-    }
+    // Select appropriate social proof message
+    const message = this.selectSocialProofMessage(context)
 
-    // Add urgency timing
-    if (trigger.type === 'urgency') {
-      const timeLeft = this.getUrgencyTimeLeft()
-      if (timeLeft) {
-        content.subtext = `${content.subtext} - ${timeLeft}`
-      }
-    }
-
-    return content
-  }
-
-  // Get social proof numbers (would be dynamic in real implementation)
-  private getSocialProofNumbers(): { users: number; successRate: number } {
     return {
-      users: 10000 + Math.floor(Math.random() * 1000),
-      successRate: 94 + Math.floor(Math.random() * 5)
-    }
-  }
-
-  // Get urgency time left (would be dynamic in real implementation)
-  private getUrgencyTimeLeft(): string | null {
-    const endOfDay = new Date()
-    endOfDay.setHours(23, 59, 59, 999)
-    const now = new Date()
-    const hoursLeft = Math.ceil((endOfDay.getTime() - now.getTime()) / (1000 * 60 * 60))
-    
-    if (hoursLeft <= 24) {
-      return `${hoursLeft} hours left`
-    }
-    return null
-  }
-
-  // Save trigger history to localStorage
-  private saveTriggerHistory(): void {
-    try {
-      const data = Array.from(this.triggerHistory.entries()).map(([key, dates]) => [
-        key,
-        dates.map(date => date.toISOString())
-      ])
-      localStorage.setItem('gdt_trigger_history', JSON.stringify(data))
-    } catch (error) {
-      console.error('Failed to save trigger history:', error)
-    }
-  }
-
-  // Load trigger history from localStorage
-  private loadTriggerHistory(): void {
-    try {
-      const data = localStorage.getItem('gdt_trigger_history')
-      if (data) {
-        const parsed = JSON.parse(data)
-        this.triggerHistory = new Map(
-          parsed.map(([key, dates]: [string, string[]]) => [
-            key,
-            dates.map(dateStr => new Date(dateStr))
-          ])
-        )
+      applied: true,
+      triggerType: 'social_proof',
+      message,
+      socialProof: {
+        count: this.socialProofData.activeUsers,
+        type: 'users'
       }
-    } catch (error) {
-      console.error('Failed to load trigger history:', error)
     }
   }
 
-  // Get trigger effectiveness analytics
-  getTriggerAnalytics(): any {
-    const analytics: any = {}
-    
-    Object.keys(PSYCHOLOGICAL_TRIGGERS).forEach(triggerType => {
-      analytics[triggerType] = {
-        totalShown: 0,
-        totalClicked: 0,
-        clickRate: 0,
-        avgIntensity: 0
-      }
-    })
+  /**
+   * Determine if social proof should be shown
+   */
+  private shouldShowSocialProof(context: TriggerContext): boolean {
+    const { currentPage, timeOnSite, previousInteractions } = context
 
-    // This would be populated from actual tracking data
-    return analytics
+    // Show on homepage for new visitors
+    if (currentPage === '/' && previousInteractions === 0) {
+      return true
+    }
+
+    // Show after 30 seconds on any page
+    if (timeOnSite > 30) {
+      return true
+    }
+
+    // Show on specific conversion pages
+    if (['/tools', '/webinars', '/membership'].includes(currentPage)) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Select appropriate social proof message
+   */
+  private selectSocialProofMessage(context: TriggerContext): string {
+    const { currentPage, previousInteractions } = context
+
+    if (previousInteractions === 0) {
+      return `Join ${this.socialProofData.totalUsers.toLocaleString()} professionals who've transformed their lives`
+    }
+
+    if (currentPage === '/tools') {
+      return `${this.socialProofData.activeUsers.toLocaleString()} people are using our tools right now`
+    }
+
+    if (currentPage === '/webinars') {
+      return `${this.socialProofData.testimonials} professionals have attended our webinars`
+    }
+
+    // Default message
+    return `${this.socialProofData.activeUsers.toLocaleString()} active users trust our platform`
+  }
+
+  /**
+   * Apply scarcity triggers
+   */
+  applyScarcity(context: TriggerContext): TriggerResult {
+    const { currentPage, timeOnSite } = context
+
+    // Only show scarcity on specific pages
+    if (!['/webinars', '/membership', '/tools'].includes(currentPage)) {
+      return {
+        applied: false,
+        triggerType: 'scarcity',
+        message: ''
+      }
+    }
+
+    // Check if scarcity should be shown
+    const shouldShow = this.shouldShowScarcity(context)
+    
+    if (!shouldShow) {
+      return {
+        applied: false,
+        triggerType: 'scarcity',
+        message: ''
+      }
+    }
+
+    const message = this.selectScarcityMessage(context)
+
+    return {
+      applied: true,
+      triggerType: 'scarcity',
+      message,
+      urgency: this.calculateUrgency(),
+      scarcity: {
+        remaining: this.scarcityData.remainingSpots,
+        timeLeft: this.scarcityData.timeUntilExpiry,
+        type: 'quantity'
+      }
+    }
+  }
+
+  /**
+   * Determine if scarcity should be shown
+   */
+  private shouldShowScarcity(context: TriggerContext): boolean {
+    const { currentPage, timeOnSite } = context
+
+    // Show after user has spent time on page
+    if (timeOnSite < 15) {
+      return false
+    }
+
+    // Show if spots are limited
+    if (this.scarcityData.remainingSpots < 50) {
+      return true
+    }
+
+    // Show if time is running out
+    if (this.scarcityData.timeUntilExpiry < 7200) { // Less than 2 hours
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Select appropriate scarcity message
+   */
+  private selectScarcityMessage(context: TriggerContext): string {
+    const { currentPage } = context
+
+    if (this.scarcityData.remainingSpots < 10) {
+      return `Only ${this.scarcityData.remainingSpots} spots remaining!`
+    }
+
+    if (this.scarcityData.timeUntilExpiry < 3600) { // Less than 1 hour
+      return `Offer expires in ${Math.floor(this.scarcityData.timeUntilExpiry / 60)} minutes`
+    }
+
+    if (currentPage === '/webinars') {
+      return `${this.scarcityData.remainingSpots} webinar spots available`
+    }
+
+    return `${this.scarcityData.remainingSpots} premium spots remaining`
+  }
+
+  /**
+   * Calculate urgency level
+   */
+  private calculateUrgency(): 'low' | 'medium' | 'high' {
+    if (this.scarcityData.remainingSpots < 5 || this.scarcityData.timeUntilExpiry < 1800) {
+      return 'high'
+    }
+    
+    if (this.scarcityData.remainingSpots < 20 || this.scarcityData.timeUntilExpiry < 7200) {
+      return 'medium'
+    }
+    
+    return 'low'
+  }
+
+  /**
+   * Apply authority triggers
+   */
+  applyAuthority(context: TriggerContext): TriggerResult {
+    const { currentPage, timeOnSite } = context
+
+    // Show authority on specific pages
+    if (!['/about', '/tools', '/webinars'].includes(currentPage)) {
+      return {
+        applied: false,
+        triggerType: 'authority',
+        message: ''
+      }
+    }
+
+    // Check if authority should be shown
+    const shouldShow = this.shouldShowAuthority(context)
+    
+    if (!shouldShow) {
+      return {
+        applied: false,
+        triggerType: 'authority',
+        message: ''
+      }
+    }
+
+    const message = this.selectAuthorityMessage(context)
+
+    return {
+      applied: true,
+      triggerType: 'authority',
+      message,
+      authority: {
+        credentials: this.authorityData.credentials,
+        endorsements: this.authorityData.mediaMentions,
+        achievements: this.authorityData.awards
+      }
+    }
+  }
+
+  /**
+   * Determine if authority should be shown
+   */
+  private shouldShowAuthority(context: TriggerContext): boolean {
+    const { currentPage, timeOnSite } = context
+
+    // Show after user has engaged with content
+    if (timeOnSite < 30) {
+      return false
+    }
+
+    // Always show on about page
+    if (currentPage === '/about') {
+      return true
+    }
+
+    // Show on tools page after engagement
+    if (currentPage === '/tools' && timeOnSite > 60) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Select appropriate authority message
+   */
+  private selectAuthorityMessage(context: TriggerContext): string {
+    const { currentPage } = context
+
+    if (currentPage === '/about') {
+      return `Trusted by ${this.authorityData.clientList.length} organizations worldwide`
+    }
+
+    if (currentPage === '/tools') {
+      return `Developed by certified professionals with ${this.authorityData.yearsExperience}+ years experience`
+    }
+
+    return `Backed by ${this.authorityData.credentials.length} professional certifications`
+  }
+
+  /**
+   * Apply reciprocity triggers
+   */
+  applyReciprocity(context: TriggerContext): TriggerResult {
+    const { currentPage, previousInteractions } = context
+
+    // Show reciprocity for new users
+    if (previousInteractions === 0) {
+      return {
+        applied: true,
+        triggerType: 'reciprocity',
+        message: 'Get instant access to our free assessment tools - no registration required'
+      }
+    }
+
+    // Show for users who haven't engaged much
+    if (previousInteractions < 3) {
+      return {
+        applied: true,
+        triggerType: 'reciprocity',
+        message: 'Unlock premium content with our free trial - no credit card required'
+      }
+    }
+
+    return {
+      applied: false,
+      triggerType: 'reciprocity',
+      message: ''
+    }
+  }
+
+  /**
+   * Apply commitment and consistency triggers
+   */
+  applyCommitmentConsistency(context: TriggerContext): TriggerResult {
+    const { currentPage, previousInteractions } = context
+
+    // Show for users who have shown commitment
+    if (previousInteractions > 5) {
+      return {
+        applied: true,
+        triggerType: 'commitment_consistency',
+        message: 'Continue your journey with our advanced tools and personalized coaching'
+      }
+    }
+
+    // Show for users who have completed assessments
+    if (currentPage === '/tools' && previousInteractions > 2) {
+      return {
+        applied: true,
+        triggerType: 'commitment_consistency',
+        message: 'Build on your assessment results with our comprehensive development plan'
+      }
+    }
+
+    return {
+      applied: false,
+      triggerType: 'commitment_consistency',
+      message: ''
+    }
+  }
+
+  /**
+   * Apply liking triggers
+   */
+  applyLiking(context: TriggerContext): TriggerResult {
+    const { currentPage, timeOnSite } = context
+
+    // Show after user has spent time on site
+    if (timeOnSite > 120) { // 2 minutes
+      return {
+        applied: true,
+        triggerType: 'liking',
+        message: 'Join our community of like-minded professionals who share your values'
+      }
+    }
+
+    return {
+      applied: false,
+      triggerType: 'liking',
+      message: ''
+    }
+  }
+
+  /**
+   * Apply consensus triggers
+   */
+  applyConsensus(context: TriggerContext): TriggerResult {
+    const { currentPage } = context
+
+    // Show on conversion pages
+    if (['/membership', '/webinars'].includes(currentPage)) {
+      return {
+        applied: true,
+        triggerType: 'consensus',
+        message: `${this.socialProofData.activeUsers.toLocaleString()} professionals chose our platform this month`
+      }
+    }
+
+    return {
+      applied: false,
+      triggerType: 'consensus',
+      message: ''
+    }
+  }
+
+  /**
+   * Get all applicable triggers for a context
+   */
+  getAllTriggers(context: TriggerContext): TriggerResult[] {
+    const triggers: TriggerResult[] = []
+
+    // Apply each trigger type
+    const socialProof = this.applySocialProof(context)
+    if (socialProof.applied) triggers.push(socialProof)
+
+    const scarcity = this.applyScarcity(context)
+    if (scarcity.applied) triggers.push(scarcity)
+
+    const authority = this.applyAuthority(context)
+    if (authority.applied) triggers.push(authority)
+
+    const reciprocity = this.applyReciprocity(context)
+    if (reciprocity.applied) triggers.push(reciprocity)
+
+    const commitment = this.applyCommitmentConsistency(context)
+    if (commitment.applied) triggers.push(commitment)
+
+    const liking = this.applyLiking(context)
+    if (liking.applied) triggers.push(liking)
+
+    const consensus = this.applyConsensus(context)
+    if (consensus.applied) triggers.push(consensus)
+
+    return triggers
+  }
+
+  /**
+   * Update trigger data
+   */
+  updateTriggerData(
+    type: 'social_proof' | 'scarcity' | 'authority',
+    data: Partial<SocialProofData | ScarcityData | AuthorityData>
+  ): void {
+    switch (type) {
+      case 'social_proof':
+        this.socialProofData = { ...this.socialProofData, ...data as Partial<SocialProofData> }
+        break
+      case 'scarcity':
+        this.scarcityData = { ...this.scarcityData, ...data as Partial<ScarcityData> }
+        break
+      case 'authority':
+        this.authorityData = { ...this.authorityData, ...data as Partial<AuthorityData> }
+        break
+    }
+  }
+
+  /**
+   * Get trigger statistics
+   */
+  getTriggerStatistics(): {
+    totalTriggersApplied: number
+    mostEffectiveTrigger: string
+    averageEngagement: number
+    conversionRate: number
+  } {
+    // This would be calculated from actual usage data
+    return {
+      totalTriggersApplied: 15420,
+      mostEffectiveTrigger: 'social_proof',
+      averageEngagement: 0.78,
+      conversionRate: 0.23
+    }
   }
 }
 
 // Export singleton instance
-export const psychologicalTriggersService = new PsychologicalTriggersService()
+export const psychologicalTriggersEngine = new PsychologicalTriggersEngine()
 
-// React hook for using psychological triggers
-export function usePsychologicalTriggers(
-  context: string,
-  userTier: string,
-  engagementScore: number,
-  behaviorPattern: string,
-  sectionsViewed: string[],
-  toolsUsed: string[],
-  timeOnPage: number,
-  userId?: string
-) {
-  const [triggers, setTriggers] = React.useState<TriggerConfig[]>([])
-  const [activeTrigger, setActiveTrigger] = React.useState<TriggerConfig | null>(null)
-
-  React.useEffect(() => {
-    const applicableTriggers = psychologicalTriggersService.getTriggersForContext(
-      context,
-      userTier,
-      engagementScore,
-      behaviorPattern,
-      sectionsViewed,
-      toolsUsed,
-      timeOnPage
-    )
-    
-    setTriggers(applicableTriggers)
-    
-    // Set the highest priority trigger as active
-    if (applicableTriggers.length > 0) {
-      setActiveTrigger(applicableTriggers[0])
-    }
-  }, [context, userTier, engagementScore, behaviorPattern, sectionsViewed, toolsUsed, timeOnPage])
-
-  const trackDisplay = React.useCallback((trigger: TriggerConfig) => {
-    psychologicalTriggersService.trackTriggerDisplay(trigger, userId)
-  }, [userId])
-
-  const trackInteraction = React.useCallback((trigger: TriggerConfig, action: string) => {
-    psychologicalTriggersService.trackTriggerInteraction(trigger, action, userId)
-  }, [userId])
-
-  const getPersonalizedContent = React.useCallback((trigger: TriggerConfig) => {
-    return psychologicalTriggersService.getPersonalizedContent(trigger, {
-      // This would come from user context
-      name: 'User',
-      city: 'Addis Ababa'
-    })
-  }, [])
-
+// Hook for React components
+export function usePsychologicalTriggers() {
+  const store = useAppStore()
+  
   return {
-    triggers,
-    activeTrigger,
-    trackDisplay,
-    trackInteraction,
-    getPersonalizedContent
+    applyTriggers: (context: TriggerContext) => 
+      psychologicalTriggersEngine.getAllTriggers(context),
+    applySocialProof: (context: TriggerContext) => 
+      psychologicalTriggersEngine.applySocialProof(context),
+    applyScarcity: (context: TriggerContext) => 
+      psychologicalTriggersEngine.applyScarcity(context),
+    applyAuthority: (context: TriggerContext) => 
+      psychologicalTriggersEngine.applyAuthority(context),
+    updateTriggerData: (
+      type: 'social_proof' | 'scarcity' | 'authority',
+      data: Partial<SocialProofData | ScarcityData | AuthorityData>
+    ) => psychologicalTriggersEngine.updateTriggerData(type, data),
+    getStatistics: () => psychologicalTriggersEngine.getTriggerStatistics()
   }
 }
-
-export default psychologicalTriggersService

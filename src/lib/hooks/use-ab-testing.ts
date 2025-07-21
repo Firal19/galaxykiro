@@ -388,7 +388,7 @@ export function useABTesting() {
     if (!variation) return
 
     try {
-      await fetch('/.netlify/functions/track-interaction', {
+              await fetch('/api/track-interaction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
