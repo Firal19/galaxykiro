@@ -83,6 +83,7 @@ export function GalaxyDreamTeamLogo({
         href={href} 
         className={`inline-flex items-center touch-manipulation hover:opacity-90 transition-opacity ${className}`}
         aria-label="Galaxy Dream Team - Home"
+        data-testid="galaxy-dream-team-logo"
       >
         <LogoContent />
       </Link>
@@ -90,7 +91,7 @@ export function GalaxyDreamTeamLogo({
   }
 
   return (
-    <div className={`inline-flex items-center ${className}`}>
+    <div className={`inline-flex items-center ${className}`} data-testid="galaxy-dream-team-logo">
       <LogoContent />
     </div>
   )

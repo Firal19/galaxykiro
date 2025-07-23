@@ -428,6 +428,9 @@ describe('AssessmentEngine', () => {
     });
 
     it('should save progress to localStorage', async () => {
+      // Clear previous calls from initialization
+      localStorageMock.setItem.mockClear();
+      
       await engine.saveProgress();
       
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
@@ -461,6 +464,9 @@ describe('AssessmentEngine', () => {
     });
 
     it('should clear progress', async () => {
+      // Clear previous calls
+      localStorageMock.removeItem.mockClear();
+      
       await engine.clearProgress();
       
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(

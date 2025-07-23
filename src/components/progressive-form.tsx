@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion } from "framer-motion"
@@ -202,6 +202,7 @@ interface ProgressiveFormProps {
   showProgress?: boolean
   entryPoint?: string
   className?: string
+  existingData?: Record<string, unknown>
 }
 
 export function ProgressiveForm({
@@ -215,7 +216,8 @@ export function ProgressiveForm({
   allowLevelProgression = true,
   showProgress = true,
   entryPoint,
-  className
+  className,
+  existingData
 }: ProgressiveFormProps) {
   const [currentLevel, setCurrentLevel] = useState(initialLevel)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -234,10 +236,15 @@ export function ProgressiveForm({
   }, [currentLevel, specialFields])
 
   // Get validation schema based on level or special fields
-  const getValidationSchema = useCallback(() => {
+  const validationSchema = useMemo(() => {
     if (specialFields) {
       const fields = SPECIAL_FIELD_CONFIGS[specialFields]
-      if (!fields || !Array.isArray(fields)) return level1Schema
+      if (!fields || !Array.isArray(fields)) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`Special field config "${specialFields}" not found, falling back to level1Schema`)
+        }
+        return level1Schema
+      }
       
       const schemaFields: Record<string, z.ZodTypeAny> = {}
       fields.forEach(field => {
@@ -259,24 +266,41 @@ export function ProgressiveForm({
           case 'textarea':
             schemaFields[field.name] = z.string().optional()
             break
+          default:
+            if (field.required) {
+              schemaFields[field.name] = z.string().min(1, `${field.label} is required`)
+            } else {
+              schemaFields[field.name] = z.string().optional()
+            }
         }
       })
+      
+      // Ensure we have at least one field
+      if (Object.keys(schemaFields).length === 0) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`No valid fields found for special config "${specialFields}", falling back to level1Schema`)
+        }
+        return level1Schema
+      }
+      
       return z.object(schemaFields)
     }
     
+    // Regular level-based validation - ensure we always return a valid schema
     switch (currentLevel) {
       case 2:
-        return level2Schema
+        return level2Schema || level1Schema
       case 3:
-        return level3Schema
+        return level3Schema || level1Schema
+      case 1:
       default:
         return level1Schema
     }
   }, [currentLevel, specialFields])
-
+  
   // Initialize form with react-hook-form
   const methods = useForm({
-    resolver: zodResolver(getValidationSchema()),
+    resolver: zodResolver(validationSchema),
     mode: 'onChange',
     defaultValues: formData
   })
@@ -285,22 +309,31 @@ export function ProgressiveForm({
 
   // Pre-populate form with existing user data
   useEffect(() => {
+    let dataToSet: Record<string, unknown> = {}
+    
+    // Get data from user context
     if (user) {
-      const existingData: Record<string, unknown> = {}
-      
-      if (user.email) existingData.email = user.email
-      if (user.phone) existingData.phone = user.phone
-      if (user.fullName) existingData.fullName = user.fullName
-      if (user.city) existingData.city = user.city
-      
-      setFormData(prev => ({ ...prev, ...existingData }))
+      if (user.email) dataToSet.email = user.email
+      if (user.phone) dataToSet.phone = user.phone
+      if (user.fullName) dataToSet.fullName = user.fullName
+      if (user.city) dataToSet.city = user.city
+    }
+    
+    // Override with explicitly passed existingData
+    if (existingData) {
+      dataToSet = { ...dataToSet, ...existingData }
+    }
+    
+    // Update form if we have any data
+    if (Object.keys(dataToSet).length > 0) {
+      setFormData(prev => ({ ...prev, ...dataToSet }))
       
       // Update form values
-      Object.entries(existingData).forEach(([key, value]) => {
+      Object.entries(dataToSet).forEach(([key, value]) => {
         setValue(key, value)
       })
     }
-  }, [user, setValue])
+  }, [user, existingData, setValue])
 
   // Recover form data from localStorage on mount
   useEffect(() => {
@@ -381,14 +414,16 @@ export function ProgressiveForm({
           transition={{ duration: 0.3 }}
           className="relative"
         >
-          <label className="block text-sm font-medium text-foreground mb-2">
+          <label htmlFor={field.name} className="block text-sm font-medium text-foreground mb-2">
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           <div className="relative">
             <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <select
+              id={field.name}
               {...methods.register(field.name)}
+              aria-describedby={error ? `${field.name}-error` : `${field.name}-help`}
               className={cn(
                 "w-full pl-10 pr-4 py-3 border border-border rounded-lg",
                 "focus:outline-none focus:ring-2 focus:ring-[var(--color-energy-500)] focus:border-transparent",
@@ -405,8 +440,15 @@ export function ProgressiveForm({
               ))}
             </select>
           </div>
+          {!error && (
+            <p id={`${field.name}-help`} className="text-muted-foreground text-sm mt-1">
+              {field.placeholder || `Enter your ${field.label.toLowerCase()}`}
+            </p>
+          )}
           {error && (
             <motion.p
+              id={`${field.name}-error`}
+              role="alert"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-destructive text-sm mt-1 flex items-center"
@@ -428,15 +470,17 @@ export function ProgressiveForm({
           transition={{ duration: 0.3 }}
           className="relative"
         >
-          <label className="block text-sm font-medium text-foreground mb-2">
+          <label htmlFor={field.name} className="block text-sm font-medium text-foreground mb-2">
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           <div className="relative">
             <Icon className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
             <textarea
+              id={field.name}
               {...methods.register(field.name)}
               placeholder={field.placeholder}
+              aria-describedby={error ? `${field.name}-error` : `${field.name}-help`}
               rows={3}
               className={cn(
                 "w-full pl-10 pr-4 py-3 border border-border rounded-lg resize-none",
@@ -446,8 +490,15 @@ export function ProgressiveForm({
               )}
             />
           </div>
+          {!error && (
+            <p id={`${field.name}-help`} className="text-muted-foreground text-sm mt-1">
+              {field.placeholder || `Enter your ${field.label.toLowerCase()}`}
+            </p>
+          )}
           {error && (
             <motion.p
+              id={`${field.name}-error`}
+              role="alert"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-destructive text-sm mt-1 flex items-center"
@@ -468,16 +519,18 @@ export function ProgressiveForm({
         transition={{ duration: 0.3 }}
         className="relative"
       >
-        <label className="block text-sm font-medium text-foreground mb-2">
+        <label htmlFor={field.name} className="block text-sm font-medium text-foreground mb-2">
           {field.label}
           {field.required && <span className="text-destructive ml-1">*</span>}
         </label>
         <div className="relative">
           <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <input
+            id={field.name}
             {...methods.register(field.name)}
             type={field.type}
             placeholder={field.placeholder}
+            aria-describedby={error ? `${field.name}-error` : `${field.name}-help`}
             className={cn(
               "w-full pl-10 pr-4 py-3 border border-border rounded-lg",
               "focus:outline-none focus:ring-2 focus:ring-[var(--color-energy-500)] focus:border-transparent",
@@ -486,8 +539,15 @@ export function ProgressiveForm({
             )}
           />
         </div>
+        {!error && (
+          <p id={`${field.name}-help`} className="text-muted-foreground text-sm mt-1">
+            {field.placeholder || `Enter your ${field.label.toLowerCase()}`}
+          </p>
+        )}
         {error && (
           <motion.p
+            id={`${field.name}-error`}
+            role="alert"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-destructive text-sm mt-1 flex items-center"
@@ -504,7 +564,12 @@ export function ProgressiveForm({
 
   return (
     <div className={cn("w-full max-w-md mx-auto", className)}>
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form 
+        onSubmit={handleSubmit(handleFormSubmit)} 
+        className="space-y-6"
+        role="form"
+        aria-label={title || `Level ${currentLevel} Information Form`}
+      >
           {/* Header */}
           {(title || description) && (
             <motion.div

@@ -1,3 +1,5 @@
+const React = require('react');
+
 module.exports = {
   motion: {
     div: ({ children, ...props }) => React.createElement('div', props, children),

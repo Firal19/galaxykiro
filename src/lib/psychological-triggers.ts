@@ -584,6 +584,9 @@ class PsychologicalTriggersEngine {
 // Export singleton instance
 export const psychologicalTriggersEngine = new PsychologicalTriggersEngine()
 
+// Export service alias for backwards compatibility
+export const psychologicalTriggersService = psychologicalTriggersEngine
+
 // Hook for React components
 export function usePsychologicalTriggers() {
   const store = useAppStore()

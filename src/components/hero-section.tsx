@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { useTranslations } from 'next-intl'
+// Removed next-intl import
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { VideoPlayer } from "@/components/ui/video-player"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,18 @@ export function HeroSection({ className }: HeroSectionProps) {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
   
-  const t = useTranslations('hero')
+  // Hardcoded translations
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'title': "What if you're only using 10% of your true potential?",
+      'subtitle': "Most people never discover their hidden strengths. Our assessment reveals what's possible when you unlock your full potential.",
+      'cta': "Discover Your Hidden 90%",
+      'stats.transformed': "Lives Transformed",
+      'stats.potential': "Average Potential Unlocked",
+      'stats.hours': "Hours of Growth Content"
+    };
+    return translations[key] || key;
+  }
 
   // Animate background sparkles (optional, for delight)
   useEffect(() => {
@@ -212,7 +223,7 @@ export function HeroSection({ className }: HeroSectionProps) {
           >
             <div className="relative w-full max-w-md mx-auto rounded-3xl shadow-2xl bg-black/90 dark:bg-black/90 backdrop-blur-2xl border border-gray-700 overflow-hidden">
               <VideoPlayer
-                src=""
+                src={null}
                 poster="/testimonial-poster.jpg"
                 autoplay={false}
                 muted={true}

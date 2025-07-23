@@ -16,13 +16,22 @@ export default function SoftMemberDashboard() {
   const { user } = useAuth();
   const {
     membershipData,
-    progress,
-    recommendations,
+    benefits,
     isLoading,
-    error,
     isSoftMember,
-    trackEngagement
+    canAccessTool,
+    getNextBenefit,
+    getMembershipStats
   } = useSoftMembership();
+  
+  // Default data for features not yet implemented
+  const progress = { completed: 0, total: 10, percentage: 0 };
+  const recommendations = [];
+  const error = null; // No error by default
+  const trackEngagement = (event: string) => {
+    console.log('Tracking engagement:', event);
+    // TODO: Implement actual engagement tracking
+  };
   
   // Get URL parameters for welcome message and source
   const [isWelcome, setIsWelcome] = useState(false);

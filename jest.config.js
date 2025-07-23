@@ -3,9 +3,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    // Mock problematic ESM modules directly
-    '^next-intl$': '<rootDir>/__mocks__/next-intl.js',
-    '^next-intl/server$': '<rootDir>/__mocks__/next-intl-server.js',
+    // Removed next-intl mocks - no longer using i18n
     '^@supabase/supabase-js$': '<rootDir>/__mocks__/supabase.js',
     '^isows$': '<rootDir>/__mocks__/isows.js',
     // Mock other ESM modules that cause issues
@@ -15,7 +13,7 @@ module.exports = {
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/cypress/'],
   transformIgnorePatterns: [
     // More permissive transform patterns
-    'node_modules/(?!(next-intl|@supabase|isows|framer-motion)/)',
+    'node_modules/(?!(@supabase|isows|framer-motion)/)',
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {

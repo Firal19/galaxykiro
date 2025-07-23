@@ -1,7 +1,7 @@
 import { leadScoringEngine, UserActivityData, ScoreBreakdown } from '../lead-scoring-engine'
 
 // Mock Supabase
-jest.mock('../../../lib/supabase', () => ({
+jest.mock('../supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn(() => ({

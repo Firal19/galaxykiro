@@ -1,21 +1,19 @@
-import { HeroSection } from "@/components/hero-section";
-import { SuccessGapSection } from "@/components/success-gap-section";
-import { ChangeParadoxSection } from "@/components/change-paradox-section";
-import { VisionVoidSection } from "@/components/vision-void-section";
-import { LeadershipLeverSection } from "@/components/leadership-lever-section";
-import { DecisionDoorSection } from "@/components/decision-door-section";
-import { GalaxyDreamTeamFooter } from "@/components/galaxy-dream-team-footer";
+import { HeroSection } from '@/components/hero-section'
+import { SuccessGapSection } from '@/components/success-gap-section'
+import { ChangeParadoxSection } from '@/components/change-paradox-section'
+import { VisionVoidSection } from '@/components/vision-void-section'
+import { LeadershipLeverSection } from '@/components/leadership-lever-section'
+import { DecisionDoorSection } from '@/components/decision-door-section'
 
-export default function Home() {
+export default function RootPage() {
   return (
-    <div>
+    <main className="min-h-screen">
       <HeroSection />
       <SuccessGapSection />
       <ChangeParadoxSection />
       <VisionVoidSection />
       <LeadershipLeverSection />
       <DecisionDoorSection />
-      <GalaxyDreamTeamFooter />
-    </div>
+    </main>
   );
 }

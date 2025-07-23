@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+// Removed next-intl import
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,8 @@ interface QuickLinksProps {
 }
 
 export function QuickLinks({ className = "", variant = "default" }: QuickLinksProps) {
-  const locale = useLocale();
+  // Hardcoded locale
+  const locale = 'en';
 
   const quickLinks = [
     {

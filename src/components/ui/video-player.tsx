@@ -6,7 +6,7 @@ import { Play, Pause, Volume2, VolumeX } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface VideoPlayerProps {
-  src: string
+  src: string | null
   poster?: string
   autoplay?: boolean
   muted?: boolean
@@ -130,7 +130,7 @@ export function VideoPlayer({
       <div className="relative overflow-hidden rounded-lg shadow-2xl">
         <video
           ref={videoRef}
-          src={src}
+          src={src || undefined}
           poster={poster}
           autoPlay={autoplay}
           muted={muted}
@@ -149,6 +149,7 @@ export function VideoPlayer({
           <div className="flex items-center gap-4">
             <button
               onClick={togglePlay}
+              aria-label={isPlaying ? "Pause video" : "Play video"}
               className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors"
             >
               {isPlaying ? (
@@ -160,6 +161,7 @@ export function VideoPlayer({
             
             <button
               onClick={toggleMute}
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
               className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors"
             >
               {isMuted ? (

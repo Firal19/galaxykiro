@@ -1,0 +1,62 @@
+
+> progressive-engagement-website@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.4.1
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.12.39:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+ ✓ Starting...
+ ✓ Ready in 1427ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1012ms (553 modules)
+ GET / 200 in 1251ms
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 1754ms (1887 modules)
+Error: Route "/[locale]" used `params.locale`. `params` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at LocaleLayout (src/app/[locale]/layout.tsx:26:24)
+  24 |   params: { locale: string };
+  25 | }) {
+> 26 |   const locale = params.locale;
+     |                        ^
+  27 |   
+  28 |   // Validate locale
+  29 |   if (!locales.includes(locale as Locale)) {
+ GET /en 404 in 2391ms
+ ✓ Compiled in 509ms (1887 modules)
+ HEAD /en 404 in 115ms
+ ✓ Compiled in 392ms (1883 modules)
+ GET /en 404 in 121ms
+ ✓ Compiled /_not-found in 525ms (554 modules)
+ GET /en 404 in 413ms
+ GET /en 404 in 60ms
+ GET /en 404 in 62ms
+ ✓ Compiled in 263ms (224 modules)
+ GET /en 404 in 69ms
+ GET /en 404 in 47ms
+ ✓ Compiled /en in 472ms (558 modules)
+ GET /en 200 in 274ms
+ GET /en 200 in 9ms
+ ✓ Compiled in 202ms (224 modules)
+ GET /en 200 in 25ms
+ ✓ Compiled in 303ms (224 modules)
+ GET /en 200 in 28ms
+ ⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+/Users/firaol/galaxykiro/next.config.compiled.js:46
+var _default = withNextIntl(nextConfig);
+               ^
+
+ReferenceError: withNextIntl is not defined
+    at Object.<anonymous> (/Users/firaol/galaxykiro/next.config.compiled.js:46:16)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at requireFromString (/Users/firaol/galaxykiro/node_modules/next/dist/build/next-config-ts/require-hook.js:81:7)
+    at transpileConfig (/Users/firaol/galaxykiro/node_modules/next/dist/build/next-config-ts/transpile-config.js:98:51)
+    at async loadConfig (/Users/firaol/galaxykiro/node_modules/next/dist/server/config.js:1013:36)
+    at async getStartServerInfo (/Users/firaol/galaxykiro/node_modules/next/dist/server/lib/app-info-log.js:109:5)
+    at async Server.<anonymous> (/Users/firaol/galaxykiro/node_modules/next/dist/server/lib/start-server.js:304:41)
+
+Node.js v22.17.0
+[?25h

@@ -3,18 +3,37 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTranslations, useLocale } from 'next-intl'
+// Removed next-intl imports
 import { TouchButton } from './ui/touch-button'
 import { usePWA } from '../lib/hooks/use-pwa'
-import { LanguageToggle } from './language-switcher'
+// Removed language switcher import
 import { GalaxyDreamTeamLogo } from './galaxy-dream-team-logo'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
-  const locale = useLocale()
-  const t = useTranslations('navigation')
-  const tCta = useTranslations('cta')
+  // Hardcoded locale and translations
+  const locale = 'en'
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'home': 'Home',
+      'about': 'About',
+      'services': 'Services',
+      'contact': 'Contact',
+      'menu': 'Menu',
+      'close': 'Close',
+    };
+    return translations[key] || key;
+  }
+  const tCta = (key: string) => {
+    const translations: Record<string, string> = {
+      'learnMore': 'Learn More',
+      'getStarted': 'Get Started',
+      'discover': 'Discover Your Hidden 90%',
+      'continue': 'Continue',
+    };
+    return translations[key] || key;
+  }
   const { isInstallable, installApp, isOnline } = usePWA()
 
   const navItems = [
@@ -80,7 +99,6 @@ export function Navigation() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-3">
-            <LanguageToggle />
             {isInstallable && (
               <TouchButton
                 variant="outline"
@@ -150,9 +168,6 @@ export function Navigation() {
             ))}
             {/* Mobile Actions */}
             <div className="pt-4 space-y-3">
-              <div className="flex justify-center">
-                <LanguageToggle />
-              </div>
               {isInstallable && (
                 <TouchButton
                   variant="secondary"
