@@ -1,6 +1,6 @@
 import { AssessmentEngine, AssessmentConfig } from '@/lib/assessment-engine';
 
-// Mock localStorage and window
+// Mock localStorage (window is already available from jsdom)
 const localStorageMock = {
   getItem: jest.fn(),
   setItem: jest.fn(),
@@ -8,21 +8,16 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 
-// Mock window object
-Object.defineProperty(global, 'window', {
-  value: {
-    localStorage: localStorageMock,
-  },
+// Override localStorage on existing window object instead of redefining window
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
   writable: true,
 });
 
-// Also set on globalThis to ensure compatibility
-Object.defineProperty(globalThis, 'window', {
-  value: {
-    localStorage: localStorageMock,
-  },
-  writable: true,
-});
+// Backup - ensure globalThis.window is available for compatibility
+if (typeof globalThis !== 'undefined' && !globalThis.window) {
+  globalThis.window = window;
+}
 
 describe('AssessmentEngine', () => {
   // Sample assessment configuration for testing

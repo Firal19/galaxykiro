@@ -2,6 +2,66 @@
  * Simplified security utilities
  */
 
+// Simple HTML sanitization (not for production)
+export function sanitizeHtml(input: string): string {
+  if (!input) return '';
+  
+  // Basic HTML tag removal and entity encoding
+  return input
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// Input validation interface
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+// Basic input validation
+export function validateInput(input: string, rules: { required?: boolean; minLength?: number; maxLength?: number; pattern?: RegExp } = {}): ValidationResult {
+  const errors: string[] = [];
+  
+  if (rules.required && (!input || input.trim().length === 0)) {
+    errors.push('Input is required');
+  }
+  
+  if (rules.minLength && input.length < rules.minLength) {
+    errors.push(`Input must be at least ${rules.minLength} characters`);
+  }
+  
+  if (rules.maxLength && input.length > rules.maxLength) {
+    errors.push(`Input must be no more than ${rules.maxLength} characters`);
+  }
+  
+  if (rules.pattern && !rules.pattern.test(input)) {
+    errors.push('Input format is invalid');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+// Input sanitization
+export function sanitizeInput(input: string): string {
+  if (!input) return '';
+  
+  // Basic sanitization - remove dangerous characters
+  return input
+    .trim()
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .substring(0, 1000); // Limit length
+}
+
 /**
  * Encrypt sensitive data (simplified implementation for testing)
  */

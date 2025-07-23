@@ -482,6 +482,31 @@ class ScoreTrackingSystem {
 // Export singleton instance
 export const scoreTrackingSystem = new ScoreTrackingSystem()
 
+// Convenience functions for common tracking actions
+export function trackToolComplete(toolName: string, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('tool_usage', 5, { toolName }, userId, sessionId);
+}
+
+export function trackContentDownload(contentId: string, contentType: string, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('content_download', 10, { contentId, contentType }, userId, sessionId);
+}
+
+export function trackWebinarRegistration(webinarId: string, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('webinar_registration', 8, { webinarId }, userId, sessionId);
+}
+
+export function trackCTAClick(ctaId: string, placement: string, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('cta_click', 3, { ctaId, placement }, userId, sessionId);
+}
+
+export function trackPageView(page: string, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('page_view', 1, { page }, userId, sessionId);
+}
+
+export function trackAssessmentComplete(assessmentId: string, score: number, userId?: string, sessionId?: string): Promise<void> {
+  return scoreTrackingSystem.trackAction('assessment_completion', 10, { assessmentId, score }, userId, sessionId);
+}
+
 // Hook for React components
 export function useScoreTracking() {
   return {
@@ -492,6 +517,12 @@ export function useScoreTracking() {
       userId?: string,
       sessionId?: string
     ) => scoreTrackingSystem.trackAction(actionType, value, metadata, userId, sessionId),
+    trackToolComplete,
+    trackContentDownload,
+    trackWebinarRegistration,
+    trackCTAClick,
+    trackPageView,
+    trackAssessmentComplete,
     getEngagementScore: (userId?: string, sessionId?: string) => 
       scoreTrackingSystem.getEngagementScore(userId, sessionId),
     getLeadScore: (userId?: string, sessionId?: string) => 
