@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-// import { useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { VideoPlayer } from "@/components/ui/video-player"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,7 @@ export function HeroSection({ className }: HeroSectionProps) {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
   
-  // const t = useTranslations('hero')
+  const t = useTranslations('hero')
 
   // Animate background sparkles (optional, for delight)
   useEffect(() => {
@@ -134,7 +134,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight bg-gradient-to-r from-[var(--color-energy-500)] via-[var(--color-growth-600)] to-[var(--color-transformation-500)] bg-clip-text text-transparent"
             >
-              Unlock Your <span>Hidden Potential</span>
+{t('title')}
             </motion.h1>
 
             {/* Unified Description and Stats Card */}
@@ -145,7 +145,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               className="bg-white/90 dark:bg-black/80 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200 dark:border-gray-700 px-8 py-8 max-w-2xl"
             >
               <p className="text-lg md:text-xl leading-relaxed text-gray-900 dark:text-white mb-8">
-                Join <span className="font-bold text-[var(--color-energy-700)] dark:text-[var(--color-energy-200)]">50,000+</span> people who have discovered their hidden 90% through our <span className="font-semibold text-[var(--color-energy-800)] dark:text-[var(--color-energy-300)]">transformational training programs</span>. Our powerful assessments and personalized coaching have helped people find their true purpose, unlock abilities they never knew they had, and create lasting positive change in their lives.
+{t('description')}
               </p>
               <div className="flex flex-row divide-x divide-gray-200 dark:divide-gray-700">
                 <div className="flex-1 flex flex-col items-center px-4">
@@ -153,21 +153,21 @@ export function HeroSection({ className }: HeroSectionProps) {
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     <AnimatedCounter from={0} to={50000} suffix="+" />
                   </div>
-                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">Lives Transformed</div>
+                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">{t('stats.livesTransformed')}</div>
                 </div>
                 <div className="flex-1 flex flex-col items-center px-4">
                   <TrendingUp className="h-7 w-7 text-[var(--color-transformation-400)] mb-1" />
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     <AnimatedCounter from={0} to={90} suffix="%" />
                   </div>
-                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">Success Rate</div>
+                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">{t('stats.successRate')}</div>
                 </div>
                 <div className="flex-1 flex flex-col items-center px-4">
                   <Award className="h-7 w-7 text-[var(--color-energy-400)] mb-1" />
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     <AnimatedCounter from={0} to={15} suffix="+" />
                   </div>
-                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">Years Experience</div>
+                  <div className="text-base text-gray-700 dark:text-gray-200 mt-1">{t('stats.yearsExperience')}</div>
                 </div>
               </div>
             </motion.div>
@@ -180,14 +180,15 @@ export function HeroSection({ className }: HeroSectionProps) {
               className="flex flex-col sm:flex-row gap-4 mt-4"
             >
               <Button
+                type="button"
                 variant="cta"
                 size="xl"
                 onClick={() => setIsModalOpen(true)}
                 className="text-lg px-10 py-5 h-auto bg-gradient-to-r from-[var(--color-energy-500)] to-[var(--color-transformation-500)] hover:from-[var(--color-energy-600)] hover:to-[var(--color-transformation-600)] shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full font-bold focus:ring-4 focus:ring-[var(--color-energy-400)]/40"
-                aria-label="Start Your Transformation"
+                aria-label={t('cta')}
               >
                 <Sparkles className="mr-2 h-6 w-6" />
-                Start Your Transformation
+{t('cta')}
               </Button>
               <Button
                 variant="outline"
@@ -215,7 +216,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 poster="/testimonial-poster.jpg"
                 autoplay={false}
                 muted={true}
-                testimonialText="This powerful training completely transformed my life. I discovered strengths I never knew I had and finally understand what was holding me back. Within 3 months, I found my true purpose and created lasting positive change."
+                testimonialText="This assessment completely changed how I see myself and what I'm capable of. I discovered hidden strengths and finally understand my true potential."
                 authorName="Sarah Chen"
                 authorTitle="Marketing Director, Addis Ababa"
                 className="w-full max-w-md mx-auto z-10 rounded-3xl text-white"
