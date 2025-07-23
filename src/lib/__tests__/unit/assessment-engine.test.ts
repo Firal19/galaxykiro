@@ -1,13 +1,28 @@
 import { AssessmentEngine, AssessmentConfig } from '@/lib/assessment-engine';
 
-// Mock localStorage
+// Mock localStorage and window
 const localStorageMock = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock window object
+Object.defineProperty(global, 'window', {
+  value: {
+    localStorage: localStorageMock,
+  },
+  writable: true,
+});
+
+// Also set on globalThis to ensure compatibility
+Object.defineProperty(globalThis, 'window', {
+  value: {
+    localStorage: localStorageMock,
+  },
+  writable: true,
+});
 
 describe('AssessmentEngine', () => {
   // Sample assessment configuration for testing

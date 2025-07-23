@@ -29,9 +29,14 @@ const mockWindow = () => {
           }
         },
         document: {
-          createElement: jest.fn().mockImplementation(() => ({
-            toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
-          }))
+          createElement: jest.fn().mockImplementation((tag) => {
+            if (tag === 'canvas') {
+              return {
+                toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
+              };
+            }
+            return {};
+          })
         }
       },
       writable: true,
@@ -61,9 +66,14 @@ const mockWindow = () => {
   if (!(global as any).document) {
     Object.defineProperty(global, 'document', {
       value: {
-        createElement: jest.fn().mockImplementation(() => ({
-          toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
-        }))
+        createElement: jest.fn().mockImplementation((tag) => {
+          if (tag === 'canvas') {
+            return {
+              toDataURL: jest.fn().mockReturnValue('data:image/webp;base64,test')
+            };
+          }
+          return {};
+        })
       },
       writable: true,
       configurable: true

@@ -373,7 +373,7 @@ describe('Comprehensive Security Testing', () => {
         return `${anonymizedLocal}@${domain}`;
       };
 
-      expect(anonymizeEmail('john.doe@example.com')).toBe('j*****e@example.com');
+      expect(anonymizeEmail('john.doe@example.com')).toBe('j******e@example.com');
       expect(anonymizeEmail('a@example.com')).toBe('a@example.com'); // Short emails
     });
 

@@ -7,7 +7,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/cypress/'],
   transformIgnorePatterns: [
-    'node_modules/(?!(next-intl|use-intl|@supabase|isows|@radix-ui|framer-motion|ws|@supabase/realtime-js)/)',
+    'node_modules/(?!(next-intl|use-intl|@supabase|isows|@radix-ui|framer-motion|ws|@supabase/realtime-js|@supabase/supabase-js)/)',
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
