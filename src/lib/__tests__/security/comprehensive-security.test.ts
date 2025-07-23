@@ -368,8 +368,10 @@ describe('Comprehensive Security Testing', () => {
   describe('Privacy and Data Protection', () => {
     test('should implement data anonymization', () => {
       const anonymizeEmail = (email: string): string => {
+        if (!email || !email.includes('@')) return email;
         const [local, domain] = email.split('@');
-        const anonymizedLocal = local.charAt(0) + '*'.repeat(local.length - 2) + local.charAt(local.length - 1);
+        if (local.length <= 2) return email;
+        const anonymizedLocal = local.charAt(0) + '*'.repeat(Math.max(5, local.length - 2)) + local.charAt(local.length - 1);
         return `${anonymizedLocal}@${domain}`;
       };
 
