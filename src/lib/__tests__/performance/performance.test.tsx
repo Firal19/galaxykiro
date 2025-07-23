@@ -416,8 +416,7 @@ describe('Performance Testing', () => {
 
 // Add React import for the test
 
-// Mock components for testing
-const HeroSection = () => React.createElement('div', { 'data-testid': 'hero-section' }, 'Hero Content');
+// Mock components for testing (HeroSection already declared above)
 const SuccessGapSection = () => React.createElement('div', { 'data-testid': 'success-gap' }, 'Success Gap Content');
 const AssessmentTool = () => React.createElement('div', { 'data-testid': 'assessment-tool' }, 'Assessment Content');
 const LargeList = ({ items }) => React.createElement('div', null, 
