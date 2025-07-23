@@ -71,7 +71,7 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
 
     // Validate data against schema
     const validation = validateFormData(data, level)
-    if (!validation.success) {
+    if (!validation) {
       return {
         statusCode: 400,
         headers: {
@@ -80,7 +80,7 @@ export const handler: Handler = async (event): Promise<HandlerResponse> => {
         },
         body: JSON.stringify({
           error: 'Validation failed',
-          details: validation.errors,
+          details: 'Invalid form data for level ' + level,
         }),
       }
     }
