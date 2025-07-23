@@ -1,6 +1,21 @@
-import { redirect } from 'next/navigation';
+import { HeroSection } from "@/components/hero-section";
+import { SuccessGapSection } from "@/components/success-gap-section";
+import { ChangeParadoxSection } from "@/components/change-paradox-section";
+import { VisionVoidSection } from "@/components/vision-void-section";
+import { LeadershipLeverSection } from "@/components/leadership-lever-section";
+import { DecisionDoorSection } from "@/components/decision-door-section";
+import { GalaxyDreamTeamFooter } from "@/components/galaxy-dream-team-footer";
 
-export default function RootPage() {
-  // Redirect to default locale
-  redirect('/en');
+export default function Home() {
+  return (
+    <div>
+      <HeroSection />
+      <SuccessGapSection />
+      <ChangeParadoxSection />
+      <VisionVoidSection />
+      <LeadershipLeverSection />
+      <DecisionDoorSection />
+      <GalaxyDreamTeamFooter />
+    </div>
+  );
 }

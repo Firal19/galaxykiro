@@ -1,8 +1,8 @@
 import type { Viewport } from "next";
 import { notFound } from 'next/navigation';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import { locales, type Locale } from '../../../i18n';
-import { AuthProvider } from '../../lib/contexts/auth-context';
-import { Navigation } from '../../components/navigation';
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -29,16 +29,19 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  // Providing all messages to the client
+  // side is the easiest way to get started
+  const messages = await getMessages();
+
   return (
-    <html lang={locale} data-scroll-behavior="smooth">
+    <html lang={locale}>
       <head>
         <title>Galaxy Dream Team</title>
       </head>
       <body>
-        <AuthProvider>
-          <Navigation />
+        <NextIntlClientProvider messages={messages}>
           {children}
-        </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

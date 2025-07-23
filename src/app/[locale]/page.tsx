@@ -1,21 +1,17 @@
-import { HeroSection } from "@/components/hero-section";
-import { SuccessGapSection } from "@/components/success-gap-section";
-import { ChangeParadoxSection } from "@/components/change-paradox-section";
-import { VisionVoidSection } from "@/components/vision-void-section";
-import { LeadershipLeverSection } from "@/components/leadership-lever-section";
-import { DecisionDoorSection } from "@/components/decision-door-section";
-import { GalaxyDreamTeamFooter } from "@/components/galaxy-dream-team-footer";
-
 export default function Home() {
   return (
-    <div>
-      <HeroSection />
-      <SuccessGapSection />
-      <ChangeParadoxSection />
-      <VisionVoidSection />
-      <LeadershipLeverSection />
-      <DecisionDoorSection />
-      <GalaxyDreamTeamFooter />
+    <div className="p-8">
+      <h1 className="text-4xl font-bold text-center mb-8">
+        Welcome to Galaxy Dream Team
+      </h1>
+      <p className="text-center text-gray-600">
+        GalaxyKiro is now running successfully on port 6660! 🚀
+      </p>
+      <div className="mt-8 text-center">
+        <p className="text-sm text-gray-500">
+          The app is hot-reloading and ready for development.
+        </p>
+      </div>
     </div>
   );
 }
