@@ -1,5 +1,5 @@
-import { supabase } from '../../../lib/supabase'
-import type { Database } from '../../../lib/supabase'
+import { supabase } from '../supabase'
+import type { Database } from '../supabase'
 
 export interface UserData {
   id: string

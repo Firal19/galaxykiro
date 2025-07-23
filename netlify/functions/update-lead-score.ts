@@ -1,6 +1,6 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 import { leadScoringEngine, TierChangeResult } from '../../src/lib/lead-scoring-engine'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../src/lib/supabase'
 
 interface UpdateLeadScoreRequest {
   userId: string

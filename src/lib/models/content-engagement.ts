@@ -1,4 +1,4 @@
-import { supabase, Database } from '../../../lib/supabase'
+import { supabase, Database } from '../supabase'
 
 export type ContentEngagementRow = Database['public']['Tables']['content_engagement']['Row']
 export type ContentEngagementInsert = Database['public']['Tables']['content_engagement']['Insert']

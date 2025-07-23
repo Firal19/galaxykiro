@@ -17,20 +17,28 @@ export function ProgressiveFormExample() {
 
   // Handle form submission
   const handleFormSubmit = async (data: Record<string, unknown>, level: number) => {
-    console.log('Form submitted:', { data, level })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Form submitted:', { data, level });
+    }
     
     try {
       // This would typically call your API
-      await captureUserInfo(level as 1 | 2 | 3, data, 'example-form')
-      console.log('User info captured successfully')
+      await captureUserInfo(level as 1 | 2 | 3, data, 'example-form');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User info captured successfully');
+      }
     } catch (error) {
-      console.error('Error capturing user info:', error)
-      throw error
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error capturing user info:', error);
+      }
+      throw error;
     }
   }
 
   const handleStartAssessment = (data: Record<string, unknown>) => {
-    console.log('Starting assessment with data:', data)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Starting assessment with data:', data);
+    }
     // Navigate to assessment or trigger assessment modal
   }
 

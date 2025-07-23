@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from './supabase'
 import { InteractionModel } from './models/interaction'
 import { UserModel } from './models/user'
 import { LeadScoresModel } from './models/lead-scores'
@@ -88,7 +88,9 @@ export class BehavioralAnalysisEngine {
 
       return profile
     } catch (error) {
-      console.error('Error analyzing user behavior:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error analyzing user behavior:', error);
+      }
       throw error
     }
   }
@@ -191,7 +193,9 @@ export class BehavioralAnalysisEngine {
 
       return analytics
     } catch (error) {
-      console.error('Error analyzing session:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error analyzing session:', error);
+      }
       return this.createEmptySessionAnalytics(sessionId, userId)
     }
   }
@@ -263,7 +267,9 @@ export class BehavioralAnalysisEngine {
 
       return update
     } catch (error) {
-      console.error('Error updating engagement score:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error updating engagement score:', error);
+      }
       throw error
     }
   }
@@ -620,7 +626,9 @@ export class BehavioralAnalysisEngine {
           payload: update
         })
     } catch (error) {
-      console.error('Failed to broadcast engagement update:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to broadcast engagement update:', error);
+      }
     }
   }
 

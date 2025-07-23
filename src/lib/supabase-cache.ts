@@ -70,7 +70,9 @@ class SupabaseCache {
       .single();
       
     if (error) {
-      console.error('Error fetching assessment results:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching assessment results:', error);
+      }
       return null;
     }
     
@@ -98,7 +100,9 @@ class SupabaseCache {
       .single();
       
     if (error) {
-      console.error('Error fetching user session:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching user session:', error);
+      }
       return null;
     }
     
@@ -124,7 +128,9 @@ class SupabaseCache {
     });
     
     if (error) {
-      console.error('Error calculating lead score:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error calculating lead score:', error);
+      }
       return null;
     }
     
@@ -201,7 +207,9 @@ class SupabaseCache {
     this.stats.lastCleanup = now;
     this.stats.size = this.cache.size;
     
-    console.log(`Cache cleanup: removed ${removedCount} items, current size: ${this.stats.size}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Cache cleanup: removed ${removedCount} items, current size: ${this.stats.size}`);
+    }
   }
   
   // Get content with caching
@@ -230,7 +238,9 @@ class SupabaseCache {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching content:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching content:', error);
+      }
       return null;
     }
     
@@ -267,7 +277,9 @@ class SupabaseCache {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching webinars:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching webinars:', error);
+      }
       return null;
     }
     
@@ -294,7 +306,9 @@ class SupabaseCache {
       .order('name', { ascending: true });
     
     if (error) {
-      console.error('Error fetching office locations:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching office locations:', error);
+      }
       return null;
     }
     
@@ -453,7 +467,7 @@ class SupabaseCache {
       }
     }
     
-    if (removedCount > 0) {
+    if (removedCount > 0 && process.env.NODE_ENV === 'development') {
       console.log(`Cleaned up ${removedCount} inactive subscriptions`);
     }
     

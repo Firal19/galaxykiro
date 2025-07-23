@@ -58,7 +58,9 @@ export const getCurrentUser = async (): Promise<UserSession | null> => {
       entryPoint: userProfile.entry_point,
     }
   } catch (error) {
-    console.error('Error getting current user:', error)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Error getting current user:', error);
+    }
     return null
   }
 }
@@ -175,7 +177,9 @@ export const createOrUpdateUser = async (
       isNewUser,
     }
   } catch (error) {
-    console.error('Error creating/updating user:', error)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Error creating/updating user:', error);
+    }
     return null
   }
 }
@@ -261,7 +265,9 @@ export const getAttributionData = (): { memberId?: string; postId?: string } | n
       }
     }
   } catch (error) {
-    console.error('Error getting attribution data:', error)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Error getting attribution data:', error);
+    }
   }
   
   return null
@@ -333,7 +339,9 @@ export const auth = {
       
       return userProfile.is_admin === true
     } catch (error) {
-      console.error('Error checking admin status:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error checking admin status:', error);
+      }
       return false
     }
   }

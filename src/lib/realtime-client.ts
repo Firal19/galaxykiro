@@ -123,9 +123,13 @@ class RealtimeClient {
       // Start heartbeat
       this.startHeartbeat()
 
-      console.log('Realtime client connected successfully')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Realtime client connected successfully');
+      }
     } catch (error) {
-      console.error('Failed to connect to realtime service:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to connect to realtime service:', error);
+      }
       this.connection.status = 'error'
       this.scheduleReconnect()
     }
@@ -152,9 +156,13 @@ class RealtimeClient {
       // Unsubscribe from all channels
       await supabase.removeAllChannels()
 
-      console.log('Realtime client disconnected')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Realtime client disconnected');
+      }
     } catch (error) {
-      console.error('Error disconnecting from realtime service:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error disconnecting from realtime service:', error);
+      }
     }
   }
 
@@ -276,7 +284,9 @@ class RealtimeClient {
     try {
       subscription.callback(event)
     } catch (error) {
-      console.error('Error in realtime event callback:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error in realtime event callback:', error);
+      }
     }
   }
 
@@ -303,7 +313,9 @@ class RealtimeClient {
    * Default callback for events
    */
   private defaultCallback(event: RealtimeEvent): void {
-    console.log('Realtime event received:', event)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Realtime event received:', event);
+    }
   }
 
   /**
@@ -326,7 +338,9 @@ class RealtimeClient {
    * Handle error message
    */
   private handleErrorMessage(message: RealtimeMessage): void {
-    console.error('Realtime error:', message)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Realtime error:', message);
+    }
     this.connection.status = 'error'
     this.scheduleReconnect()
   }
@@ -335,7 +349,9 @@ class RealtimeClient {
    * Handle reconnect message
    */
   private handleReconnectMessage(message: RealtimeMessage): void {
-    console.log('Realtime reconnect requested')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Realtime reconnect requested');
+    }
     this.reconnect()
   }
 
@@ -359,7 +375,9 @@ class RealtimeClient {
     }
 
     // In a real implementation, this would send to the server
-    console.log('Heartbeat sent:', message)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Heartbeat sent:', message);
+    }
   }
 
   /**
@@ -367,7 +385,9 @@ class RealtimeClient {
    */
   private scheduleReconnect(): void {
     if (this.connection.reconnectAttempts >= this.connection.maxReconnectAttempts) {
-      console.error('Max reconnect attempts reached')
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Max reconnect attempts reached');
+      }
       return
     }
 
@@ -381,7 +401,9 @@ class RealtimeClient {
    */
   private async reconnect(): Promise<void> {
     this.connection.reconnectAttempts++
-    console.log(`Reconnecting... Attempt ${this.connection.reconnectAttempts}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Reconnecting... Attempt ${this.connection.reconnectAttempts}`);
+    }
     
     await this.disconnect()
     await this.connect()
@@ -449,7 +471,9 @@ class RealtimeClient {
     }
 
     // In a real implementation, this would send to the server
-    console.log('Message sent:', message)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Message sent:', message);
+    }
   }
 
   /**

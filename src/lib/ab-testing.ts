@@ -428,7 +428,9 @@ class ABTestingSystem {
         }
       })
     } catch (error) {
-      console.error('Error tracking A/B test participation:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error tracking A/B test participation:', error);
+      }
     }
   }
 
@@ -475,7 +477,9 @@ class ABTestingSystem {
         }
       })
     } catch (error) {
-      console.error('Error tracking A/B test conversion:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error tracking A/B test conversion:', error);
+      }
     }
   }
 

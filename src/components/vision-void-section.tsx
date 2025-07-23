@@ -41,15 +41,19 @@ export function VisionVoidSection({ className }: VisionVoidSectionProps) {
         throw new Error('Failed to capture full profile information')
       }
 
-      const result = await response.json()
-      console.log('Full profile information captured:', result)
+      const result = await response.json();
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Full profile information captured:', result);
+      }
       
       // Open the visualizer after successful capture
       setIsVisualizerOpen(true)
     } catch (error) {
-      console.error('Error submitting full profile:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error submitting full profile:', error);
+      }
       // Still allow access to visualizer even if backend fails
-      setIsVisualizerOpen(true)
+      setIsVisualizerOpen(true);
     }
   }
 

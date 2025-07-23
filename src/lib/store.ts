@@ -235,8 +235,10 @@ export const useAppStore = create<AppState>()(
             }
           }
         } catch (error) {
-          console.error('Error capturing user info:', error)
-          throw error
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Error capturing user info:', error);
+          }
+          throw error;
         } finally {
           set({ isLoading: false })
         }
@@ -281,7 +283,9 @@ export const useAppStore = create<AppState>()(
             })
           }
         } catch (error) {
-          console.error('Error tracking interaction:', error)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Error tracking interaction:', error);
+          }
           // Don't throw error for tracking failures to avoid disrupting user experience
         }
       },
@@ -334,8 +338,10 @@ export const useAppStore = create<AppState>()(
             }
           }
         } catch (error) {
-          console.error('Error updating engagement score:', error)
-          throw error
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Error updating engagement score:', error);
+          }
+          throw error;
         }
       },
       

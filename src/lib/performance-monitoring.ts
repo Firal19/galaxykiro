@@ -91,7 +91,9 @@ export function reportWebVitals(metric: WebVitalsMetric): void {
       },
     });
   } catch (error) {
-    console.error('Failed to report performance metric to Sentry:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Failed to report performance metric to Sentry:', error);
+    }
   }
 
   // Report to custom endpoint for dashboard visualization
@@ -121,10 +123,16 @@ export function reportWebVitals(metric: WebVitalsMetric): void {
         body,
         headers: { 'Content-Type': 'application/json' },
         keepalive: true, // Ensure the request completes even if the page unloads
-      }).catch(err => console.error('Failed to report performance metric:', err));
+      }).catch(err => {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to report performance metric:', err);
+        }
+      });
     }
   } catch (error) {
-    console.error('Failed to report performance metric:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Failed to report performance metric:', error);
+    }
   }
 }
 
@@ -146,7 +154,9 @@ export function initPerformanceMonitoring(): void {
       onINP(metric => reportWebVitals({ ...metric, name: 'INP' }));
     });
   } catch (error) {
-    console.error('Failed to initialize performance monitoring:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Failed to initialize performance monitoring:', error);
+    }
     Sentry.captureException(error);
   }
 }
@@ -180,9 +190,15 @@ export function trackCustomPerformance(name: string, duration: number, tags: Rec
       method: 'POST',
       body,
       headers: { 'Content-Type': 'application/json' },
-    }).catch(err => console.error('Failed to report custom performance metric:', err));
+    }).catch(err => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to report custom performance metric:', err);
+      }
+    });
   } catch (error) {
-    console.error('Failed to track custom performance:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Failed to track custom performance:', error);
+    }
   }
 }
 

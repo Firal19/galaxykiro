@@ -7,11 +7,8 @@ import {
   TrendingUp, 
   Brain, 
   Users, 
-  Award,
   Star,
-  ArrowRight,
   CheckCircle,
-  Zap,
   Lightbulb,
   BarChart3,
   Heart,
@@ -21,7 +18,6 @@ import {
   Clock,
   X
 } from "lucide-react";
-import Link from "next/link";
 
 export default function ChangeParadoxPage() {
   const paradoxes = [

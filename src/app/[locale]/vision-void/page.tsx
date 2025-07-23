@@ -7,19 +7,14 @@ import {
   Eye, 
   Target, 
   Users, 
-  Award,
   Star,
-  ArrowRight,
   CheckCircle,
-  Zap,
-  Lightbulb,
   BarChart3,
   Heart,
   BookOpen,
   Compass,
   MapPin
 } from "lucide-react";
-import Link from "next/link";
 
 export default function VisionVoidPage() {
   const voidTypes = [

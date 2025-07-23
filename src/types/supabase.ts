@@ -1,9 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+/**
+ * Generated Supabase Database Types
+ * This file contains all database table types for type-safe database operations
+ */
 
 // Assessment response types
 export interface AssessmentResponse {

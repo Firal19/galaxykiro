@@ -1,4 +1,4 @@
-import { supabase, Database } from '../../../lib/supabase'
+import { supabase, Database } from '../supabase'
 
 export type LeadScoresRow = Database['public']['Tables']['lead_scores']['Row']
 export type LeadScoresInsert = Database['public']['Tables']['lead_scores']['Insert']

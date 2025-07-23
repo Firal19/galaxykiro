@@ -6,12 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   Target, 
-  Award,
   Star,
-  ArrowRight,
   CheckCircle,
-  Zap,
-  Lightbulb,
   BarChart3,
   Heart,
   BookOpen,
@@ -19,7 +15,6 @@ import {
   TrendingUp,
   Brain
 } from "lucide-react";
-import Link from "next/link";
 
 export default function LeadershipLeverPage() {
   const leadershipAreas = [

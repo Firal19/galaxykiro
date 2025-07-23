@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from './supabase'
 import { InteractionCreateData } from './validations'
 import { scoreTrackingSystem, ScoreAction } from './score-tracking'
 

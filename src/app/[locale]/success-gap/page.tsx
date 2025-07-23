@@ -7,17 +7,11 @@ import {
   Target, 
   TrendingUp, 
   Users, 
-  Award,
   Star,
-  ArrowRight,
   CheckCircle,
-  Zap,
-  Lightbulb,
   BarChart3,
-  Heart,
   BookOpen
 } from "lucide-react";
-import Link from "next/link";
 
 export default function SuccessGapPage() {
   const features = [

@@ -67,6 +67,25 @@ export interface UserSegment {
   criteria: SegmentCriteria
 }
 
+export interface ABTestExportResults {
+  testId: string
+  name: string
+  status: 'draft' | 'active' | 'paused' | 'completed'
+  startDate: Date
+  endDate?: Date
+  variants: {
+    id: string
+    name: string
+    weight: number
+    metrics: VariantMetrics
+    isWinner: boolean
+    statisticalSignificance: number
+  }[]
+  totalImpressions: number
+  totalConversions: number
+  overallConversionRate: number
+}
+
 export interface SegmentCriteria {
   engagementScore?: { min?: number; max?: number }
   behaviorPattern?: string[]
@@ -470,7 +489,9 @@ class ABTestingService {
       }
       localStorage.setItem('gdt_ab_tests', JSON.stringify(data))
     } catch (error) {
-      console.error('Failed to save A/B test data:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to save A/B test data:', error)
+      }
     }
   }
 
@@ -494,12 +515,14 @@ class ABTestingService {
         this.conversions = new Map(parsed.conversions || [])
       }
     } catch (error) {
-      console.error('Failed to load A/B test data:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to load A/B test data:', error)
+      }
     }
   }
 
   // Export test results for analysis
-  exportResults(testId: string): any | null {
+  exportResults(testId: string): ABTestExportResults | null {
     const test = this.tests.get(testId)
     if (!test) return null
 

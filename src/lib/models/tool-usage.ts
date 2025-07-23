@@ -1,4 +1,4 @@
-import { supabase, Database, AssessmentResponse, AssessmentScores, PersonalizedInsight } from '../../../lib/supabase'
+import { supabase, Database, AssessmentResponse, AssessmentScores, PersonalizedInsight } from '../supabase'
 
 export type ToolUsageRow = Database['public']['Tables']['tool_usage']['Row']
 export type ToolUsageInsert = Database['public']['Tables']['tool_usage']['Insert']

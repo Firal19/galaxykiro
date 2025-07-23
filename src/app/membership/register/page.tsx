@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '../../../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { GalaxyDreamTeamLogo } from '@/components/galaxy-dream-team-logo';
 

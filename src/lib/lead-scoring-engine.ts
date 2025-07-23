@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'
+import { supabase } from './supabase'
 import { LeadScoresModel, ScoringData, TierProgression } from './models/lead-scores'
 import { UserModel } from './models/user'
 

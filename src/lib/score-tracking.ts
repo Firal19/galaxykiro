@@ -134,7 +134,9 @@ class ScoreTrackingSystem {
     // Save to database
     await this.saveActionToDatabase(action)
 
-    console.log(`Tracked action: ${actionType} (value: ${value})`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Tracked action: ${actionType} (value: ${value})`);
+    }
   }
 
   /**
@@ -347,11 +349,13 @@ class ScoreTrackingSystem {
           timestamp: action.timestamp.toISOString()
         })
 
-      if (error) {
-        console.error('Error saving action to database:', error)
+      if (error && process.env.NODE_ENV !== 'production') {
+        console.error('Error saving action to database:', error);
       }
     } catch (error) {
-      console.error('Error saving action to database:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error saving action to database:', error);
+      }
     }
   }
 
@@ -370,11 +374,13 @@ class ScoreTrackingSystem {
           last_updated: score.lastUpdated.toISOString()
         })
 
-      if (error) {
-        console.error('Error saving engagement score to database:', error)
+      if (error && process.env.NODE_ENV !== 'production') {
+        console.error('Error saving engagement score to database:', error);
       }
     } catch (error) {
-      console.error('Error saving engagement score to database:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error saving engagement score to database:', error);
+      }
     }
   }
 
@@ -393,11 +399,13 @@ class ScoreTrackingSystem {
           last_updated: score.lastUpdated.toISOString()
         })
 
-      if (error) {
-        console.error('Error saving lead score to database:', error)
+      if (error && process.env.NODE_ENV !== 'production') {
+        console.error('Error saving lead score to database:', error);
       }
     } catch (error) {
-      console.error('Error saving lead score to database:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error saving lead score to database:', error);
+      }
     }
   }
 
@@ -411,8 +419,8 @@ class ScoreTrackingSystem {
         .from('engagement_scores')
         .select('*')
 
-      if (engagementError) {
-        console.error('Error loading engagement scores:', engagementError)
+      if (engagementError && process.env.NODE_ENV !== 'production') {
+        console.error('Error loading engagement scores:', engagementError);
       } else if (engagementData) {
         engagementData.forEach(row => {
           const key = row.user_id || row.session_id || 'anonymous'
@@ -432,8 +440,8 @@ class ScoreTrackingSystem {
         .from('lead_scores')
         .select('*')
 
-      if (leadError) {
-        console.error('Error loading lead scores:', leadError)
+      if (leadError && process.env.NODE_ENV !== 'production') {
+        console.error('Error loading lead scores:', leadError);
       } else if (leadData) {
         leadData.forEach(row => {
           const key = row.user_id || row.session_id || 'anonymous'
@@ -448,7 +456,9 @@ class ScoreTrackingSystem {
         })
       }
     } catch (error) {
-      console.error('Error loading scores from database:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error loading scores from database:', error);
+      }
     }
   }
 

@@ -260,7 +260,9 @@ export class AssessmentEngine {
       }
       return null
     } catch (error) {
-      console.error('Error loading assessment state:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error loading assessment state:', error)
+      }
       return null
     }
   }
@@ -282,7 +284,9 @@ export class AssessmentEngine {
         )
       }
     } catch (error) {
-      console.error('Error saving assessment progress:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error saving assessment progress:', error)
+      }
     }
   }
 
@@ -731,7 +735,9 @@ export class AssessmentEngine {
       }
       this.state = null
     } catch (error) {
-      console.error('Error clearing assessment progress:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error clearing assessment progress:', error)
+      }
     }
   }
 

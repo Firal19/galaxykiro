@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '../../../../../lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { ContentItem } from '../../../../lib/models/content'
 import { auth } from '../../../../lib/auth'
 import { withSecurity, sanitizeHtml, sanitizeObject } from '../../../../lib/security'

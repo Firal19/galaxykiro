@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '../supabase'
 import { trackingService } from '../tracking'
 import { behavioralAnalysis, RealTimeEngagementUpdate, SessionAnalytics } from '../behavioral-analysis'
 

@@ -1,4 +1,4 @@
-import { supabase, Database } from '../../../lib/supabase'
+import { supabase, Database } from '../supabase'
 
 export type InteractionRow = Database['public']['Tables']['interactions']['Row']
 export type InteractionInsert = Database['public']['Tables']['interactions']['Insert']

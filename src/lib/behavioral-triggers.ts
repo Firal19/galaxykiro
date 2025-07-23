@@ -23,13 +23,13 @@ export interface BehaviorTrigger {
 export interface TriggerCondition {
   type: 'time' | 'scroll' | 'engagement' | 'behavior' | 'content' | 'device' | 'custom'
   operator: 'gt' | 'lt' | 'eq' | 'gte' | 'lte' | 'includes' | 'excludes'
-  value: any
+  value: string | number | boolean | string[]
   field?: string
 }
 
 export interface TriggerAction {
   type: 'modal' | 'notification' | 'cta-change' | 'content-recommend' | 'email-trigger' | 'redirect'
-  config: any
+  config: ActionConfig
   delay?: number // seconds
 }
 
@@ -42,8 +42,59 @@ export interface ABTestConfig {
 export interface ABTestVariant {
   id: string
   name: string
-  config: any
+  config: Record<string, unknown>
   weight: number
+}
+
+// Action configuration types
+export type ActionConfig = 
+  | ModalConfig
+  | NotificationConfig
+  | CTAChangeConfig
+  | ContentRecommendConfig
+  | EmailTriggerConfig
+  | RedirectConfig
+
+export interface ModalConfig {
+  modalId: string
+  title: string
+  message: string
+  ctaText?: string
+  ctaAction?: string
+}
+
+export interface NotificationConfig {
+  message: string
+  type: 'info' | 'success' | 'warning' | 'error'
+  duration?: number
+  cta?: string
+  ctaAction?: string
+}
+
+export interface CTAChangeConfig {
+  newCTA: {
+    text: string
+    action: string
+    variant?: string
+  }
+}
+
+export interface ContentRecommendConfig {
+  title: string
+  recommendations: 'related-content' | 'personalized' | 'trending'
+  maxItems: number
+  category?: string
+}
+
+export interface EmailTriggerConfig {
+  templateId: string
+  recipientId: string
+  data?: Record<string, unknown>
+}
+
+export interface RedirectConfig {
+  url: string
+  newTab?: boolean
 }
 
 // Escalation commitment levels
@@ -369,7 +420,7 @@ class BehavioralTriggerSystem {
   }
 
   // Check if a specific trigger should fire
-  private async checkTrigger(triggerId: string, customData?: any): Promise<void> {
+  private async checkTrigger(triggerId: string, customData?: Record<string, unknown>): Promise<void> {
     const trigger = this.triggers.get(triggerId)
     if (!trigger || !trigger.isActive) return
 
@@ -407,11 +458,11 @@ class BehavioralTriggerSystem {
     context: {
       behavior: UserBehavior
       engagement: EngagementLevel
-      customData?: any
+      customData?: Record<string, unknown>
     }
   ): boolean {
     return conditions.every(condition => {
-      let value: any
+      let value: string | number | boolean | string[]
 
       switch (condition.type) {
         case 'time':
@@ -450,7 +501,7 @@ class BehavioralTriggerSystem {
   }
 
   // Evaluate condition operator
-  private evaluateOperator(actual: any, operator: string, expected: any): boolean {
+  private evaluateOperator(actual: string | number | boolean | string[], operator: string, expected: string | number | boolean | string[]): boolean {
     switch (operator) {
       case 'gt': return actual > expected
       case 'lt': return actual < expected
@@ -500,7 +551,9 @@ class BehavioralTriggerSystem {
         }
       }
     } catch (error) {
-      console.error('Error executing trigger:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error executing trigger:', error)
+      }
     }
   }
 
@@ -536,14 +589,18 @@ class BehavioralTriggerSystem {
         break
 
       default:
-        console.warn(`Unknown action type: ${action.type}`)
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`Unknown action type: ${action.type}`)
+        }
     }
   }
 
   // Show notification
-  private showNotification(config: any): void {
+  private showNotification(config: NotificationConfig): void {
     // This would integrate with your notification system
-    console.log('Notification:', config)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Notification:', config)
+    }
     
     // Example implementation with a simple toast
     if (typeof window !== 'undefined') {
@@ -598,14 +655,18 @@ class BehavioralTriggerSystem {
         setActiveModal('testimonials')
         break
       default:
-        console.warn(`Unknown notification action: ${action}`)
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`Unknown notification action: ${action}`)
+        }
     }
   }
 
   // Change CTA
-  private changeCTA(config: any): void {
+  private changeCTA(config: CTAChangeConfig): void {
     // This would update the CTA in the UI
-    console.log('CTA Change:', config)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('CTA Change:', config)
+    }
     
     // Dispatch custom event for CTA change
     if (typeof window !== 'undefined') {
@@ -614,7 +675,7 @@ class BehavioralTriggerSystem {
   }
 
   // Show content recommendations
-  private async showContentRecommendations(config: any): Promise<void> {
+  private async showContentRecommendations(config: ContentRecommendConfig): Promise<void> {
     const behavior = engagementEngine.getCurrentBehavior()
     const engagementScore = engagementEngine.calculateEngagementScore(behavior)
     const engagement = engagementEngine.determineEngagementLevel(engagementScore, behavior)
@@ -649,7 +710,9 @@ class BehavioralTriggerSystem {
     )
 
     // Show recommendations in UI
-    console.log('Content Recommendations:', recommendations)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Content Recommendations:', recommendations)
+    }
     
     // Dispatch event for content recommendations
     if (typeof window !== 'undefined') {
@@ -660,9 +723,11 @@ class BehavioralTriggerSystem {
   }
 
   // Trigger email
-  private async triggerEmail(config: any): Promise<void> {
+  private async triggerEmail(config: EmailTriggerConfig): Promise<void> {
     // This would integrate with your email system
-    console.log('Email Trigger:', config)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Email Trigger:', config)
+    }
   }
 
   // Check scroll-based triggers
@@ -693,7 +758,7 @@ class BehavioralTriggerSystem {
   }
 
   // Public methods for manual trigger checking
-  async checkActionBasedTrigger(action: string, data?: any): Promise<void> {
+  async checkActionBasedTrigger(action: string, data?: Record<string, unknown>): Promise<void> {
     this.triggers.forEach(trigger => {
       if (trigger.triggerType === 'action-based') {
         this.checkTrigger(trigger.id, { [action]: true, ...data })

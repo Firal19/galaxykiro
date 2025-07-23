@@ -7,12 +7,8 @@ import {
   DoorOpen, 
   Target, 
   Users, 
-  Award,
   Star,
-  ArrowRight,
   CheckCircle,
-  Zap,
-  Lightbulb,
   BarChart3,
   Heart,
   BookOpen,
@@ -20,7 +16,6 @@ import {
   Clock,
   Scale
 } from "lucide-react";
-import Link from "next/link";
 
 export default function DecisionDoorPage() {
   const decisionTypes = [

@@ -54,7 +54,7 @@ class EmailService {
           to: emailData.to,
           subject: emailData.subject,
           provider: this.config.provider
-        })
+        });
       }
 
       // Send based on provider
@@ -70,7 +70,9 @@ class EmailService {
           return await this.sendToConsole(emailData)
       }
     } catch (error) {
-      console.error('Email service error:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Email service error:', error);
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -113,7 +115,9 @@ class EmailService {
         messageId: response[0]?.headers['x-message-id']
       }
     } catch (error) {
-      console.error('SendGrid error:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('SendGrid error:', error);
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'SendGrid error'
@@ -168,7 +172,9 @@ class EmailService {
         messageId: result.id
       }
     } catch (error) {
-      console.error('Mailgun error:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Mailgun error:', error);
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Mailgun error'
@@ -230,7 +236,9 @@ class EmailService {
         messageId
       }
     } catch (error) {
-      console.error('AWS SES error:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('AWS SES error:', error);
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'AWS SES error'
@@ -242,12 +250,14 @@ class EmailService {
    * Console logging for development
    */
   private async sendToConsole(emailData: EmailData): Promise<EmailResult> {
-    console.log('📧 CONSOLE EMAIL (Development Mode):')
-    console.log('To:', emailData.to)
-    console.log('Subject:', emailData.subject)
-    console.log('HTML Content:', emailData.htmlContent)
-    console.log('Text Content:', emailData.textContent)
-    console.log('---')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📧 CONSOLE EMAIL (Development Mode):');
+      console.log('To:', emailData.to);
+      console.log('Subject:', emailData.subject);
+      console.log('HTML Content:', emailData.htmlContent);
+      console.log('Text Content:', emailData.textContent);
+      console.log('---');
+    }
 
     // Log to database
     await this.logEmailToDatabase(emailData, 'console', `console-${Date.now()}`)
@@ -278,11 +288,13 @@ class EmailService {
           status: 'sent'
         })
 
-      if (error) {
-        console.error('Error logging email to database:', error)
+      if (error && process.env.NODE_ENV !== 'production') {
+        console.error('Error logging email to database:', error);
       }
     } catch (error) {
-      console.error('Error logging email to database:', error)
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error logging email to database:', error);
+      }
     }
   }
 
@@ -324,14 +336,18 @@ class EmailService {
         .single()
 
       if (error || !data) {
-        console.error('Error fetching email template:', error)
-        return null
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Error fetching email template:', error);
+        }
+        return null;
       }
 
       return data
     } catch (error) {
-      console.error('Error fetching email template:', error)
-      return null
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching email template:', error);
+      }
+      return null;
     }
   }
 
@@ -380,8 +396,10 @@ class EmailService {
         .select('provider, status')
 
       if (error) {
-        console.error('Error fetching email stats:', error)
-        return { totalSent: 0, successRate: 0, providerStats: {} }
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Error fetching email stats:', error);
+        }
+        return { totalSent: 0, successRate: 0, providerStats: {} };
       }
 
       const totalSent = data.length
@@ -395,8 +413,10 @@ class EmailService {
 
       return { totalSent, successRate, providerStats }
     } catch (error) {
-      console.error('Error getting email stats:', error)
-      return { totalSent: 0, successRate: 0, providerStats: {} }
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error getting email stats:', error);
+      }
+      return { totalSent: 0, successRate: 0, providerStats: {} };
     }
   }
 }
