@@ -243,7 +243,7 @@ class LeadScoringEngine {
       let totalTimeOnSiteMinutes = 0
       if (timeData) {
         totalTimeOnSiteMinutes = timeData.reduce((total, interaction) => {
-          const sessionTime = (interaction.metadata as any)?.sessionDuration || 0
+          const sessionTime = (interaction.metadata as { sessionDuration?: number })?.sessionDuration || 0
           return total + (sessionTime / 60) // convert seconds to minutes
         }, 0)
       }
@@ -258,7 +258,7 @@ class LeadScoringEngine {
       let averageScrollDepth = 0
       if (scrollData && scrollData.length > 0) {
         const totalScrollDepth = scrollData.reduce((total, interaction) => {
-          const scrollDepth = (interaction.metadata as any)?.scrollDepth || 0
+          const scrollDepth = (interaction.metadata as { scrollDepth?: number })?.scrollDepth || 0
           return total + scrollDepth
         }, 0)
         averageScrollDepth = totalScrollDepth / scrollData.length

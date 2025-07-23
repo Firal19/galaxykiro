@@ -39,7 +39,7 @@ export const rateLimiter = new RateLimiter();
 /**
  * Apply security headers to response
  */
-export function applySecurityHeaders(response: any): void {
+export function applySecurityHeaders(response: Response): void {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
@@ -48,7 +48,7 @@ export function applySecurityHeaders(response: any): void {
 /**
  * Apply CORS headers to response
  */
-export function applyCorsHeaders(response: any): void {
+export function applyCorsHeaders(response: Response): void {
   response.headers.set('Access-Control-Allow-Origin', '*');
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -57,8 +57,8 @@ export function applyCorsHeaders(response: any): void {
 /**
  * Rate limiting middleware
  */
-export function rateLimit(request: any): any | null {
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+export function rateLimit(request: Request): Response | null {
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
   
   if (!rateLimiter.isAllowed(ip)) {
     return new Response('Too Many Requests', { 

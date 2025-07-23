@@ -119,7 +119,7 @@ class PsychologicalTriggersEngine {
     this.authorityData = {
       credentials: [
         'Certified Professional Coach (ICF)',
-        'Master's in Organizational Psychology',
+        'Masters in Organizational Psychology',
         '15+ Years Leadership Development'
       ],
       certifications: [
