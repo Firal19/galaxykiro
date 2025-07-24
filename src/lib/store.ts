@@ -624,53 +624,67 @@ export const useUI = () => useAppStore((state) => ({
   activeModal: state.activeModal,
 }))
 
-// PQC Assessment selectors
-export const usePQCAssessment = () => useAppStore((state) => state.pqcAssessment)
-export const usePQCStage = () => useAppStore((state) => state.pqcAssessment.stage)
-export const usePQCCurrentQuestion = () => useAppStore((state) => state.pqcAssessment.currentQuestion)
-export const usePQCCurrentDimension = () => useAppStore((state) => state.pqcAssessment.currentDimension)
-export const usePQCAnswers = () => useAppStore((state) => state.pqcAssessment.answers)
-export const usePQCResult = () => useAppStore((state) => state.pqcAssessment.result)
-export const usePQCEngagementMetrics = () => useAppStore((state) => state.pqcAssessment.engagementMetrics)
-export const usePQCAdaptiveRecommendations = () => useAppStore((state) => state.pqcAssessment.adaptiveRecommendations)
-export const usePQCShowAdaptiveMessage = () => useAppStore((state) => state.pqcAssessment.showAdaptiveMessage)
+// Stable selectors for PQC Assessment
+const selectPQCAssessment = (state: AppState) => state.pqcAssessment;
+const selectPQCStage = (state: AppState) => state.pqcAssessment.stage;
+const selectPQCCurrentQuestion = (state: AppState) => state.pqcAssessment.currentQuestion;
+const selectPQCCurrentDimension = (state: AppState) => state.pqcAssessment.currentDimension;
+const selectPQCAnswers = (state: AppState) => state.pqcAssessment.answers;
+const selectPQCResult = (state: AppState) => state.pqcAssessment.result;
+const selectPQCEngagementMetrics = (state: AppState) => state.pqcAssessment.engagementMetrics;
+const selectPQCAdaptiveRecommendations = (state: AppState) => state.pqcAssessment.adaptiveRecommendations;
+const selectPQCShowAdaptiveMessage = (state: AppState) => state.pqcAssessment.showAdaptiveMessage;
 
-// PQC Assessment actions - memoized to prevent infinite loops
-export const usePQCActions = () => {
-  return useAppStore((state) => ({
-    setPQCStage: state.setPQCStage,
-    setPQCCurrentQuestion: state.setPQCCurrentQuestion,
-    setPQCCurrentDimension: state.setPQCCurrentDimension,
-    addPQCAnswer: state.addPQCAnswer,
-    setPQCResult: state.setPQCResult,
-    setPQCStartTime: state.setPQCStartTime,
-    setPQCQuestionStartTime: state.setPQCQuestionStartTime,
-    setPQCLanguage: state.setPQCLanguage,
-    updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
-    setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
-    setPQCLastBreakIndex: state.setPQCLastBreakIndex,
-    setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
-    resetPQCAssessment: state.resetPQCAssessment
-  }));
-}
+// PQC Assessment selectors using stable functions
+export const usePQCAssessment = () => useAppStore(selectPQCAssessment);
+export const usePQCStage = () => useAppStore(selectPQCStage);
+export const usePQCCurrentQuestion = () => useAppStore(selectPQCCurrentQuestion);
+export const usePQCCurrentDimension = () => useAppStore(selectPQCCurrentDimension);
+export const usePQCAnswers = () => useAppStore(selectPQCAnswers);
+export const usePQCResult = () => useAppStore(selectPQCResult);
+export const usePQCEngagementMetrics = () => useAppStore(selectPQCEngagementMetrics);
+export const usePQCAdaptiveRecommendations = () => useAppStore(selectPQCAdaptiveRecommendations);
+export const usePQCShowAdaptiveMessage = () => useAppStore(selectPQCShowAdaptiveMessage);
+
+// Stable selector functions
+const selectPQCActions = (state: AppState) => ({
+  setPQCStage: state.setPQCStage,
+  setPQCCurrentQuestion: state.setPQCCurrentQuestion,
+  setPQCCurrentDimension: state.setPQCCurrentDimension,
+  addPQCAnswer: state.addPQCAnswer,
+  setPQCResult: state.setPQCResult,
+  setPQCStartTime: state.setPQCStartTime,
+  setPQCQuestionStartTime: state.setPQCQuestionStartTime,
+  setPQCLanguage: state.setPQCLanguage,
+  updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
+  setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
+  setPQCLastBreakIndex: state.setPQCLastBreakIndex,
+  setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
+  resetPQCAssessment: state.resetPQCAssessment
+});
+
+// PQC Assessment actions - using stable selector
+export const usePQCActions = () => useAppStore(selectPQCActions);
 
 // Additional selectors for convenience
 export const useUserTier = () => useAppStore((state) => state.user?.currentTier || 'browser')
 export const useEngagementScore = () => useAppStore((state) => state.leadScore?.totalScore || 0)
 export const useReadinessLevel = () => useAppStore((state) => state.leadScore?.readinessLevel || 'low')
 
-// PQC computed selectors
-export const usePQCProgress = () => useAppStore((state) => {
+// Stable computed selectors
+const selectPQCProgress = (state: AppState) => {
   const totalQuestions = 49;
   return ((state.pqcAssessment.currentQuestion + 1) / totalQuestions) * 100;
-})
+};
 
-export const usePQCTotalQuestions = () => 49
-
-export const usePQCAnswerForQuestion = (questionId: string) => 
-  useAppStore((state) => state.pqcAssessment.answers.get(questionId))
-
-export const usePQCSessionDuration = () => useAppStore((state) => {
+const selectPQCSessionDuration = (state: AppState) => {
   if (!state.pqcAssessment.startTime) return 0;
   return Date.now() - state.pqcAssessment.startTime.getTime();
-})
+};
+
+// PQC computed selectors using stable functions
+export const usePQCProgress = () => useAppStore(selectPQCProgress);
+export const usePQCTotalQuestions = () => 49;
+export const usePQCAnswerForQuestion = (questionId: string) => 
+  useAppStore((state) => state.pqcAssessment.answers.get(questionId));
+export const usePQCSessionDuration = () => useAppStore(selectPQCSessionDuration);

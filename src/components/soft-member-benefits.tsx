@@ -355,4 +355,5 @@ function SoftMemberBenefits({
   )
 }
 
+export { SoftMemberBenefits }
 export default SoftMemberBenefits

@@ -118,12 +118,21 @@ class ABTestingService {
       const { data, error } = await query
 
       if (error) {
+        // If table doesn't exist, return empty array instead of throwing
+        if (error.message.includes('relation "public.ab_tests" does not exist')) {
+          console.warn('A/B tests table does not exist. Returning empty array.')
+          return []
+        }
         throw new Error(`Failed to fetch A/B tests: ${error.message}`)
       }
 
-      return data.map(this.mapTestFromDatabase)
+      return data ? data.map(this.mapTestFromDatabase) : []
     } catch (error) {
       console.error('Error fetching A/B tests:', error)
+      // Return empty array instead of throwing to prevent UI crashes
+      if (error instanceof Error && error.message.includes('does not exist')) {
+        return []
+      }
       throw error
     }
   }

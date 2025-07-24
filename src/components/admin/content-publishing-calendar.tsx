@@ -153,14 +153,34 @@ export function ContentPublishingCalendar({
   
   // Get content count for a specific date
   const getContentCountForDate = (date: Date): number => {
+    // Handle invalid dates
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      return 0
+    }
+
     return contents.filter(content => {
+      if (!content.publishedAt) return false
+      
       const publishDate = new Date(content.publishedAt)
+      
+      // Handle invalid publish dates
+      if (isNaN(publishDate.getTime())) return false
+      
       return isSameDay(publishDate, date)
     }).length
   }
   
   // Custom day renderer for the calendar
   const renderDay = (day: Date) => {
+    // Handle invalid dates
+    if (!day || !(day instanceof Date) || isNaN(day.getTime())) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center">
+          <span>-</span>
+        </div>
+      )
+    }
+
     const contentCount = getContentCountForDate(day)
     
     return (

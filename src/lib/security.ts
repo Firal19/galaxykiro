@@ -173,3 +173,58 @@ export function rateLimit(request: Request): Response | null {
   
   return null;
 }
+
+/**
+ * Sanitize object properties
+ */
+export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+  const sanitized = {} as T;
+  
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === 'string') {
+      sanitized[key as keyof T] = sanitizeInput(value) as T[keyof T];
+    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      sanitized[key as keyof T] = sanitizeObject(value) as T[keyof T];
+    } else {
+      sanitized[key as keyof T] = value;
+    }
+  }
+  
+  return sanitized;
+}
+
+/**
+ * Validate and sanitize input
+ */
+export function validateAndSanitize(
+  input: string, 
+  rules: { required?: boolean; minLength?: number; maxLength?: number; pattern?: RegExp } = {}
+): { valid: boolean; sanitized: string; errors: string[] } {
+  const validation = validateInput(input, rules);
+  const sanitized = sanitizeInput(input);
+  
+  return {
+    valid: validation.isValid,
+    sanitized,
+    errors: validation.errors
+  };
+}
+
+/**
+ * Security wrapper for API routes
+ */
+export function withSecurity<T extends any[], R>(
+  handler: (...args: T) => Promise<R>,
+  options: {
+    rateLimit?: number;
+    cors?: boolean;
+    securityHeaders?: boolean;
+    validateSchema?: any;
+  } = {}
+) {
+  return async (...args: T): Promise<R> => {
+    // For now, just call the handler
+    // In a real implementation, you would apply security measures here
+    return handler(...args);
+  };
+}

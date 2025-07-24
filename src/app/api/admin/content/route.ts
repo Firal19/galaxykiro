@@ -79,28 +79,76 @@ export const GET = withSecurity(getContentHandler, {
   securityHeaders: true
 });
 
-// Define content creation schema
+// Define content hierarchy levels
+const ContentHierarchyLevels = z.enum(['package', 'core', 'enhanced', 'chunk', 'concept']);
+
+// Define interaction element schema
+const InteractionElementSchema = z.object({
+  id: z.string(),
+  type: z.enum(['quiz', 'reflection', 'action_item', 'discussion', 'poll', 'survey']),
+  title: z.string(),
+  content: z.string(),
+  options: z.array(z.string()).optional(),
+  correctAnswer: z.string().optional(),
+  points: z.number().optional()
+});
+
+// Enhanced content creation schema with hierarchy support
 const ContentCreateSchema = z.object({
+  // Basic Information
   title: z.string().min(3).max(200),
+  description: z.string().min(10).max(500),
   category: z.string(),
   depthLevel: z.enum(['surface', 'medium', 'deep']),
   contentType: z.string(),
-  hook: z.string().min(10),
-  insight: z.string().min(10),
-  application: z.string().min(10),
-  hungerBuilder: z.string().min(10),
-  nextStep: z.string().min(10),
-  content: z.string().min(100),
-  excerpt: z.string().min(10).max(300),
+  
+  // Hierarchy
+  contentHierarchyLevel: ContentHierarchyLevels,
+  parentId: z.string().optional(),
+  order: z.number().int().min(1).default(1),
+  
+  // Value Escalator Structure
+  valueEscalator: z.object({
+    hook: z.string().min(10),
+    insight: z.string().min(10),
+    application: z.string().min(10),
+    hungerBuilder: z.string().min(10),
+    nextStep: z.string().min(10)
+  }),
+  
+  // Content Body
+  mainContent: z.string().min(100).optional(),
+  excerpt: z.string().min(10).max(300).optional(),
+  
+  // Learning Structure
+  learningObjectives: z.array(z.string()).default([]),
+  prerequisites: z.array(z.string()).default([]),
+  
+  // Access Control
   requiredCaptureLevel: z.number().int().min(1).max(3),
-  estimatedReadTime: z.number().int().min(1),
-  tags: z.array(z.string()),
-  publishedAt: z.string().datetime(),
-  author: z.string(),
-  slug: z.string().optional(),
+  targetAudience: z.enum(['visitors', 'cold_leads', 'candidates', 'hot_leads']),
+  
+  // Metadata
+  estimatedTime: z.number().int().min(1),
+  tags: z.array(z.string()).default([]),
+  author: z.string().default('Admin'),
+  
+  // Publishing
+  status: z.enum(['draft', 'review', 'published']).default('draft'),
+  publishDate: z.string().datetime().optional(),
+  
+  // Media
   featuredImage: z.string().optional(),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
+  videoUrl: z.string().optional(),
+  audioUrl: z.string().optional(),
+  downloadUrl: z.string().optional(),
+  
+  // Interactive Elements
+  interactionElements: z.array(InteractionElementSchema).default([]),
+  
+  // SEO
+  slug: z.string().optional(),
+  metaDescription: z.string().optional()
 });
 
 // POST /api/admin/content - Create new content
@@ -121,13 +169,16 @@ async function postContentHandler(request: NextRequest) {
     // Sanitize HTML content to prevent XSS
     const sanitizedData = {
       ...validatedData,
-      content: sanitizeHtml(validatedData.content),
-      hook: sanitizeHtml(validatedData.hook),
-      insight: sanitizeHtml(validatedData.insight),
-      application: sanitizeHtml(validatedData.application),
-      hungerBuilder: sanitizeHtml(validatedData.hungerBuilder),
-      nextStep: sanitizeHtml(validatedData.nextStep),
-      excerpt: sanitizeHtml(validatedData.excerpt),
+      mainContent: validatedData.mainContent ? sanitizeHtml(validatedData.mainContent) : '',
+      valueEscalator: {
+        hook: sanitizeHtml(validatedData.valueEscalator.hook),
+        insight: sanitizeHtml(validatedData.valueEscalator.insight),
+        application: sanitizeHtml(validatedData.valueEscalator.application),
+        hungerBuilder: sanitizeHtml(validatedData.valueEscalator.hungerBuilder),
+        nextStep: sanitizeHtml(validatedData.valueEscalator.nextStep)
+      },
+      excerpt: validatedData.excerpt ? sanitizeHtml(validatedData.excerpt) : '',
+      description: sanitizeHtml(validatedData.description)
     };
     
     // Generate slug if not provided

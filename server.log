@@ -414,3 +414,684 @@ Track interaction received: {
 }
  POST /api/track-interaction 200 in 18ms
  GET /tools/potential-quotient-calculator 200 in 78ms
+ GET /tools/potential-quotient-calculator 200 in 100ms
+ ✓ Compiled in 1151ms (2807 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 271ms
+ GET /tools/potential-quotient-calculator 200 in 273ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 437ms (2807 modules)
+ ✓ Compiled in 1ms (1504 modules)
+ ✓ Compiled in 0ms (1504 modules)
+ ✓ Compiled in 1ms (1504 modules)
+ GET /tools/potential-quotient-calculator 200 in 610ms
+ GET / 200 in 654ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 529ms (2807 modules)
+ ✓ Compiled in 0ms (1504 modules)
+ ✓ Compiled in 1ms (1504 modules)
+ ✓ Compiled in 1ms (1504 modules)
+ GET /tools/potential-quotient-calculator 200 in 605ms
+ GET / 200 in 636ms
+ GET /tools/potential-quotient-calculator 200 in 185ms
+ GET / 200 in 282ms
+ ○ Compiling /api/track-interaction ...
+ ✓ Compiled /api/track-interaction in 519ms (1523 modules)
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:30.209Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'success-gap-hooks',
+      variationId: 'original',
+      sectionId: 'success-gap',
+      timestamp: 1753325129613,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:30.210Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'success-gap-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753325129613,
+      sessionId: 'session_1753325126543_hevmhmcsg'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 596ms
+ POST /api/track-interaction 200 in 596ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:32.632Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'success-gap-hook',
+      metadata: [Object],
+      timestamp: 1753325132616,
+      sessionId: 'session_1753325126543_hevmhmcsg'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 15ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:32.706Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'change-paradox-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753325132681,
+      sessionId: 'session_1753325126547_k3rlitxpg'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 24ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:32.715Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'change-paradox-hooks',
+      variationId: 'scientific',
+      sectionId: 'change-paradox',
+      timestamp: 1753325132682,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 32ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:35.698Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'change-paradox-hook',
+      metadata: [Object],
+      timestamp: 1753325135684,
+      sessionId: 'session_1753325126547_k3rlitxpg'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 14ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:48.680Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'vision-void-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753325148664,
+      sessionId: 'session_1753325126559_lnls69228'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 14ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:48.693Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'vision-void-hooks',
+      variationId: 'original',
+      sectionId: 'vision-void',
+      timestamp: 1753325148664,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 27ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:50.631Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'leadership-lever-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753325150614,
+      sessionId: 'session_1753325126563_hhkzjknas'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 16ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:50.641Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'leadership-lever-hooks',
+      variationId: 'potential',
+      sectionId: 'leadership-lever',
+      timestamp: 1753325150614,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 24ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:51.682Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'vision-void-hook',
+      metadata: [Object],
+      timestamp: 1753325151669,
+      sessionId: 'session_1753325126559_lnls69228'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 12ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:45:53.640Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'leadership-lever-hook',
+      metadata: [Object],
+      timestamp: 1753325153618,
+      sessionId: 'session_1753325126563_hhkzjknas'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 20ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:47:04.673Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_expand',
+      section: 'leadership-lever-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753325224657,
+      sessionId: 'session_1753325126563_hhkzjknas'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 15ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:47:06.887Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'cta_click',
+      section: 'leadership-lever-hook',
+      metadata: [Object],
+      timestamp: 1753325226840,
+      sessionId: 'session_1753325126563_hhkzjknas'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 45ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 788ms (2817 modules)
+ GET /tools/self-leadership 404 in 1246ms
+ GET /tools/potential-quotient-calculator 200 in 730ms
+ GET /tools/potential-quotient-calculator 200 in 67ms
+ ⨯ ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/interactive-tools-section'
+   5 | import { LeadershipLeverSection } from '@/components/leadership-lever-section'
+   6 | import { DecisionDoorSection } from '@/components/decision-door-section'
+>  7 | import { InteractiveToolsSection } from '@/components/interactive-tools-section'
+     | ^
+   8 | import { SocialProofSection } from '@/components/social-proof-section'
+   9 | import { UrlTracker } from '@/components/url-tracker'
+  10 |
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/interactive-tools-section'
+   5 | import { LeadershipLeverSection } from '@/components/leadership-lever-section'
+   6 | import { DecisionDoorSection } from '@/components/decision-door-section'
+>  7 | import { InteractiveToolsSection } from '@/components/interactive-tools-section'
+     | ^
+   8 | import { SocialProofSection } from '@/components/social-proof-section'
+   9 | import { UrlTracker } from '@/components/url-tracker'
+  10 |
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/page.tsx:8:1
+Module not found: Can't resolve '@/components/social-proof-section'
+   6 | import { DecisionDoorSection } from '@/components/decision-door-section'
+   7 | import { InteractiveToolsSection } from '@/components/interactive-tools-section'
+>  8 | import { SocialProofSection } from '@/components/social-proof-section'
+     | ^
+   9 | import { UrlTracker } from '@/components/url-tracker'
+  10 |
+  11 | export default function RootPage() {
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/components/social-proof-section.tsx:5:1
+Module not found: Can't resolve '@/components/ui/avatar'
+  3 | import { motion } from 'framer-motion'
+  4 | import { Card } from '@/components/ui/card'
+> 5 | import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+    | ^
+  6 | import { Star, Quote, TrendingUp, Users, Award, CheckCircle } from 'lucide-react'
+  7 |
+  8 | const testimonials = [
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ○ Compiling /_not-found ...
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ GET /Users/firaol/Downloads/Test%20Complete%20Galaxy%20Website%20by%20kiro/galaxy-dream-team/node_modules/playwright/lib/index.js 500 in 3114ms
+ GET /Users/firaol/Downloads/Test%20Complete%20Galaxy%20Website%20by%20kiro/galaxy-dream-team/src/test/e2e/portal-navigation.spec.ts 500 in 20ms
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ GET /Users/firaol/Downloads/Test%20Complete%20Galaxy%20Website%20by%20kiro/galaxy-dream-team/node_modules/playwright/lib/index.js 500 in 1226ms
+ GET /Users/firaol/Downloads/Test%20Complete%20Galaxy%20Website%20by%20kiro/galaxy-dream-team/src/test/e2e/portal-navigation.spec.ts 500 in 11ms
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ ⨯ ./src/components/ui/avatar.tsx:4:1
+Module not found: Can't resolve '@radix-ui/react-avatar'
+  2 |
+  3 | import * as React from "react"
+> 4 | import * as AvatarPrimitive from "@radix-ui/react-avatar"
+    | ^
+  5 | import { cn } from "@/lib/utils"
+  6 |
+  7 | const Avatar = React.forwardRef<
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/components/social-proof-section.tsx
+ GET / 500 in 909ms
+ GET / 500 in 24ms
+ ✓ Compiled /_error in 1978ms (3164 modules)
+ ○ Compiling /_not-found ...
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 711ms
+ ✓ Compiled /_not-found in 1022ms (3155 modules)
+ GET /_next/static/chunks/main-app.js?v=1753365721308 404 in 483ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 472ms
+[?25h

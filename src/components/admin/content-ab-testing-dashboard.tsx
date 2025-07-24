@@ -58,31 +58,45 @@ export function ContentABTestingDashboard({ contents }: ContentABTestingDashboar
       setLoading(true)
       
       try {
-        // Use real A/B testing service
+        // Use real A/B testing service with additional error handling
         const { abTestingService } = await import('../../lib/ab-testing-service')
         
+        if (!abTestingService) {
+          throw new Error('A/B testing service not available')
+        }
+        
         const [activeTests, completedTests] = await Promise.all([
-          abTestingService.getTests('active'),
-          abTestingService.getTests('completed')
+          abTestingService.getTests('active').catch(() => []),
+          abTestingService.getTests('completed').catch(() => [])
         ])
         
-        // Get full test data with variants for each test
+        // Get full test data with variants for each test (with additional error handling)
         const activeTestsWithVariants = await Promise.all(
           activeTests.map(async test => {
-            const testData = await abTestingService.getTest(test.id)
-            return testData?.test || test
+            try {
+              const testData = await abTestingService.getTest(test.id)
+              return testData?.test || test
+            } catch (error) {
+              console.warn(`Failed to get test data for ${test.id}:`, error)
+              return test
+            }
           })
         )
         
         const completedTestsWithVariants = await Promise.all(
           completedTests.map(async test => {
-            const testData = await abTestingService.getTest(test.id)
-            return testData?.test || test
+            try {
+              const testData = await abTestingService.getTest(test.id)
+              return testData?.test || test
+            } catch (error) {
+              console.warn(`Failed to get test data for ${test.id}:`, error)
+              return test
+            }
           })
         )
         
-        setActiveTests(activeTestsWithVariants)
-        setCompletedTests(completedTestsWithVariants)
+        setActiveTests(activeTestsWithVariants || [])
+        setCompletedTests(completedTestsWithVariants || [])
       } catch (error) {
         console.error('Error fetching A/B tests:', error)
         // Fallback to empty arrays if service fails

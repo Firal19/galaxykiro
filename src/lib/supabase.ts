@@ -15,6 +15,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 // Singleton pattern to prevent multiple GoTrueClient instances
 let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
+// Export a function to create new client instances for API routes
+export const createSupabaseClient = () => {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+};
+
 export const supabase = (() => {
   if (!supabaseClient) {
     supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {

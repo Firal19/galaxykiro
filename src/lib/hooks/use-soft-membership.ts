@@ -82,9 +82,11 @@ export function useSoftMembership() {
   const [registrationStep, setRegistrationStep] = useState<'email' | 'profile' | 'complete'>('email')
   const { trackEngagement } = useEngagementTracking()
 
-  // Load membership data on mount
+  // Load membership data on mount (client-side only)
   useEffect(() => {
-    loadMembershipData()
+    if (typeof window !== 'undefined') {
+      loadMembershipData()
+    }
   }, [])
 
   // Update benefits based on engagement score
@@ -98,14 +100,16 @@ export function useSoftMembership() {
     try {
       setIsLoading(true)
       
-      // Check localStorage first
-      const localData = localStorage.getItem('soft_membership_data')
-      if (localData) {
-        const parsedData = JSON.parse(localData)
-        setMembershipData(parsedData)
-        
-        // Sync with backend if user exists
-        await syncMembershipData(parsedData.email)
+      // Check localStorage first (client-side only)
+      if (typeof window !== 'undefined') {
+        const localData = localStorage.getItem('soft_membership_data')
+        if (localData) {
+          const parsedData = JSON.parse(localData)
+          setMembershipData(parsedData)
+          
+          // Sync with backend if user exists
+          await syncMembershipData(parsedData.email)
+        }
       }
     } catch (error) {
       console.error('Error loading membership data:', error)
@@ -128,7 +132,9 @@ export function useSoftMembership() {
         const serverData = await response.json()
         if (serverData.membership) {
           setMembershipData(serverData.membership)
-          localStorage.setItem('soft_membership_data', JSON.stringify(serverData.membership))
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('soft_membership_data', JSON.stringify(serverData.membership))
+          }
         }
       }
     } catch (error) {
@@ -178,7 +184,9 @@ export function useSoftMembership() {
       if (response.ok) {
         const result = await response.json()
         setMembershipData(result.membership)
-        localStorage.setItem('soft_membership_data', JSON.stringify(result.membership))
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('soft_membership_data', JSON.stringify(result.membership))
+        }
         setRegistrationStep('complete')
         
         // Track successful registration
@@ -229,7 +237,9 @@ export function useSoftMembership() {
     }
 
     setMembershipData(updatedData)
-    localStorage.setItem('soft_membership_data', JSON.stringify(updatedData))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soft_membership_data', JSON.stringify(updatedData))
+    }
 
     // Sync with backend
     try {
