@@ -570,15 +570,70 @@ class I18nManager {
   }
 }
 
-// Export singleton instance (only on client)
-export const i18n = typeof window !== 'undefined' ? new I18nManager() : null as any
+// SSR-compatible fallback function
+const getTranslationFallback = (key: string, params?: Record<string, string>): string => {
+  // Always return English translation for SSR consistency
+  const translation = translations[key]?.en || key
+  if (params) {
+    return Object.entries(params).reduce((str, [key, value]) => 
+      str.replace(new RegExp(`{${key}}`, 'g'), value), translation)
+  }
+  return translation
+}
 
-// Export utility functions
-export const t = (key: string, params?: Record<string, string>) => i18n?.t(key, params) || key
-export const tAssessment = (assessmentId: string, key: string) => i18n?.tAssessment(assessmentId, key) || key
-export const formatDate = (date: Date, options?: Intl.DateTimeFormatOptions) => i18n?.formatDate(date, options) || date.toLocaleDateString()
-export const formatNumber = (number: number, options?: Intl.NumberFormatOptions) => i18n?.formatNumber(number, options) || number.toString()
-export const formatCurrency = (amount: number, currency?: string) => i18n?.formatCurrency(amount, currency) || `$${amount}`
+// Create instance with SSR fallback
+let i18nInstance: I18nManager | null = null
+const getI18nInstance = (): I18nManager | null => {
+  if (typeof window === 'undefined') return null
+  if (!i18nInstance) {
+    i18nInstance = new I18nManager()
+  }
+  return i18nInstance
+}
+
+// Export singleton instance (with SSR safety)
+export const i18n = typeof window !== 'undefined' ? new I18nManager() : null
+
+// Export utility functions with SSR compatibility
+export const t = (key: string, params?: Record<string, string>): string => {
+  const instance = getI18nInstance()
+  if (instance) {
+    return instance.t(key, params)
+  }
+  // SSR fallback - always return English translation
+  return getTranslationFallback(key, params)
+}
+
+export const tAssessment = (assessmentId: string, key: string): string => {
+  const instance = getI18nInstance()
+  if (instance) {
+    return instance.tAssessment(assessmentId, key)
+  }
+  return key
+}
+
+export const formatDate = (date: Date, options?: Intl.DateTimeFormatOptions): string => {
+  const instance = getI18nInstance()
+  if (instance) {
+    return instance.formatDate(date, options)
+  }
+  return date.toLocaleDateString('en-US', options)
+}
+export const formatNumber = (number: number, options?: Intl.NumberFormatOptions): string => {
+  const instance = getI18nInstance()
+  if (instance) {
+    return instance.formatNumber(number, options)
+  }
+  return number.toLocaleString('en-US', options)
+}
+
+export const formatCurrency = (amount: number, currency?: string): string => {
+  const instance = getI18nInstance()
+  if (instance) {
+    return instance.formatCurrency(amount, currency)
+  }
+  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 // Default export
 export default i18n
