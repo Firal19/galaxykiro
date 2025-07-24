@@ -5,7 +5,6 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { MainNav } from '@/components/navigation/main-nav'
 import { Footer } from '@/components/footer'
 import { leadScoringService } from '@/lib/lead-scoring-service'
-import { useStore } from '@/lib/store'
 
 interface PublicLayoutProps {
   children: React.ReactNode
@@ -14,7 +13,6 @@ interface PublicLayoutProps {
 export function PublicLayout({ children }: PublicLayoutProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { setReferralData } = useStore()
 
   useEffect(() => {
     // Parse URL parameters for lead attribution
@@ -30,9 +28,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         landingPage: pathname,
         timestamp: new Date().toISOString()
       }
-
-      // Store in session and state
-      setReferralData(referralData)
       
       // Store in localStorage for persistence
       if (typeof window !== 'undefined') {
@@ -47,7 +42,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         landingPage: pathname
       })
     }
-  }, [pathname, searchParams, setReferralData])
+  }, [pathname, searchParams])
 
   return (
     <div className="min-h-screen bg-background">
