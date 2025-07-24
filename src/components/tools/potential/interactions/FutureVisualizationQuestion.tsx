@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { CheckCircle, Eye, Crystal, Sparkles, Calendar } from 'lucide-react';
+import { CheckCircle, Eye, Gem, Sparkles, Calendar } from 'lucide-react';
 
 interface FutureVisualizationQuestionProps {
   question: {
@@ -205,7 +205,7 @@ export function FutureVisualizationQuestion({
       {/* Question Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Crystal className="w-6 h-6 text-indigo-600" />
+          <Gem className="w-6 h-6 text-indigo-600" />
           <h2 className="text-2xl font-bold">{question.content[currentLanguage]}</h2>
           <Eye className="w-6 h-6 text-indigo-600" />
         </div>

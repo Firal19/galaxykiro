@@ -381,7 +381,7 @@ export function ValueAuctionQuestion({
                     of available values, showing a{' '}
                     {Object.values(bids).filter(bid => bid > 0).length <= 3 ? 'focused' : 'balanced'}{' '}
                     approach to what matters most.
-                  </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

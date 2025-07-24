@@ -1,11 +1,11 @@
 "use client"
 
-import { PotentialQuotientCalculator } from '@/components/tools/potential/potential-quotient-calculator'
+import { RevolutionaryPQC } from '@/components/tools/potential/revolutionary-pqc'
 
 export default function PotentialQuotientCalculatorPage() {
   return (
-    <div className="container py-10">
-      <PotentialQuotientCalculator />
+    <div className="min-h-screen">
+      <RevolutionaryPQC />
     </div>
   )
 }

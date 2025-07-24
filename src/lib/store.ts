@@ -588,22 +588,24 @@ export const usePQCEngagementMetrics = () => useAppStore((state) => state.pqcAss
 export const usePQCAdaptiveRecommendations = () => useAppStore((state) => state.pqcAssessment.adaptiveRecommendations)
 export const usePQCShowAdaptiveMessage = () => useAppStore((state) => state.pqcAssessment.showAdaptiveMessage)
 
-// PQC Assessment actions
-export const usePQCActions = () => useAppStore((state) => ({
-  setPQCStage: state.setPQCStage,
-  setPQCCurrentQuestion: state.setPQCCurrentQuestion,
-  setPQCCurrentDimension: state.setPQCCurrentDimension,
-  addPQCAnswer: state.addPQCAnswer,
-  setPQCResult: state.setPQCResult,
-  setPQCStartTime: state.setPQCStartTime,
-  setPQCQuestionStartTime: state.setPQCQuestionStartTime,
-  setPQCLanguage: state.setPQCLanguage,
-  updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
-  setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
-  setPQCLastBreakIndex: state.setPQCLastBreakIndex,
-  setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
-  resetPQCAssessment: state.resetPQCAssessment
-}))
+// PQC Assessment actions - memoized to prevent infinite loops
+export const usePQCActions = () => {
+  return useAppStore((state) => ({
+    setPQCStage: state.setPQCStage,
+    setPQCCurrentQuestion: state.setPQCCurrentQuestion,
+    setPQCCurrentDimension: state.setPQCCurrentDimension,
+    addPQCAnswer: state.addPQCAnswer,
+    setPQCResult: state.setPQCResult,
+    setPQCStartTime: state.setPQCStartTime,
+    setPQCQuestionStartTime: state.setPQCQuestionStartTime,
+    setPQCLanguage: state.setPQCLanguage,
+    updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
+    setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
+    setPQCLastBreakIndex: state.setPQCLastBreakIndex,
+    setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
+    resetPQCAssessment: state.resetPQCAssessment
+  }));
+}
 
 // Additional selectors for convenience
 export const useUserTier = () => useAppStore((state) => state.user?.currentTier || 'browser')

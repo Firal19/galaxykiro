@@ -1,0 +1,115 @@
+
+> progressive-engagement-website@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.4.1
+   - Local:        http://localhost:3000
+   - Network:      http://172.16.225.148:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+ ✓ Starting...
+ ✓ Ready in 1235ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.4s (1735 modules)
+ GET / 200 in 2963ms
+ ○ Compiling /tools/potential-quotient-calculator ...
+ ✓ Compiled /tools/potential-quotient-calculator in 1612ms (1937 modules)
+ GET /tools/potential-quotient-calculator 200 in 1857ms
+ GET / 200 in 337ms
+ GET /tools/potential-quotient-calculator 200 in 72ms
+ ○ Compiling /office-visit ...
+ ✓ Compiled /office-visit in 1346ms (2776 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /office-visit 200 in 1596ms
+ GET /tools/potential-quotient-calculator 200 in 160ms
+ ✓ Compiled in 510ms (2790 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /tools/potential-quotient-calculator 200 in 285ms
+ GET /office-visit 200 in 285ms
+ ✓ Compiled in 314ms (1293 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /office-visit 200 in 80ms
+ GET /tools/potential-quotient-calculator 200 in 86ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 581ms (2790 modules)
+ ✓ Compiled in 1ms (1497 modules)
+ ✓ Compiled in 0ms (1497 modules)
+ ✓ Compiled in 0ms (1497 modules)
+ GET /tools/potential-quotient-calculator 200 in 715ms
+ GET /office-visit 200 in 705ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 657ms (2792 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 1ms (1498 modules)
+ ⨯ TypeError: Cannot read properties of null (reading 'lastBreakIndex')
+    at RevolutionaryPQC (src/components/tools/potential/revolutionary-pqc.tsx:192:63)
+  190 |       pqcAssessment.lastBreakIndex
+  191 |     );
+> 192 |   }, [currentQuestion, stage, engagementTracker, pqcAssessment.lastBreakIndex]);
+      |                                                               ^
+  193 |
+  194 |   const shouldShowSectionIntro = useCallback(() => {
+  195 |     return currentQuestion % 7 === 0 && stage === 'assessment'; {
+  digest: '2245109216'
+}
+ GET /tools/potential-quotient-calculator 500 in 627ms
+ GET /office-visit 200 in 540ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 592ms (2792 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ⨯ TypeError: Cannot read properties of null (reading 'lastBreakIndex')
+    at RevolutionaryPQC (src/components/tools/potential/revolutionary-pqc.tsx:208:63)
+  206 |       pqcAssessment.lastBreakIndex
+  207 |     );
+> 208 |   }, [currentQuestion, stage, engagementTracker, pqcAssessment.lastBreakIndex]);
+      |                                                               ^
+  209 |
+  210 |   const shouldShowSectionIntro = useCallback(() => {
+  211 |     return currentQuestion % 7 === 0 && stage === 'assessment'; {
+  digest: '2245109216'
+}
+ ⨯ TypeError: Cannot read properties of null (reading 'lastBreakIndex')
+    at RevolutionaryPQC (src/components/tools/potential/revolutionary-pqc.tsx:208:63)
+  206 |       pqcAssessment.lastBreakIndex
+  207 |     );
+> 208 |   }, [currentQuestion, stage, engagementTracker, pqcAssessment.lastBreakIndex]);
+      |                                                               ^
+  209 |
+  210 |   const shouldShowSectionIntro = useCallback(() => {
+  211 |     return currentQuestion % 7 === 0 && stage === 'assessment'; {
+  digest: '2245109216'
+}
+ GET /tools/potential-quotient-calculator 500 in 422ms
+ GET /office-visit 200 in 545ms
+ ✓ Compiled in 556ms (2792 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /office-visit 200 in 254ms
+ GET /tools/potential-quotient-calculator 200 in 253ms
+ ✓ Compiled in 448ms (2792 modules)
+ GET /office-visit 200 in 168ms
+ GET /tools/potential-quotient-calculator 200 in 171ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 617ms (2792 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 1ms (1498 modules)
+ GET /tools/potential-quotient-calculator 200 in 610ms
+ GET /office-visit 200 in 573ms
+ GET /tools/potential-quotient-calculator 200 in 87ms
+ GET /office-visit 200 in 137ms
+ GET /tools/potential-quotient-calculator 200 in 65ms
+ GET /tools/potential-quotient-calculator 200 in 72ms
+ GET /tools/potential-quotient-calculator 200 in 59ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 1192ms (2792 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 1ms (1498 modules)
+ GET /tools/potential-quotient-calculator 200 in 1150ms
+ GET /office-visit 200 in 958ms
+ GET /tools/potential-quotient-calculator 200 in 86ms
