@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, subscribeWithSelector } from 'zustand/middleware'
 
 // User state interface
 interface User {
@@ -36,6 +36,82 @@ interface AssessmentState {
   isCompleted: boolean
 }
 
+// PQC Assessment Types
+interface Answer {
+  questionId: string;
+  value: any;
+  timeSpent: number;
+  timestamp: Date;
+  interactionQuality: number;
+  responseTime: number;
+}
+
+interface PQCResult {
+  overallScore: number;
+  dimensionScores: Record<string, number>;
+  insights: Insight[];
+  recommendations: Recommendation[];
+  percentile: number;
+  potentialLevel: any;
+  growthTrajectory: string;
+  shareLink?: string;
+  totalPoints: number;
+  achievements: Achievement[];
+}
+
+interface Insight {
+  type: 'strength' | 'opportunity' | 'pattern';
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface Recommendation {
+  type: 'priority' | 'quick_win' | 'development_plan' | 'resources';
+  urgency: 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  actions?: string[];
+  timeRequired?: string;
+  expectedImpact?: string;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+}
+
+interface EngagementMetrics {
+  userEnergyLevel: number;
+  averageResponseTime: number;
+  interactionQuality: number;
+  preferredInteractionTypes: string[];
+  attentionSpan: number;
+  fatigueLevel: number;
+  engagementTrend: 'increasing' | 'decreasing' | 'stable';
+}
+
+type AssessmentStage = 'intro' | 'section-intro' | 'assessment' | 'energy-boost' | 'processing' | 'results';
+
+interface PQCAssessmentState {
+  sessionId: string;
+  stage: AssessmentStage;
+  currentQuestion: number;
+  currentDimension: number;
+  answers: Map<string, Answer>;
+  result: PQCResult | null;
+  startTime: Date | null;
+  questionStartTime: Date | null;
+  currentLanguage: 'en' | 'am';
+  engagementMetrics: EngagementMetrics;
+  adaptiveRecommendations: any[];
+  lastBreakIndex: number;
+  showAdaptiveMessage: string | null;
+}
+
 // User journey tracking interface
 interface UserJourney {
   sessionId: string
@@ -63,6 +139,22 @@ interface AppState {
   setAssessmentProgress: (progress: number) => void
   completeAssessment: () => void
   resetAssessment: () => void
+  
+  // PQC Assessment state
+  pqcAssessment: PQCAssessmentState
+  setPQCStage: (stage: AssessmentStage) => void
+  setPQCCurrentQuestion: (question: number) => void
+  setPQCCurrentDimension: (dimension: number) => void
+  addPQCAnswer: (questionId: string, answer: Answer) => void
+  setPQCResult: (result: PQCResult) => void
+  setPQCStartTime: (time: Date) => void
+  setPQCQuestionStartTime: (time: Date) => void
+  setPQCLanguage: (language: 'en' | 'am') => void
+  updatePQCEngagementMetrics: (metrics: Partial<EngagementMetrics>) => void
+  setPQCAdaptiveRecommendations: (recommendations: any[]) => void
+  setPQCLastBreakIndex: (index: number) => void
+  setPQCShowAdaptiveMessage: (message: string | null) => void
+  resetPQCAssessment: () => void
   
   // User journey tracking
   journey: UserJourney
@@ -106,6 +198,33 @@ export const useAppStore = create<AppState>()(
         progress: 0,
         isCompleted: false,
       },
+      
+      // Initial PQC assessment state
+      pqcAssessment: {
+        sessionId: typeof crypto !== 'undefined' && crypto.randomUUID 
+          ? crypto.randomUUID() 
+          : `pqc_session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+        stage: 'intro',
+        currentQuestion: 0,
+        currentDimension: 0,
+        answers: new Map(),
+        result: null,
+        startTime: null,
+        questionStartTime: null,
+        currentLanguage: 'en',
+        engagementMetrics: {
+          userEnergyLevel: 100,
+          averageResponseTime: 0,
+          interactionQuality: 100,
+          preferredInteractionTypes: [],
+          attentionSpan: 100,
+          fatigueLevel: 0,
+          engagementTrend: 'stable'
+        },
+        adaptiveRecommendations: [],
+        lastBreakIndex: -1,
+        showAdaptiveMessage: null
+      },
       setCurrentTool: (toolName) => set((state) => ({
         assessment: { ...state.assessment, currentTool: toolName }
       })),
@@ -129,9 +248,83 @@ export const useAppStore = create<AppState>()(
         }
       }),
       
+      // PQC Assessment actions
+      setPQCStage: (stage) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, stage }
+      })),
+      setPQCCurrentQuestion: (currentQuestion) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, currentQuestion }
+      })),
+      setPQCCurrentDimension: (currentDimension) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, currentDimension }
+      })),
+      addPQCAnswer: (questionId, answer) => set((state) => {
+        const newAnswers = new Map(state.pqcAssessment.answers);
+        newAnswers.set(questionId, answer);
+        return {
+          pqcAssessment: { ...state.pqcAssessment, answers: newAnswers }
+        };
+      }),
+      setPQCResult: (result) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, result }
+      })),
+      setPQCStartTime: (startTime) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, startTime }
+      })),
+      setPQCQuestionStartTime: (questionStartTime) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, questionStartTime }
+      })),
+      setPQCLanguage: (currentLanguage) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, currentLanguage }
+      })),
+      updatePQCEngagementMetrics: (metrics) => set((state) => ({
+        pqcAssessment: { 
+          ...state.pqcAssessment, 
+          engagementMetrics: { ...state.pqcAssessment.engagementMetrics, ...metrics }
+        }
+      })),
+      setPQCAdaptiveRecommendations: (adaptiveRecommendations) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, adaptiveRecommendations }
+      })),
+      setPQCLastBreakIndex: (lastBreakIndex) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, lastBreakIndex }
+      })),
+      setPQCShowAdaptiveMessage: (showAdaptiveMessage) => set((state) => ({
+        pqcAssessment: { ...state.pqcAssessment, showAdaptiveMessage }
+      })),
+      resetPQCAssessment: () => set((state) => ({
+        pqcAssessment: {
+          sessionId: typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : `pqc_session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+          stage: 'intro',
+          currentQuestion: 0,
+          currentDimension: 0,
+          answers: new Map(),
+          result: null,
+          startTime: null,
+          questionStartTime: null,
+          currentLanguage: 'en',
+          engagementMetrics: {
+            userEnergyLevel: 100,
+            averageResponseTime: 0,
+            interactionQuality: 100,
+            preferredInteractionTypes: [],
+            attentionSpan: 100,
+            fatigueLevel: 0,
+            engagementTrend: 'stable'
+          },
+          adaptiveRecommendations: [],
+          lastBreakIndex: -1,
+          showAdaptiveMessage: null
+        }
+      })),
+      
       // Initial journey state
       journey: {
-        sessionId: crypto.randomUUID(),
+        sessionId: typeof crypto !== 'undefined' && crypto.randomUUID 
+          ? crypto.randomUUID() 
+          : `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
         sectionsViewed: [],
         toolsUsed: [],
         contentConsumed: [],
@@ -359,7 +552,17 @@ export const useAppStore = create<AppState>()(
         user: state.user,
         assessment: state.assessment,
         journey: state.journey,
+        pqcAssessment: {
+          ...state.pqcAssessment,
+          answers: Array.from(state.pqcAssessment.answers.entries()), // Convert Map to array for serialization
+        }
       }),
+      onRehydrateStorage: () => (state) => {
+        // Rehydrate the Map from array
+        if (state?.pqcAssessment && Array.isArray(state.pqcAssessment.answers)) {
+          state.pqcAssessment.answers = new Map(state.pqcAssessment.answers);
+        }
+      }
     }
   )
 )
@@ -374,7 +577,51 @@ export const useUI = () => useAppStore((state) => ({
   activeModal: state.activeModal,
 }))
 
+// PQC Assessment selectors
+export const usePQCAssessment = () => useAppStore((state) => state.pqcAssessment)
+export const usePQCStage = () => useAppStore((state) => state.pqcAssessment.stage)
+export const usePQCCurrentQuestion = () => useAppStore((state) => state.pqcAssessment.currentQuestion)
+export const usePQCCurrentDimension = () => useAppStore((state) => state.pqcAssessment.currentDimension)
+export const usePQCAnswers = () => useAppStore((state) => state.pqcAssessment.answers)
+export const usePQCResult = () => useAppStore((state) => state.pqcAssessment.result)
+export const usePQCEngagementMetrics = () => useAppStore((state) => state.pqcAssessment.engagementMetrics)
+export const usePQCAdaptiveRecommendations = () => useAppStore((state) => state.pqcAssessment.adaptiveRecommendations)
+export const usePQCShowAdaptiveMessage = () => useAppStore((state) => state.pqcAssessment.showAdaptiveMessage)
+
+// PQC Assessment actions
+export const usePQCActions = () => useAppStore((state) => ({
+  setPQCStage: state.setPQCStage,
+  setPQCCurrentQuestion: state.setPQCCurrentQuestion,
+  setPQCCurrentDimension: state.setPQCCurrentDimension,
+  addPQCAnswer: state.addPQCAnswer,
+  setPQCResult: state.setPQCResult,
+  setPQCStartTime: state.setPQCStartTime,
+  setPQCQuestionStartTime: state.setPQCQuestionStartTime,
+  setPQCLanguage: state.setPQCLanguage,
+  updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
+  setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
+  setPQCLastBreakIndex: state.setPQCLastBreakIndex,
+  setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
+  resetPQCAssessment: state.resetPQCAssessment
+}))
+
 // Additional selectors for convenience
 export const useUserTier = () => useAppStore((state) => state.user?.currentTier || 'browser')
 export const useEngagementScore = () => useAppStore((state) => state.leadScore?.totalScore || 0)
 export const useReadinessLevel = () => useAppStore((state) => state.leadScore?.readinessLevel || 'low')
+
+// PQC computed selectors
+export const usePQCProgress = () => useAppStore((state) => {
+  const totalQuestions = 49;
+  return ((state.pqcAssessment.currentQuestion + 1) / totalQuestions) * 100;
+})
+
+export const usePQCTotalQuestions = () => 49
+
+export const usePQCAnswerForQuestion = (questionId: string) => 
+  useAppStore((state) => state.pqcAssessment.answers.get(questionId))
+
+export const usePQCSessionDuration = () => useAppStore((state) => {
+  if (!state.pqcAssessment.startTime) return 0;
+  return Date.now() - state.pqcAssessment.startTime.getTime();
+})
