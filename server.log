@@ -113,3 +113,304 @@
  GET /tools/potential-quotient-calculator 200 in 1150ms
  GET /office-visit 200 in 958ms
  GET /tools/potential-quotient-calculator 200 in 86ms
+ GET /tools/potential-quotient-calculator 200 in 71ms
+ ✓ Compiled in 901ms (2792 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /tools/potential-quotient-calculator 200 in 253ms
+ GET /office-visit 200 in 253ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 400ms (2792 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 0ms (1498 modules)
+ ✓ Compiled in 1ms (1498 modules)
+ GET /tools/potential-quotient-calculator 200 in 556ms
+ GET /office-visit 200 in 589ms
+ ✓ Compiled in 377ms (1294 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /tools/potential-quotient-calculator 200 in 130ms
+ GET /office-visit 200 in 133ms
+ ✓ Compiled in 863ms (2808 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /tools/potential-quotient-calculator 200 in 226ms
+ GET /office-visit 200 in 226ms
+ GET /tools/potential-quotient-calculator 200 in 27ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 668ms (2806 modules)
+ ✓ Compiled in 1ms (1504 modules)
+ ✓ Compiled in 0ms (1504 modules)
+ ✓ Compiled in 0ms (1504 modules)
+ GET /tools/potential-quotient-calculator 200 in 628ms
+ GET /office-visit 200 in 595ms
+ GET /tools/potential-quotient-calculator 200 in 97ms
+ ✓ Compiled in 521ms (2806 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /tools/potential-quotient-calculator 200 in 199ms
+ GET /office-visit 200 in 201ms
+ GET /tools/potential-quotient-calculator 200 in 65ms
+ GET /tools/potential-quotient-calculator 200 in 25ms
+ GET /office-visit 200 in 70ms
+ GET / 200 in 203ms
+ ○ Compiling /api/track-interaction ...
+ ✓ Compiled /api/track-interaction in 510ms (2812 modules)
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:50.665Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'success-gap-hooks',
+      variationId: 'original',
+      sectionId: 'success-gap',
+      timestamp: 1753324490014,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:50.667Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'success-gap-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753324490014,
+      sessionId: 'session_1753324487066_32wz5f7h3'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 652ms
+ POST /api/track-interaction 200 in 653ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:50.882Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'change-paradox-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753324490846,
+      sessionId: 'session_1753324487073_zju3yo9xy'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 26ms
+ GET /tools/potential-quotient-calculator 200 in 207ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:50.892Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'change-paradox-hooks',
+      variationId: 'scientific',
+      sectionId: 'change-paradox',
+      timestamp: 1753324490847,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 34ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:52.042Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'vision-void-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753324491931,
+      sessionId: 'session_1753324487085_xvaa49izo'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 35ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:52.048Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'vision-void-hooks',
+      variationId: 'original',
+      sectionId: 'vision-void',
+      timestamp: 1753324491931,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 41ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 544ms (2826 modules)
+ ✓ Compiled in 0ms (1523 modules)
+ ✓ Compiled in 0ms (1523 modules)
+ ✓ Compiled in 0ms (1523 modules)
+ GET /tools/potential-quotient-calculator 200 in 632ms
+ GET / 200 in 685ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:53.222Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'success-gap-hook',
+      metadata: [Object],
+      timestamp: 1753324493047,
+      sessionId: 'session_1753324487066_32wz5f7h3'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 166ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:56.046Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'leadership-lever-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753324496031,
+      sessionId: 'session_1753324487088_94xfelajn'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 13ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:56.054Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'leadership-lever-hooks',
+      variationId: 'potential',
+      sectionId: 'leadership-lever',
+      timestamp: 1753324496031,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 21ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:56.069Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'change-paradox-hook',
+      metadata: [Object],
+      timestamp: 1753324496049,
+      sessionId: 'session_1753324487073_zju3yo9xy'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 9ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:56.075Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'vision-void-hook',
+      metadata: [Object],
+      timestamp: 1753324496052,
+      sessionId: 'session_1753324487085_xvaa49izo'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 15ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:59.040Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'leadership-lever-hook',
+      metadata: [Object],
+      timestamp: 1753324499034,
+      sessionId: 'session_1753324487088_94xfelajn'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 12ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:59.642Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'hook_view',
+      section: 'decision-door-hook',
+      hookVariation: 'question',
+      metadata: [Object],
+      timestamp: 1753324499634,
+      sessionId: 'session_1753324487098_yj2zvmemn'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 6ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:34:59.645Z',
+  data: {
+    type: 'ab_test_exposure',
+    data: {
+      testId: 'decision-door-hooks',
+      variationId: 'original',
+      sectionId: 'decision-door',
+      timestamp: 1753324499635,
+      sessionId: null
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 9ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 448ms (2826 modules)
+ ✓ Compiled in 1ms (1523 modules)
+ ✓ Compiled in 0ms (1523 modules)
+ ✓ Compiled in 0ms (1523 modules)
+ GET /tools/potential-quotient-calculator 200 in 652ms
+ GET / 200 in 684ms
+Track interaction received: {
+  timestamp: '2025-07-24T02:35:04.553Z',
+  data: {
+    type: 'engagement_tracking',
+    data: {
+      type: 'progressive_disclosure_view',
+      section: 'decision-door-hook',
+      metadata: [Object],
+      timestamp: 1753324504535,
+      sessionId: 'session_1753324487098_yj2zvmemn'
+    }
+  },
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  referer: 'http://localhost:3000/'
+}
+ POST /api/track-interaction 200 in 18ms
+ GET /tools/potential-quotient-calculator 200 in 78ms

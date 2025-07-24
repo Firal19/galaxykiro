@@ -179,6 +179,51 @@ interface AppState {
   setActiveModal: (modalId: string | null) => void
 }
 
+// Server-side snapshot for SSR compatibility
+const createServerSnapshot = () => ({
+  user: null,
+  leadScore: null,
+  assessment: {
+    responses: {},
+    progress: 0,
+    isCompleted: false,
+  },
+  pqcAssessment: {
+    sessionId: 'ssr_session',
+    stage: 'intro' as const,
+    currentQuestion: 0,
+    currentDimension: 0,
+    answers: new Map(),
+    result: null,
+    startTime: null,
+    questionStartTime: null,
+    currentLanguage: 'en' as const,
+    engagementMetrics: {
+      userEnergyLevel: 100,
+      averageResponseTime: 0,
+      interactionQuality: 100,
+      preferredInteractionTypes: [],
+      attentionSpan: 100,
+      fatigueLevel: 0,
+      engagementTrend: 'stable' as const
+    },
+    adaptiveRecommendations: [],
+    lastBreakIndex: -1,
+    showAdaptiveMessage: null
+  },
+  journey: {
+    sessionId: 'ssr_session',
+    sectionsViewed: [],
+    toolsUsed: [],
+    contentConsumed: [],
+    ctasClicked: [],
+    timeOnPage: {},
+    scrollDepth: 0,
+  },
+  isLoading: false,
+  activeModal: null,
+});
+
 // Create the store with persistence
 export const useAppStore = create<AppState>()(
   persist(
@@ -562,7 +607,9 @@ export const useAppStore = create<AppState>()(
         if (state?.pqcAssessment && Array.isArray(state.pqcAssessment.answers)) {
           state.pqcAssessment.answers = new Map(state.pqcAssessment.answers);
         }
-      }
+      },
+      // SSR support - provide server snapshot
+      skipHydration: typeof window === 'undefined'
     }
   )
 )

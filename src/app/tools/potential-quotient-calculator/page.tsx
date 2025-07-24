@@ -1,11 +1,11 @@
 "use client"
 
-import { RevolutionaryPQC } from '@/components/tools/potential/revolutionary-pqc'
+import { RevolutionaryPQCWrapper } from '@/components/tools/potential/revolutionary-pqc-wrapper'
 
 export default function PotentialQuotientCalculatorPage() {
   return (
     <div className="min-h-screen">
-      <RevolutionaryPQC />
+      <RevolutionaryPQCWrapper />
     </div>
   )
 }

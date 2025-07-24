@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useHydration } from '@/hooks/use-hydration';
 import { 
   Sparkles, 
   Brain, 
@@ -128,57 +127,19 @@ interface EngagementMetrics {
 type AssessmentStage = 'intro' | 'section-intro' | 'assessment' | 'energy-boost' | 'processing' | 'results';
 
 export function RevolutionaryPQC() {
-  const hydrated = useHydration();
-  
-  // Always call Zustand hooks (never conditional) to follow Rules of Hooks
-  const storeStage = usePQCStage();
-  const storeAnswers = usePQCAnswers();
-  const storeCurrentQuestion = usePQCCurrentQuestion();
-  const storeCurrentDimension = usePQCCurrentDimension();
-  const storeResult = usePQCResult();
-  const storeEngagementMetrics = usePQCEngagementMetrics();
-  const storeAdaptiveRecommendations = usePQCAdaptiveRecommendations();
-  const storeShowAdaptiveMessage = usePQCShowAdaptiveMessage();
-  const storeProgress = usePQCProgress();
+  // Use Zustand store directly (SSR handled by dynamic import wrapper)
+  const stage = usePQCStage();
+  const answers = usePQCAnswers();
+  const currentQuestion = usePQCCurrentQuestion();
+  const currentDimension = usePQCCurrentDimension();
+  const result = usePQCResult();
+  const engagementMetrics = usePQCEngagementMetrics();
+  const adaptiveRecommendations = usePQCAdaptiveRecommendations();
+  const showAdaptiveMessage = usePQCShowAdaptiveMessage();
+  const progress = usePQCProgress();
   const totalQuestions = usePQCTotalQuestions();
-  const storePqcAssessment = usePQCAssessment();
-  const storeActions = usePQCActions();
-  
-  // Use fallback values only if not hydrated
-  const stage = hydrated ? storeStage : 'intro';
-  const answers = hydrated ? storeAnswers : new Map();
-  const currentQuestion = hydrated ? storeCurrentQuestion : 0;
-  const currentDimension = hydrated ? storeCurrentDimension : 0;
-  const result = hydrated ? storeResult : null;
-  const engagementMetrics = hydrated ? storeEngagementMetrics : {
-    userEnergyLevel: 100,
-    averageResponseTime: 0,
-    interactionQuality: 100,
-    preferredInteractionTypes: [],
-    attentionSpan: 100,
-    fatigueLevel: 0,
-    engagementTrend: 'stable' as const
-  };
-  const adaptiveRecommendations = hydrated ? storeAdaptiveRecommendations : [];
-  const showAdaptiveMessage = hydrated ? storeShowAdaptiveMessage : null;
-  const progress = hydrated ? storeProgress : 0;
-  const pqcAssessment = hydrated ? storePqcAssessment : null;
-  
-  const actions = hydrated ? storeActions : {
-    setPQCStage: () => {},
-    setPQCCurrentQuestion: () => {},
-    setPQCCurrentDimension: () => {},
-    addPQCAnswer: () => {},
-    setPQCResult: () => {},
-    setPQCStartTime: () => {},
-    setPQCQuestionStartTime: () => {},
-    setPQCLanguage: () => {},
-    updatePQCEngagementMetrics: () => {},
-    setPQCAdaptiveRecommendations: () => {},
-    setPQCLastBreakIndex: () => {},
-    setPQCShowAdaptiveMessage: () => {},
-    resetPQCAssessment: () => {}
-  };
+  const pqcAssessment = usePQCAssessment();
+  const actions = usePQCActions();
   
   const {
     setPQCStage,
@@ -216,9 +177,9 @@ export function RevolutionaryPQC() {
     return AdaptiveQuestionSystem.shouldTriggerEnergyBreak(
       metrics, 
       currentQuestion, 
-      pqcAssessment?.lastBreakIndex || -1
+      pqcAssessment.lastBreakIndex
     );
-  }, [currentQuestion, stage, engagementTracker, pqcAssessment]);
+  }, [currentQuestion, stage, engagementTracker, pqcAssessment.lastBreakIndex]);
 
   const shouldShowSectionIntro = useCallback(() => {
     return currentQuestion % 7 === 0 && stage === 'assessment';
@@ -513,19 +474,6 @@ export function RevolutionaryPQC() {
   };
 
   const currentQuestionData = questions[currentQuestion];
-
-  // Show loading during hydration
-  if (!hydrated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
