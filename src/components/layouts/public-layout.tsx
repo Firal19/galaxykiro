@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { MainNav } from '@/components/navigation/main-nav'
+import { UnifiedHeader } from '@/components/navigation/layouts/UnifiedHeader'
 import { Footer } from '@/components/footer'
-import { leadScoringService } from '@/lib/lead-scoring-service'
+import { useLeadService } from '@/components/providers/ServiceProvider'
 
 interface PublicLayoutProps {
   children: React.ReactNode
@@ -13,6 +13,7 @@ interface PublicLayoutProps {
 export function PublicLayout({ children }: PublicLayoutProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const leadService = useLeadService()
 
   useEffect(() => {
     // Parse URL parameters for lead attribution
@@ -34,19 +35,20 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         localStorage.setItem('galaxy_kiro_referral', JSON.stringify(referralData))
       }
 
-      // Track with lead scoring
-      leadScoringService.trackUrlParameters({
+      // Track with lead scoring service
+      leadService.trackEngagement('content_engagement', {
+        action: 'referral_landing',
         campaign,
         medium,
         partner,
         landingPage: pathname
       })
     }
-  }, [pathname, searchParams])
+  }, [pathname, searchParams, leadService])
 
   return (
     <div className="min-h-screen bg-background">
-      <MainNav />
+      <UnifiedHeader variant="public" />
       <main className="flex-1">
         {children}
       </main>
