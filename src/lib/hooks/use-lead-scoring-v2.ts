@@ -173,7 +173,7 @@ export function useLeadScoringV2() {
 
   // Helper function to get recommendations
   const getRecommendations = (profile: LeadProfile): string[] => {
-    const { status, engagementScore, activities } = profile
+    const { status, engagementScore, activities = [] } = profile
     const recommendations: string[] = []
 
     const hasToolUsage = activities.some(a => a.action === 'tool_usage')

@@ -62,6 +62,8 @@ export function SoftMemberLayout({ children }: SoftMemberLayoutProps) {
     loadProfile()
   }, [])
 
+  // DISABLED: Authentication redirect disabled for development
+  /*
   // Redirect if not authenticated
   useEffect(() => {
     if (!loading && status === 'pending_approval') {
@@ -70,6 +72,7 @@ export function SoftMemberLayout({ children }: SoftMemberLayoutProps) {
       router.push('/login')
     }
   }, [status, loading, router])
+  */
 
   const navigation: NavigationItem[] = [
     {

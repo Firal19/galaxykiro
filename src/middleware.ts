@@ -22,6 +22,8 @@ export function middleware(request: NextRequest) {
     response.headers.set('X-Partner', partner || '')
   }
 
+  // DISABLED: Authentication checks disabled for development
+  /*
   // Protected routes
   const protectedPaths = ['/soft-member', '/admin']
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
@@ -66,6 +68,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }
+  */
 
   return response
 }

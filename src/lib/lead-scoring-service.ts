@@ -286,6 +286,11 @@ class LeadScoringService {
       page_url: window.location.href,
       metadata
     }
+    
+    // Ensure activities array exists
+    if (!profile.activities) {
+      profile.activities = []
+    }
     profile.activities.push(activity)
     profile.lastActivity = activity.timestamp
 

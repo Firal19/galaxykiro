@@ -36,8 +36,21 @@ export function useI18n() {
     i18n?.setLanguage(language)
   }, [])
 
-  // Translation function
+  // Translation function with SSR compatibility
   const t = useCallback((key: string, params?: Record<string, string>) => {
+    if (typeof window === 'undefined') {
+      // Server-side rendering fallback - use simple translations
+      const translations: Record<string, string> = {
+        'nav.home': 'Home',
+        'nav.tools': 'Tools',
+        'nav.content': 'Content',
+        'nav.community': 'Community',
+        'nav.about': 'About',
+        'nav.signin': 'Sign In',
+        'nav.signup': 'Sign Up'
+      }
+      return translations[key] || key
+    }
     return i18n?.t(key, params) || key
   }, [])
 

@@ -20,6 +20,11 @@ export function HeroSection({ className }: HeroSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+
+  // Quick access handler - direct navigation (auth disabled)
+  const handleQuickAccess = (type: 'admin' | 'member') => {
+    window.location.href = type === 'admin' ? '/admin/dashboard' : '/soft-member/dashboard'
+  }
   
   // Hardcoded translations
   const t = (key: string) => {
@@ -226,7 +231,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               <Button
                 variant="outline" 
                 size="sm"
-                onClick={() => window.location.href = '/admin'}
+                onClick={() => handleQuickAccess('admin')}
                 className="text-sm px-6 py-2 bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700 hover:text-purple-800 font-semibold transition-all duration-200"
               >
                 🔐 Admin Panel
@@ -234,7 +239,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               <Button
                 variant="outline"
                 size="sm" 
-                onClick={() => window.location.href = '/soft-member/dashboard'}
+                onClick={() => handleQuickAccess('member')}
                 className="text-sm px-6 py-2 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 font-semibold transition-all duration-200"
               >
                 👤 Member Area

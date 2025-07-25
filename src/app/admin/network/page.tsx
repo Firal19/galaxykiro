@@ -38,7 +38,8 @@ import {
   Settings,
   Play,
   Pause,
-  RefreshCw
+  RefreshCw,
+  FileText
 } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
