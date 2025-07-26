@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 
 // User state interface
 interface User {
@@ -646,25 +647,47 @@ export const usePQCEngagementMetrics = () => useAppStore(selectPQCEngagementMetr
 export const usePQCAdaptiveRecommendations = () => useAppStore(selectPQCAdaptiveRecommendations);
 export const usePQCShowAdaptiveMessage = () => useAppStore(selectPQCShowAdaptiveMessage);
 
-// Stable selector functions
-const selectPQCActions = (state: AppState) => ({
-  setPQCStage: state.setPQCStage,
-  setPQCCurrentQuestion: state.setPQCCurrentQuestion,
-  setPQCCurrentDimension: state.setPQCCurrentDimension,
-  addPQCAnswer: state.addPQCAnswer,
-  setPQCResult: state.setPQCResult,
-  setPQCStartTime: state.setPQCStartTime,
-  setPQCQuestionStartTime: state.setPQCQuestionStartTime,
-  setPQCLanguage: state.setPQCLanguage,
-  updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
-  setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
-  setPQCLastBreakIndex: state.setPQCLastBreakIndex,
-  setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
-  resetPQCAssessment: state.resetPQCAssessment
-});
+// Stable selector functions - memoized to prevent infinite loops
+const selectPQCActions = (state: AppState) => {
+  // Create a stable reference by using the actions directly
+  return {
+    setPQCStage: state.setPQCStage,
+    setPQCCurrentQuestion: state.setPQCCurrentQuestion,
+    setPQCCurrentDimension: state.setPQCCurrentDimension,
+    addPQCAnswer: state.addPQCAnswer,
+    setPQCResult: state.setPQCResult,
+    setPQCStartTime: state.setPQCStartTime,
+    setPQCQuestionStartTime: state.setPQCQuestionStartTime,
+    setPQCLanguage: state.setPQCLanguage,
+    updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
+    setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
+    setPQCLastBreakIndex: state.setPQCLastBreakIndex,
+    setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
+    resetPQCAssessment: state.resetPQCAssessment
+  } as const;
+};
 
-// PQC Assessment actions - using stable selector
-export const usePQCActions = () => useAppStore(selectPQCActions);
+// PQC Assessment actions - using Zustand's shallow equality to prevent infinite loops
+export const usePQCActions = () => {
+  return useAppStore(
+    (state) => ({
+      setPQCStage: state.setPQCStage,
+      setPQCCurrentQuestion: state.setPQCCurrentQuestion,
+      setPQCCurrentDimension: state.setPQCCurrentDimension,
+      addPQCAnswer: state.addPQCAnswer,
+      setPQCResult: state.setPQCResult,
+      setPQCStartTime: state.setPQCStartTime,
+      setPQCQuestionStartTime: state.setPQCQuestionStartTime,
+      setPQCLanguage: state.setPQCLanguage,
+      updatePQCEngagementMetrics: state.updatePQCEngagementMetrics,
+      setPQCAdaptiveRecommendations: state.setPQCAdaptiveRecommendations,
+      setPQCLastBreakIndex: state.setPQCLastBreakIndex,
+      setPQCShowAdaptiveMessage: state.setPQCShowAdaptiveMessage,
+      resetPQCAssessment: state.resetPQCAssessment
+    }),
+    shallow
+  );
+};
 
 // Additional selectors for convenience
 export const useUserTier = () => useAppStore((state) => state.user?.currentTier || 'browser')

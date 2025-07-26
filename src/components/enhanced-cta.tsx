@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { CTAItem } from './cta-item'
+// import { CTAItem } from './cta-item' // Component removed - inline implementation
 import { PsychologicalTriggerDisplay } from './psychological-trigger-display'
 import { useEnhancedCTA } from '../hooks/use-enhanced-cta'
 import type { EnhancedCTAProps } from '../types/cta-types'

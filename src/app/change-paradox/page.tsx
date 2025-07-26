@@ -14,8 +14,7 @@ export default function ChangeParadoxPage() {
       type: type as any, 
       section: 'change-paradox-educational',
       metadata: {
-        pageType: 'educational',
-        timestamp: Date.now()
+        timeSpent: Date.now()
       }
     })
   }

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { UnifiedHeader } from '@/components/navigation/layouts/UnifiedHeader'
+import { MainNav } from '@/components/navigation/main-nav'
 import { Footer } from '@/components/footer'
 import { useLeadService } from '@/components/providers/ServiceProvider'
 
@@ -46,10 +46,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     }
   }, [pathname, searchParams, leadService])
 
+  console.log('🔥 PublicLayout rendering with MainNav')
   return (
     <div className="min-h-screen bg-background">
-      <UnifiedHeader variant="public" />
-      <main className="flex-1">
+      <MainNav />
+      <main className="flex-1 pt-16">
         {children}
       </main>
       <Footer />

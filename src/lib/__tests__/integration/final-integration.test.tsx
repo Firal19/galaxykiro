@@ -25,7 +25,7 @@ import { DecisionDoorSection } from '@/components/decision-door-section';
 import { ProgressiveForm } from '@/components/progressive-form';
 import ContentLibrary from '@/components/content-library';
 import { GalaxyDreamTeamLogo } from '@/components/galaxy-dream-team-logo';
-import { Navigation } from '@/components/navigation';
+// Navigation component removed - using MainNav from layout system
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({

@@ -166,6 +166,19 @@ export const level3Schema = z.object({
   city: z.string().min(2, "City must be at least 2 characters"),
 });
 
+export const AssessmentSubmissionSchema = z.object({
+  toolId: z.string().min(1, "Tool ID is required"),
+  responses: z.array(z.object({
+    questionId: z.string().min(1, "Question ID is required"),
+    value: z.unknown(), // Can be any type depending on question
+    timestamp: z.string().datetime(),
+    timeSpent: z.number().min(0).optional()
+  })).min(1, "At least one response is required"),
+  userId: z.string().optional(),
+  sessionId: z.string().optional(),
+  metadata: z.record(z.unknown()).optional()
+});
+
 /**
  * Validate form data based on level
  * @param data Form data to validate

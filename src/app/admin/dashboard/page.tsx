@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { AdminLayout } from '@/components/layouts/admin-layout'
-import { Card } from '@/components/ui/card'
+// Layout handled by src/app/admin/layout.tsx
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Users,
   TrendingUp,
@@ -22,11 +23,18 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Minus,
-  RefreshCw
+  RefreshCw,
+  Download,
+  Settings,
+  Eye,
+  UserCheck,
+  UserPlus,
+  Zap
 } from 'lucide-react'
 import { leadScoringService } from '@/lib/lead-scoring-service'
 import Link from 'next/link'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { cn } from '@/lib/utils'
 
 interface DashboardStats {
   totalLeads: number
@@ -45,6 +53,7 @@ interface RecentActivity {
   id: string
   type: 'registration' | 'approval' | 'upgrade' | 'content_view' | 'tool_completion'
   user: string
+  avatar?: string
   action: string
   timestamp: string
   status: 'success' | 'warning' | 'error'
@@ -52,11 +61,71 @@ interface RecentActivity {
 
 interface SystemAlert {
   id: string
-  type: 'info' | 'warning' | 'error'
+  type: 'info' | 'warning' | 'error' | 'success'
   title: string
   message: string
   timestamp: string
   read: boolean
+}
+
+// Stat card component with enhanced design
+function StatCard({ 
+  title, 
+  value, 
+  trend, 
+  icon: Icon, 
+  color,
+  prefix = '',
+  suffix = ''
+}: {
+  title: string
+  value: number | string
+  trend?: number
+  icon: React.ComponentType<any>
+  color: string
+  prefix?: string
+  suffix?: string
+}) {
+  const isPositiveTrend = trend && trend > 0
+  const isNegativeTrend = trend && trend < 0
+  
+  return (
+    <Card className="relative overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">
+                {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
+              </span>
+              {trend !== undefined && (
+                <div className={cn(
+                  "flex items-center gap-1 text-sm",
+                  isPositiveTrend && "text-green-600",
+                  isNegativeTrend && "text-red-600",
+                  !isPositiveTrend && !isNegativeTrend && "text-gray-600"
+                )}>
+                  {isPositiveTrend && <ArrowUpRight className="w-4 h-4" />}
+                  {isNegativeTrend && <ArrowDownRight className="w-4 h-4" />}
+                  <span>{Math.abs(trend)}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className={cn("p-3 rounded-lg", color)}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+        </div>
+        
+        {/* Decorative gradient */}
+        <div className={cn(
+          "absolute -right-8 -bottom-8 w-24 h-24 rounded-full opacity-10",
+          color
+        )} />
+      </CardContent>
+    </Card>
+  )
 }
 
 export default function AdminDashboardPage() {
@@ -82,13 +151,12 @@ export default function AdminDashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      // Get all profiles for statistics
-      const profiles = leadScoringService.getAllProfiles()
-      const interactions = profiles.flatMap(p => leadScoringService.getInteractionHistory(p.id))
-
+      // Get status breakdown for statistics
+      const statusBreakdown = leadScoringService.getStatusBreakdown()
+      
       // Calculate stats
-      const totalLeads = profiles.length
-      const activeMembers = profiles.filter(p => p.status !== 'pending_approval').length
+      const totalLeads = Object.values(statusBreakdown).reduce((sum, count) => sum + count, 0)
+      const activeMembers = totalLeads - (statusBreakdown.visitor || 0)
       const conversionRate = totalLeads > 0 ? (activeMembers / totalLeads) * 100 : 0
       const revenue = activeMembers * 97 // $97 per member (example)
 
@@ -108,52 +176,55 @@ export default function AdminDashboardPage() {
         trends
       })
 
-      // Generate recent activity
-      const recentActivities: RecentActivity[] = interactions
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 10)
-        .map((interaction, index) => ({
-          id: `activity_${index}`,
-          type: interaction.eventType as any,
-          user: profiles.find(p => p.id === interaction.userId)?.name || 'Unknown User',
-          action: getActivityDescription(interaction.eventType, interaction.details),
-          timestamp: interaction.timestamp,
-          status: 'success'
-        }))
-
-      setRecentActivity(recentActivities)
-
-      // Generate system alerts
-      const alerts: SystemAlert[] = [
+      // Mock recent activity
+      setRecentActivity([
         {
           id: '1',
-          type: 'warning',
-          title: 'High Traffic Alert',
-          message: '25% increase in visitors detected in the last hour',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+          type: 'registration',
+          user: 'Sarah Johnson',
+          action: 'completed registration',
+          timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+          status: 'success'
+        },
+        {
+          id: '2',
+          type: 'tool_completion',
+          user: 'Mike Chen',
+          action: 'completed Potential Quotient assessment',
+          timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+          status: 'success'
+        },
+        {
+          id: '3',
+          type: 'upgrade',
+          user: 'Emma Davis',
+          action: 'upgraded to Premium membership',
+          timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+          status: 'success'
+        }
+      ])
+
+      // Mock system alerts
+      setSystemAlerts([
+        {
+          id: '1',
+          type: 'success',
+          title: 'Daily Backup Complete',
+          message: 'All data has been successfully backed up',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
           read: false
         },
         {
           id: '2',
-          type: 'info',
-          title: 'Weekly Report Ready',
-          message: 'Your weekly analytics report is ready for review',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          type: 'warning',
+          title: 'High Traffic Alert',
+          message: 'Server load is above 80%. Consider scaling.',
+          timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
           read: false
-        },
-        {
-          id: '3',
-          type: 'error',
-          title: 'Email Delivery Issue',
-          message: '3 welcome emails failed to send in the last 24 hours',
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          read: true
         }
-      ]
+      ])
 
-      setSystemAlerts(alerts)
       setLastUpdated(new Date())
-
     } catch (error) {
       console.error('Error loading dashboard data:', error)
     } finally {
@@ -161,377 +232,281 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const getActivityDescription = (eventType: string, details: any): string => {
-    switch (eventType) {
-      case 'user_registration':
-        return 'Registered for soft membership'
-      case 'tool_completion':
-        return `Completed ${details?.toolName || 'assessment tool'}`
-      case 'content_view':
-        return `Viewed ${details?.contentType || 'content'}`
-      case 'page_visit':
-        return `Visited ${details?.page || 'page'}`
-      case 'user_login':
-        return 'Logged into dashboard'
-      default:
-        return 'Performed an action'
+  const getActivityIcon = (type: RecentActivity['type']) => {
+    switch (type) {
+      case 'registration': return UserPlus
+      case 'approval': return UserCheck
+      case 'upgrade': return Zap
+      case 'content_view': return Eye
+      case 'tool_completion': return CheckCircle
+      default: return Activity
     }
   }
 
-  const getTrendIcon = (trend: number) => {
-    if (trend > 0) return <ArrowUpRight className="w-4 h-4 text-green-600" />
-    if (trend < 0) return <ArrowDownRight className="w-4 h-4 text-red-600" />
-    return <Minus className="w-4 h-4 text-gray-500" />
-  }
-
-  const getTrendColor = (trend: number) => {
-    if (trend > 0) return 'text-green-600'
-    if (trend < 0) return 'text-red-600'
-    return 'text-gray-500'
-  }
-
-  const getAlertIcon = (type: string) => {
+  const getAlertIcon = (type: SystemAlert['type']) => {
     switch (type) {
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />
-      case 'warning':
-        return <AlertCircle className="w-5 h-5 text-orange-500" />
-      default:
-        return <CheckCircle className="w-5 h-5 text-blue-500" />
+      case 'success': return CheckCircle
+      case 'warning': return AlertCircle
+      case 'error': return AlertCircle
+      default: return MessageSquare
+    }
+  }
+
+  const getAlertColor = (type: SystemAlert['type']) => {
+    switch (type) {
+      case 'success': return 'text-green-600 bg-green-100'
+      case 'warning': return 'text-yellow-600 bg-yellow-100'
+      case 'error': return 'text-red-600 bg-red-100'
+      default: return 'text-blue-600 bg-blue-100'
     }
   }
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading dashboard...</p>
-          </div>
+      <div className="min-h-screen">
+        <div className="flex items-center justify-center h-96">
+          <LoadingSpinner size="lg" />
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center justify-between"
-        >
+        {/* Header with actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome back! Here's what's happening with Galaxy Kiro today.
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+            <p className="text-gray-600 mt-1">
+              Welcome back! Here's what's happening with your platform.
             </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <p className="text-sm text-muted-foreground">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </p>
-            <Button onClick={loadDashboardData} variant="outline" size="sm">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={loadDashboardData}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-          </div>
-        </motion.div>
-
-        {/* Key Metrics */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Leads</p>
-                <p className="text-2xl font-bold">{stats.totalLeads}</p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="flex items-center mt-4 text-sm">
-              {getTrendIcon(stats.trends.leads)}
-              <span className={`ml-1 ${getTrendColor(stats.trends.leads)}`}>
-                {Math.abs(stats.trends.leads)}% vs last month
-              </span>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Members</p>
-                <p className="text-2xl font-bold">{stats.activeMembers}</p>
-              </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <Activity className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-            <div className="flex items-center mt-4 text-sm">
-              {getTrendIcon(stats.trends.members)}
-              <span className={`ml-1 ${getTrendColor(stats.trends.members)}`}>
-                {Math.abs(stats.trends.members)}% vs last month
-              </span>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-                <p className="text-2xl font-bold">{stats.conversionRate.toFixed(1)}%</p>
-              </div>
-              <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-                <Target className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-            <div className="flex items-center mt-4 text-sm">
-              {getTrendIcon(stats.trends.conversion)}
-              <span className={`ml-1 ${getTrendColor(stats.trends.conversion)}`}>
-                {Math.abs(stats.trends.conversion)}% vs last month
-              </span>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Revenue</p>
-                <p className="text-2xl font-bold">${stats.revenue.toLocaleString()}</p>
-              </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <DollarSign className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-            <div className="flex items-center mt-4 text-sm">
-              {getTrendIcon(stats.trends.revenue)}
-              <span className={`ml-1 ${getTrendColor(stats.trends.revenue)}`}>
-                {Math.abs(stats.trends.revenue)}% vs last month
-              </span>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <Link href="/admin/leads">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <Users className="w-5 h-5 text-primary" />
-                  <div>
-                    <p className="font-medium text-sm">Manage Leads</p>
-                    <p className="text-xs text-muted-foreground">View all leads</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-
-            <Link href="/admin/cms">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium text-sm">Content Manager</p>
-                    <p className="text-xs text-muted-foreground">Create & distribute</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-
-            <Link href="/admin/analytics">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <BarChart3 className="w-5 h-5 text-green-500" />
-                  <div>
-                    <p className="font-medium text-sm">Analytics</p>
-                    <p className="text-xs text-muted-foreground">Detailed reports</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-
-            <Link href="/admin/webinars">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-5 h-5 text-orange-500" />
-                  <div>
-                    <p className="font-medium text-sm">Webinars</p>
-                    <p className="text-xs text-muted-foreground">Schedule & manage</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-
-            <Link href="/admin/tools">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <Target className="w-5 h-5 text-purple-500" />
-                  <div>
-                    <p className="font-medium text-sm">Tools</p>
-                    <p className="text-xs text-muted-foreground">Manage assessments</p>
-                  </div>
-                </div>
-              </Card>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Link href="/admin/settings">
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4" />
+              </Button>
             </Link>
           </div>
-        </motion.div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Activity */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="lg:col-span-2"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Recent Activity</h2>
-              <Link href="/admin/leads">
-                <Button variant="ghost" size="sm">
-                  View All
-                </Button>
-              </Link>
-            </div>
-            
-            <Card className="p-6">
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-center space-x-4 py-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Activity className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
-                        {activity.user}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.action}
-                      </p>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(activity.timestamp).toLocaleTimeString()}
-                    </div>
-                  </div>
-                ))}
-                
-                {recentActivity.length === 0 && (
-                  <div className="text-center py-8">
-                    <Activity className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No recent activity</p>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* System Alerts */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">System Alerts</h2>
-              <Badge variant="destructive">
-                {systemAlerts.filter(a => !a.read).length}
-              </Badge>
-            </div>
-            
-            <div className="space-y-4">
-              {systemAlerts.map((alert) => (
-                <Card key={alert.id} className={`p-4 ${!alert.read ? 'border-primary/50' : ''}`}>
-                  <div className="flex items-start space-x-3">
-                    {getAlertIcon(alert.type)}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="text-sm font-medium">{alert.title}</h3>
-                        {!alert.read && (
-                          <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {alert.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(alert.timestamp).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </motion.div>
         </div>
 
-        {/* Performance Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Lead Funnel Overview</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {stats.totalLeads}
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="Total Leads"
+            value={stats.totalLeads}
+            trend={stats.trends.leads}
+            icon={Users}
+            color="bg-blue-500"
+          />
+          <StatCard
+            title="Active Members"
+            value={stats.activeMembers}
+            trend={stats.trends.members}
+            icon={UserCheck}
+            color="bg-green-500"
+          />
+          <StatCard
+            title="Conversion Rate"
+            value={stats.conversionRate.toFixed(1)}
+            suffix="%"
+            trend={stats.trends.conversion}
+            icon={Target}
+            color="bg-purple-500"
+          />
+          <StatCard
+            title="Monthly Revenue"
+            value={stats.revenue}
+            prefix="$"
+            trend={stats.trends.revenue}
+            icon={DollarSign}
+            color="bg-orange-500"
+          />
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="activity" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+            <TabsTrigger value="alerts">System Alerts</TabsTrigger>
+            <TabsTrigger value="analytics">Quick Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="activity" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>
+                  Latest actions and events on your platform
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => {
+                    const IconComponent = getActivityIcon(activity.type)
+                    return (
+                      <motion.div
+                        key={activity.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className={cn(
+                          "p-2 rounded-lg",
+                          activity.status === 'success' && "bg-green-100",
+                          activity.status === 'warning' && "bg-yellow-100",
+                          activity.status === 'error' && "bg-red-100"
+                        )}>
+                          <IconComponent className={cn(
+                            "w-5 h-5",
+                            activity.status === 'success' && "text-green-600",
+                            activity.status === 'warning' && "text-yellow-600",
+                            activity.status === 'error' && "text-red-600"
+                          )} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">
+                            <span className="font-semibold">{activity.user}</span> {activity.action}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {new Date(activity.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Leads</div>
-                <Progress value={100} className="mt-2 h-2" />
-              </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {stats.activeMembers}
+                <div className="mt-6 text-center">
+                  <Link href="/admin/activity">
+                    <Button variant="outline" size="sm">
+                      View All Activity
+                    </Button>
+                  </Link>
                 </div>
-                <div className="text-sm text-muted-foreground">Active Members</div>
-                <Progress 
-                  value={stats.totalLeads > 0 ? (stats.activeMembers / stats.totalLeads) * 100 : 0} 
-                  className="mt-2 h-2" 
-                />
-              </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {Math.floor(stats.activeMembers * 0.3)}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="alerts" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>System Alerts</CardTitle>
+                <CardDescription>
+                  Important notifications and system updates
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {systemAlerts.map((alert) => {
+                    const IconComponent = getAlertIcon(alert.type)
+                    const colorClass = getAlertColor(alert.type)
+                    
+                    return (
+                      <motion.div
+                        key={alert.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className={cn(
+                          "p-4 rounded-lg border",
+                          !alert.read && "bg-gray-50"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={cn("p-2 rounded-lg", colorClass)}>
+                            <IconComponent className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{alert.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
+                            <p className="text-xs text-gray-500 mt-2">
+                              {new Date(alert.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
                 </div>
-                <div className="text-sm text-muted-foreground">Candidates</div>
-                <Progress 
-                  value={stats.totalLeads > 0 ? (stats.activeMembers * 0.3 / stats.totalLeads) * 100 : 0} 
-                  className="mt-2 h-2" 
-                />
-              </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">
-                  {Math.floor(stats.activeMembers * 0.1)}
-                </div>
-                <div className="text-sm text-muted-foreground">Hot Leads</div>
-                <Progress 
-                  value={stats.totalLeads > 0 ? (stats.activeMembers * 0.1 / stats.totalLeads) * 100 : 0} 
-                  className="mt-2 h-2" 
-                />
-              </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Lead Status Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Object.entries(leadScoringService.getStatusBreakdown()).map(([status, count]) => (
+                      <div key={status} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="capitalize">{status.replace('_', ' ')}</span>
+                          <span className="font-medium">{count}</span>
+                        </div>
+                        <Progress 
+                          value={(count / stats.totalLeads) * 100} 
+                          className="h-2"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/admin/leads">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Users className="w-4 h-4 mr-2" />
+                        Manage Leads
+                      </Button>
+                    </Link>
+                    <Link href="/admin/content">
+                      <Button variant="outline" className="w-full justify-start">
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        View Analytics
+                      </Button>
+                    </Link>
+                    <Link href="/admin/cms/create">
+                      <Button variant="outline" className="w-full justify-start">
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Create Content
+                      </Button>
+                    </Link>
+                    <Link href="/admin/approvals">
+                      <Button variant="outline" className="w-full justify-start">
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Approvals
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </Card>
-        </motion.div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Last updated */}
+        <div className="text-center text-sm text-gray-600">
+          <Clock className="w-4 h-4 inline mr-1" />
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </div>
       </div>
-    </AdminLayout>
+    </div>
   )
 }

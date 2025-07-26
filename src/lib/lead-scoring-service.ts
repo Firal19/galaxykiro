@@ -441,16 +441,90 @@ class LeadScoringService {
   }
 
   /**
-   * Save profile to localStorage
+   * Save profile to localStorage with quota management
    */
   private saveToStorage(sessionId: string, profile: LeadProfile): void {
     try {
-      localStorage.setItem(`lead_profile_${sessionId}`, JSON.stringify(profile))
+      // Limit activities to last 50 to prevent storage bloat
+      const compactProfile = {
+        ...profile,
+        activities: profile.activities.slice(-50) // Keep only last 50 activities
+      }
+      
+      const profileData = JSON.stringify(compactProfile)
+      
+      // Check if data is too large (> 1MB per profile)
+      if (profileData.length > 1048576) {
+        console.warn('Profile data too large, truncating activities')
+        compactProfile.activities = profile.activities.slice(-20) // Further reduce if needed
+      }
+      
+      localStorage.setItem(`lead_profile_${sessionId}`, JSON.stringify(compactProfile))
       localStorage.setItem('visitor_status', profile.status)
       localStorage.setItem('engagement_score', profile.engagementScore.toString())
       localStorage.setItem('conversion_readiness', profile.conversionReadiness.toString())
+      
+      // Clean up old lead profiles if storage is getting full
+      this.cleanupOldProfiles()
+      
     } catch (error) {
-      console.error('Error saving lead profile to storage:', error)
+      if (error.name === 'QuotaExceededError') {
+        console.warn('LocalStorage quota exceeded, cleaning up old data')
+        this.cleanupOldProfiles(true) // Force cleanup
+        
+        // Try saving again with minimal data
+        try {
+          const minimalProfile = {
+            id: profile.id,
+            status: profile.status,
+            engagementScore: profile.engagementScore,
+            conversionReadiness: profile.conversionReadiness,
+            lastActivity: profile.lastActivity,
+            activities: profile.activities.slice(-10) // Only last 10 activities
+          }
+          localStorage.setItem(`lead_profile_${sessionId}`, JSON.stringify(minimalProfile))
+        } catch (retryError) {
+          console.error('Failed to save even minimal profile data:', retryError)
+        }
+      } else {
+        console.error('Error saving lead profile to storage:', error)
+      }
+    }
+  }
+
+  /**
+   * Clean up old lead profiles from localStorage
+   */
+  private cleanupOldProfiles(force: boolean = false): void {
+    try {
+      const keys = Object.keys(localStorage)
+      const profileKeys = keys.filter(key => key.startsWith('lead_profile_'))
+      
+      // If we have more than 5 profiles or force cleanup, remove oldest ones
+      if (profileKeys.length > 5 || force) {
+        // Sort by last access time or remove oldest by key
+        const profilesToRemove = profileKeys.slice(0, profileKeys.length - 3) // Keep only 3 most recent
+        
+        profilesToRemove.forEach(key => {
+          localStorage.removeItem(key)
+        })
+        
+        console.log(`Cleaned up ${profilesToRemove.length} old lead profiles`)
+      }
+      
+      // Also clean up any orphaned keys
+      const orphanedKeys = keys.filter(key => 
+        key.startsWith('gk_cache_') || 
+        key.includes('temp_') ||
+        key.includes('session_') && !key.includes('lead_profile_')
+      )
+      
+      if (orphanedKeys.length > 10) {
+        orphanedKeys.slice(0, 5).forEach(key => localStorage.removeItem(key))
+      }
+      
+    } catch (error) {
+      console.error('Error cleaning up old profiles:', error)
     }
   }
 
@@ -495,24 +569,35 @@ class LeadScoringService {
     activity: EngagementActivity
   ): Promise<void> {
     try {
+      // Validate required data before sending
+      if (!profile?.id || !activity?.action) {
+        console.warn('Skipping engagement tracking - missing required data:', {
+          profileId: profile?.id || 'undefined',
+          action: activity?.action || 'undefined'
+        })
+        return
+      }
+
+      const payload = {
+        event_type: 'engagement_action',
+        event_data: {
+          session_id: profile.id,
+          action: activity.action,
+          points_awarded: activity.points || 0,
+          total_score: profile.engagementScore || 0,
+          visitor_status: profile.status || 'visitor',
+          conversion_readiness: profile.conversionReadiness || 0,
+          timestamp: activity.timestamp || new Date().toISOString(),
+          metadata: activity.metadata || {}
+        },
+        session_id: profile.id,
+        page_url: activity.page_url || (typeof window !== 'undefined' ? window.location.href : 'unknown')
+      }
+
       await fetch('/api/track-interaction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_type: 'engagement_action',
-          event_data: {
-            session_id: profile.id,
-            action: activity.action,
-            points_awarded: activity.points,
-            total_score: profile.engagementScore,
-            visitor_status: profile.status,
-            conversion_readiness: profile.conversionReadiness,
-            timestamp: activity.timestamp,
-            metadata: activity.metadata
-          },
-          session_id: profile.id,
-          page_url: activity.page_url
-        })
+        body: JSON.stringify(payload)
       })
     } catch (error) {
       console.error('Error tracking engagement action:', error)

@@ -479,15 +479,20 @@ async function sendImmediateEmail(emailData: any, user: UserModel): Promise<void
     // Use the email service to send the email
     const { emailService } = await import('../../src/lib/email-service')
     
-    // Get the email template content
-    const template = EMAIL_SEQUENCES[emailData.templateId]
+    // Find the email template from the sequence
+    let template: any = null
+    for (const sequence of Object.values(EMAIL_SEQUENCES)) {
+      template = sequence.find((t: any) => t.id === emailData.templateId)
+      if (template) break
+    }
+    
     if (!template) {
       throw new Error(`Email template ${emailData.templateId} not found`)
     }
 
     // Personalize the content
-    const personalizedContent = personalizeEmailContent(template.content, user, emailData.customData)
-    const personalizedSubject = personalizeEmailSubject(template.subject, user, emailData.customData)
+    const personalizedContent = personalizeEmailContent(emailData.content || template.content, user, emailData.customData)
+    const personalizedSubject = personalizeEmailSubject(emailData.subject || template.subject, user, emailData.customData)
 
     const result = await emailService.sendEmail({
       to: user.email,

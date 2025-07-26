@@ -30,13 +30,16 @@ export function ServiceProvider({ children }: ServiceProviderProps) {
   useEffect(() => {
     const initServices = async () => {
       try {
+        console.log('🎯 ServiceProvider: Starting initialization...')
         initializeServices()
+        console.log('🎯 ServiceProvider: Services initialized, setting state...')
         setIsInitialized(true)
         setHealthStatus(getServiceHealth())
+        console.log('🎯 ServiceProvider: Initialization complete!')
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Service initialization failed'
+        console.error('🚨 ServiceProvider initialization error:', err)
         setError(errorMessage)
-        console.error('ServiceProvider initialization error:', err)
       }
     }
 

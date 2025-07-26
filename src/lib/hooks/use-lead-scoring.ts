@@ -1,6 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAppStore } from '../store'
-import { ScoreBreakdown, TierChangeResult } from '../lead-scoring-engine'
+import { LeadProfile, VisitorStatus } from '../lead-scoring-service'
+
+interface ScoreBreakdown {
+  totalScore: number
+  categoryScores: Record<string, number>
+  interactions: number
+  timeSpent: number
+  engagementLevel: 'low' | 'medium' | 'high'
+}
+
+interface TierChangeResult {
+  totalScore: number
+  newTier: 'browser' | 'engaged' | 'soft-member'
+  scoreIncrease: number
+}
 
 interface LeadScoringState {
   score: number | null
@@ -16,6 +30,7 @@ interface LeadScoringActions {
   updateScore: () => Promise<void>
   refreshScore: () => Promise<void>
   calculateScore: () => Promise<ScoreBreakdown | null>
+  addToolUsagePoints: (toolId: string) => Promise<void>
 }
 
 interface UseLeadScoringReturn extends LeadScoringState, LeadScoringActions {
@@ -175,6 +190,29 @@ export function useLeadScoring(userId?: string): UseLeadScoringReturn {
     return userTierLevel >= requiredTierLevel
   }, [state.tier])
 
+  // Add tool usage points
+  const addToolUsagePoints = useCallback(async (toolId: string): Promise<void> => {
+    if (!currentUserId) return
+
+    try {
+      // Dispatch tool completion event
+      const event = new CustomEvent('userAction', {
+        detail: {
+          type: 'tool_completed',
+          data: { toolId },
+          timestamp: new Date().toISOString()
+        }
+      })
+      
+      window.dispatchEvent(event)
+      
+      // Also directly update score
+      await updateScore()
+    } catch (error) {
+      console.error('Error adding tool usage points:', error)
+    }
+  }, [currentUserId, updateScore])
+
   // Auto-update score when user performs significant actions
   useEffect(() => {
     if (!currentUserId) return
@@ -224,7 +262,8 @@ export function useLeadScoring(userId?: string): UseLeadScoringReturn {
     updateScore,
     refreshScore,
     calculateScore,
-    canAccessTier
+    canAccessTier,
+    addToolUsagePoints
   }
 }
 

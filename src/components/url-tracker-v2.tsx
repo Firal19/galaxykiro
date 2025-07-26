@@ -4,6 +4,10 @@ import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLeadScoringV2 } from '@/lib/hooks/use-lead-scoring-v2'
 
+// Singleton pattern to prevent multiple tracking instances
+let isTrackingInitialized = false
+let trackingCleanup: (() => void) | null = null
+
 export function UrlTrackerV2() {
   const searchParams = useSearchParams()
   const { 
@@ -14,8 +18,14 @@ export function UrlTrackerV2() {
   } = useLeadScoringV2()
 
   useEffect(() => {
+    // Prevent multiple instances
+    if (isTrackingInitialized) {
+      return
+    }
+    
     const initializeTracking = async () => {
       try {
+        isTrackingInitialized = true
         // Extract URL parameters for attribution
         const contentId = searchParams.get('c')
         const memberId = searchParams.get('m') 
@@ -156,8 +166,15 @@ export function UrlTrackerV2() {
         window.addEventListener('change', handleFormInteraction)
         document.addEventListener('visibilitychange', handleVisibilityChange)
 
-        // Set up time-based tracking
-        const timeTrackingInterval = setInterval(trackTimeBasedEngagement, 10000) // Every 10 seconds
+        // Set up time-based tracking with throttling
+        let lastTimeTrack = 0
+        const timeTrackingInterval = setInterval(() => {
+          const now = Date.now()
+          if (now - lastTimeTrack > 15000) { // Throttle to max once per 15 seconds
+            lastTimeTrack = now
+            trackTimeBasedEngagement()
+          }
+        }, 10000) // Check every 10 seconds but throttle execution
 
         // Track initial page view
         await trackEngagement('time_on_site', {
@@ -177,14 +194,15 @@ export function UrlTrackerV2() {
           }
         })
 
-        // Cleanup function
-        return () => {
+        // Store cleanup function
+        trackingCleanup = () => {
           window.removeEventListener('scroll', handleScroll)
           window.removeEventListener('click', handleClick)
           window.removeEventListener('input', handleFormInteraction)
           window.removeEventListener('change', handleFormInteraction)
           document.removeEventListener('visibilitychange', handleVisibilityChange)
           clearInterval(timeTrackingInterval)
+          isTrackingInitialized = false
           
           // Final session tracking
           const finalSessionTime = Math.floor((Date.now() - startTime) / 1000)
@@ -196,21 +214,22 @@ export function UrlTrackerV2() {
             }).catch(console.error)
           }
         }
+        
+        return trackingCleanup
       } catch (error) {
         console.error('Error initializing URL tracking:', error)
       }
     }
 
     // Initialize tracking
-    const cleanup = initializeTracking()
+    initializeTracking()
     
     // Return cleanup function
     return () => {
-      cleanup.then(cleanupFn => {
-        if (typeof cleanupFn === 'function') {
-          cleanupFn()
-        }
-      }).catch(console.error)
+      if (trackingCleanup) {
+        trackingCleanup()
+        trackingCleanup = null
+      }
     }
   }, [searchParams, trackEngagement, trackReferralClick, trackHighEngagement, trackContentConsumption])
 

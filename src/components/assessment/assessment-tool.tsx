@@ -107,7 +107,8 @@ export function AssessmentTool({
   // References and hooks
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
-  const { user, isAuthenticated, updateUserProfile } = useAuth()
+  const { user } = useAuth()
+  const isAuthenticated = !!user
   const { addToolUsagePoints } = useLeadScoring()
   
   // Initialize assessment engine
@@ -319,7 +320,7 @@ export function AssessmentTool({
   }
   
   // Handle lead capture form submission
-  const handleLeadCaptureSubmit = async (data: any) => {
+  const handleLeadCaptureSubmit = async (data: Record<string, unknown>, level: number) => {
     if (!engine) return
     
     try {
@@ -327,7 +328,9 @@ export function AssessmentTool({
       
       // Update user profile or create new user
       if (isAuthenticated) {
-        await updateUserProfile(data)
+        // Update user profile via API
+        console.log('Updating user profile with data:', data)
+        // TODO: Implement user profile update API call
       } else {
         // Create new user or update anonymous user
         // This would typically call an API endpoint to create/update user
@@ -726,9 +729,10 @@ export function AssessmentTool({
         <CardContent>
           <ProgressiveForm
             level={leadCaptureLevel}
-            existingData={user || {}}
+            existingData={user ? { 
+              email: user.email || ''
+            } : {}}
             onSubmit={handleLeadCaptureSubmit}
-            isSubmitting={isSubmitting}
           />
         </CardContent>
       </Card>

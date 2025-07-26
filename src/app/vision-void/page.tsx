@@ -14,8 +14,7 @@ export default function VisionVoidPage() {
       type: type as any, 
       section: 'vision-void-educational',
       metadata: {
-        pageType: 'educational',
-        timestamp: Date.now()
+        timeSpent: Date.now()
       }
     })
   }

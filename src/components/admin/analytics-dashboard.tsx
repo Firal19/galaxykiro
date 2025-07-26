@@ -419,7 +419,7 @@ export function AnalyticsDashboard({ className }: AnalyticsDashboardProps) {
                       </div>
                       
                       <div className="space-y-3">
-                        {funnelAnalysis.analysis.map((step, index) => (
+                        {funnelAnalysis.analysis.map((step: any, index: number) => (
                           <div key={step.step} className="flex items-center space-x-4">
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
                               {index + 1}

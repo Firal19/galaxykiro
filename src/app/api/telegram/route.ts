@@ -510,7 +510,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Utility function to send notifications to users
-export async function sendNotificationToUser(telegramId: number, message: string, keyboard?: any) {
+async function sendNotificationToUser(telegramId: number, message: string, keyboard?: any) {
   const user = telegramUsers.get(telegramId)
   if (!user || !user.isSubscribed || !user.preferences.notifications) {
     return false
@@ -521,7 +521,7 @@ export async function sendNotificationToUser(telegramId: number, message: string
 }
 
 // Utility function to broadcast messages to all subscribed users
-export async function broadcastMessage(message: string, keyboard?: any, filter?: (user: TelegramUser) => boolean) {
+async function broadcastMessage(message: string, keyboard?: any, filter?: (user: TelegramUser) => boolean) {
   const users = Array.from(telegramUsers.values())
   const targetUsers = filter ? users.filter(filter) : users.filter(user => user.isSubscribed)
 

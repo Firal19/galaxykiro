@@ -1,35 +1,12 @@
 "use client"
 
-import { usePathname } from 'next/navigation'
-import { MainNavigation } from './main-navigation'
-import { MemberNavigation } from './member-navigation'
-import { AdminNavigation } from './admin-navigation'
+// LayoutWrapper now serves as a simple pass-through container
+// All navigation is handled by individual layouts:
+// - PublicLayout for public pages (uses MainNav)
+// - AdminLayout for admin pages (uses UnifiedSidebar)
+// - SoftMemberLayout for member pages (uses UnifiedSidebar)
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-
-  // Determine which navigation to show based on the current path
-  const isAdminRoute = pathname.startsWith('/admin')
-  const isMemberRoute = pathname.startsWith('/membership')
-  const isAuthRoute = pathname.startsWith('/auth')
-  
-  // Don't show navigation on auth pages
-  if (isAuthRoute) {
-    return <>{children}</>
-  }
-
-  return (
-    <>
-      {isAdminRoute ? (
-        <AdminNavigation />
-      ) : isMemberRoute ? (
-        <MemberNavigation />
-      ) : (
-        <MainNavigation />
-      )}
-      <div className={isAdminRoute ? 'pt-16' : isMemberRoute ? 'pt-16' : ''}>
-        {children}
-      </div>
-    </>
-  )
+  // Simply pass through children - layouts handle their own navigation
+  return <>{children}</>
 }

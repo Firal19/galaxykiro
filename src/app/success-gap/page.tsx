@@ -14,8 +14,7 @@ export default function SuccessGapPage() {
       type: type as any, 
       section: 'success-gap-educational',
       metadata: {
-        pageType: 'educational',
-        timestamp: Date.now()
+        timeSpent: Date.now()
       }
     })
   }

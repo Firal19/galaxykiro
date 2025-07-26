@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { AdminLayout } from '@/components/layouts/admin-layout'
+// Layout handled by src/app/admin/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -148,20 +148,20 @@ export default function LeadDetailPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading lead details...</p>
           </div>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   if (!lead) {
     return (
-      <AdminLayout>
+      <div className="min-h-screen">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-4">Lead Not Found</h2>
           <p className="text-muted-foreground mb-6">The lead you're looking for doesn't exist.</p>
@@ -172,12 +172,12 @@ export default function LeadDetailPage() {
             </Button>
           </Link>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -536,6 +536,6 @@ export default function LeadDetailPage() {
           )}
         </motion.div>
       </div>
-    </AdminLayout>
+    </div>
   )
 }

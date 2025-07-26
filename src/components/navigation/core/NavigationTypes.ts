@@ -45,6 +45,7 @@ export interface NavigationUser {
   status?: string
   notifications?: number
   isOnline?: boolean
+  badge?: string // Member-specific badge or title
 }
 
 // Navigation configuration

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { AdminLayout } from '@/components/layouts/admin-layout'
+// Layout handled by src/app/admin/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Calendar, CalendarIcon } from '@/components/ui/calendar'
+import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { 
   Save,
@@ -223,7 +223,7 @@ export default function AdminCMSCreatePage() {
   }
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -838,6 +838,6 @@ For webinars: Include agenda and key takeaways`}
           </motion.div>
         )}
       </div>
-    </AdminLayout>
+    </div>
   )
 }

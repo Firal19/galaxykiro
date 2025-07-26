@@ -56,14 +56,18 @@ export const Services = {
 // Initialize services
 export function initializeServices(): void {
   try {
+    console.log('🚀 Starting service initialization...')
     registerServices()
     
+    console.log('🔧 Warming up singleton services...')
     // Warm up singleton services
-    Services.auth
-    Services.lead
+    const authService = Services.auth
+    const leadService = Services.lead
     
     console.log('✅ Services initialized successfully')
     console.log('📋 Registered services:', serviceContainer.getRegisteredServices())
+    console.log('🔥 Auth service ready:', !!authService)
+    console.log('🔥 Lead service ready:', !!leadService)
   } catch (error) {
     console.error('❌ Service initialization failed:', error)
     throw error

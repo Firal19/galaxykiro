@@ -73,7 +73,7 @@ const mockMessages: Message[] = [
     type: 'webinar',
     sender: {
       name: 'Sarah Tesfaye',
-      avatar: '/network/sarah.jpg',
+      avatar: '/testimonials/sarah.jpg',
       role: 'member'
     },
     title: 'Live Webinar: Overcoming Limiting Beliefs',
@@ -383,7 +383,7 @@ export function CommunicationCenter({ userId, userTier = 'browser', referrerId }
           {/* Chat Header */}
           <div className="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
             <Avatar className="w-8 h-8 mr-3">
-              <AvatarImage src="/network/sarah.jpg" alt="Sarah Tesfaye" />
+              <AvatarImage src="/testimonials/sarah.jpg" alt="Sarah Tesfaye" />
               <AvatarFallback>ST</AvatarFallback>
             </Avatar>
             <div>

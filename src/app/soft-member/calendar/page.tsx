@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { SoftMemberLayout } from '@/components/layouts/soft-member-layout'
+// Layout handled by src/app/soft-member/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -227,7 +227,7 @@ export default function SoftMemberCalendarPage() {
         })
 
         // Track calendar visit
-        leadScoringService.trackInteraction({
+        leadScoringService.updateEngagement('high_engagement', {
           eventType: 'page_visit',
           page: 'soft_member_calendar'
         })
@@ -284,10 +284,10 @@ export default function SoftMemberCalendarPage() {
     })
 
     // Track event creation
-    leadScoringService.trackInteraction({
+    leadScoringService.updateEngagement('high_engagement', {
       eventType: 'calendar_event',
       eventAction: 'create',
-      eventType: event.type
+      calendarEventType: event.type
     })
   }
 
@@ -350,19 +350,19 @@ export default function SoftMemberCalendarPage() {
 
   if (loading) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading calendar...</p>
           </div>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   return (
-    <SoftMemberLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -844,6 +844,6 @@ export default function SoftMemberCalendarPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </SoftMemberLayout>
+    </div>
   )
 }

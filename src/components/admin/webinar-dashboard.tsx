@@ -61,7 +61,7 @@ export function WebinarDashboard({ className }: WebinarDashboardProps) {
       setWebinars(allWebinars)
       
       if (allWebinars.length > 0 && !selectedWebinar) {
-        const recentWebinar = allWebinars.sort((a, b) => 
+        const recentWebinar = allWebinars.sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )[0]
         setSelectedWebinar(recentWebinar)

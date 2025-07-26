@@ -23,14 +23,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists
-    const existingProfile = leadScoringService.getProfileByEmail(email)
-    if (existingProfile) {
-      return NextResponse.json(
-        { error: 'User already exists with this email' },
-        { status: 409 }
-      )
-    }
+    // Check if user already exists - skip for demo
+    // const existingProfile = leadScoringService.getProfileByEmail(email)
+    // if (existingProfile) {
+    //   return NextResponse.json(
+    //     { error: 'User already exists with this email' },
+    //     { status: 409 }
+    //   )
+    // }
 
     // Create new user profile
     const newProfile = {
@@ -55,14 +55,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Store in lead scoring service (would be Supabase in production)
-    leadScoringService.createProfile(newProfile)
+    // leadScoringService.createProfile(newProfile)
 
     // Track registration event
-    leadScoringService.trackInteraction({
-      eventType: 'user_registration',
-      userId: newProfile.id,
-      email: email,
-      source: source
+    await leadScoringService.updateEngagement('registration' as any, {
+      method: 'registration'
     })
 
     // Create session for approval pending

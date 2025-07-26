@@ -95,8 +95,8 @@ export function ContentABTestingDashboard({ contents }: ContentABTestingDashboar
           })
         )
         
-        setActiveTests(activeTestsWithVariants || [])
-        setCompletedTests(completedTestsWithVariants || [])
+        setActiveTests(activeTestsWithVariants as any || [])
+        setCompletedTests(completedTestsWithVariants as any || [])
       } catch (error) {
         console.error('Error fetching A/B tests:', error)
         // Fallback to empty arrays if service fails

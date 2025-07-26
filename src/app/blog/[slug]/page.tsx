@@ -101,10 +101,10 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     // Track page view
-    leadScoringService.trackInteraction({
-      eventType: 'blog_view',
-      contentId: params.slug as string,
-      contentType: 'article'
+    leadScoringService.updateEngagement('content_consumption', {
+      content_type: 'blog_article',
+      content_id: params.slug as string,
+      page_url: window.location.href
     })
 
     // Scroll progress tracking
@@ -117,10 +117,10 @@ export default function BlogPostPage() {
       // Show CTA after 50% scroll
       if (scrollPercentage > 50 && !showCTA) {
         setShowCTA(true)
-        leadScoringService.trackInteraction({
-          eventType: 'content_milestone',
-          milestone: '50_percent_read',
-          contentId: params.slug as string
+        leadScoringService.updateEngagement('high_engagement', {
+          engagement_type: '50_percent_read',
+          content_id: params.slug as string,
+          page_url: window.location.href
         })
       }
     }
@@ -150,27 +150,28 @@ export default function BlogPostPage() {
         break
     }
 
-    leadScoringService.trackInteraction({
-      eventType: 'content_share',
+    leadScoringService.updateEngagement('social_share', {
       platform,
-      contentId: params.slug as string
+      shared_url: window.location.href,
+      content_id: params.slug as string
     })
   }
 
   const handleLike = () => {
     setLiked(!liked)
-    leadScoringService.trackInteraction({
-      eventType: 'content_engagement',
-      action: liked ? 'unlike' : 'like',
-      contentId: params.slug as string
+    leadScoringService.updateEngagement('high_engagement', {
+      engagement_type: liked ? 'unlike' : 'like',
+      content_id: params.slug as string,
+      page_url: window.location.href
     })
   }
 
   const handleBookmark = () => {
     setBookmarked(!bookmarked)
-    leadScoringService.trackInteraction({
-      eventType: 'content_save',
-      contentId: params.slug as string
+    leadScoringService.updateEngagement('high_engagement', {
+      engagement_type: 'content_bookmark',
+      content_id: params.slug as string,
+      page_url: window.location.href
     })
   }
 

@@ -190,7 +190,7 @@ class NetworkHubService {
         id: 'user_mentor_1',
         name: 'Sarah Tesfaye',
         email: 'sarah@example.com',
-        avatar: '/avatars/sarah.jpg',
+        avatar: '/testimonials/sarah.jpg',
         role: 'mentor',
         status: 'online',
         lastSeen: new Date().toISOString(),

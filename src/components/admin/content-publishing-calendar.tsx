@@ -332,9 +332,9 @@ export function ContentPublishingCalendar({
               month={currentMonth}
               className="rounded-md border"
               components={{
-                Day: ({ date, ...props }) => (
+                Day: ({ day, ...props }: any) => (
                   <div {...props}>
-                    {renderDay(date)}
+                    {renderDay(day)}
                   </div>
                 )
               }}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { SoftMemberLayout } from '@/components/layouts/soft-member-layout'
+// Layout handled by src/app/soft-member/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -256,7 +256,7 @@ export default function SoftMemberNetworkPage() {
         })
 
         // Track network access
-        leadScoringService.trackInteraction({
+        leadScoringService.updateEngagement('high_engagement', {
           eventType: 'page_visit',
           page: 'soft_member_network'
         })
@@ -290,7 +290,7 @@ export default function SoftMemberNetworkPage() {
     ))
 
     // Track connection request
-    leadScoringService.trackInteraction({
+    leadScoringService.updateEngagement('high_engagement', {
       eventType: 'network_interaction',
       interactionType: 'connection_request',
       targetUserId: selectedUser.id
@@ -309,7 +309,7 @@ export default function SoftMemberNetworkPage() {
     ))
 
     // Track group join
-    leadScoringService.trackInteraction({
+    leadScoringService.updateEngagement('high_engagement', {
       eventType: 'network_interaction',
       interactionType: 'group_join',
       groupId
@@ -336,21 +336,21 @@ export default function SoftMemberNetworkPage() {
 
   if (loading) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading network...</p>
           </div>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   // Show access restriction for non-hot leads
   if (!hasNetworkAccess) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -413,12 +413,12 @@ export default function SoftMemberNetworkPage() {
             </Card>
           </motion.div>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   return (
-    <SoftMemberLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -826,6 +826,6 @@ export default function SoftMemberNetworkPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </SoftMemberLayout>
+    </div>
   )
 }

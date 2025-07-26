@@ -77,10 +77,10 @@ export default function LoginPage() {
     
     try {
       // Track login attempt
-      leadScoringService.trackInteraction({
-        eventType: 'auth_attempt',
-        action: 'login',
-        email: formData.email
+      leadScoringService.updateEngagement('form_interaction', {
+        form_type: 'login',
+        email: formData.email,
+        page_url: window.location.href
       })
       
       // Simulate API call - Replace with actual authentication
@@ -110,7 +110,7 @@ export default function LoginPage() {
       }
       
       // Track successful login
-      leadScoringService.trackInteraction({
+      leadScoringService.updateEngagement('high_engagement', {
         eventType: 'auth_success',
         action: 'login',
         role

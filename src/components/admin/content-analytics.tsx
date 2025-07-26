@@ -87,7 +87,7 @@ export function ContentAnalytics({ contents }: ContentAnalyticsProps) {
         } else if (sortBy === 'views') {
           sortedPerformance.sort((a, b) => b.totalReviews - a.totalReviews)
         } else if (sortBy === 'completion') {
-          sortedPerformance.sort((a, b) => b.completionRate - a.completionRate)
+          sortedPerformance.sort((a, b) => ((b as any).completionRate || 0) - ((a as any).completionRate || 0))
         }
         
         setContentPerformance(sortedPerformance)
@@ -274,13 +274,13 @@ export function ContentAnalytics({ contents }: ContentAnalyticsProps) {
                     </td>
                     <td className="text-center py-3 px-4">
                       <div className="flex flex-col items-center">
-                        <span className={`font-medium ${getScoreColor(item.completionRate * 100)}`}>
-                          {Math.round(item.completionRate * 100)}%
+                        <span className={`font-medium ${getScoreColor((item as any).completionRate * 100 || 0)}`}>
+                          {Math.round((item as any).completionRate * 100 || 0)}%
                         </span>
                         <Progress 
-                          value={item.completionRate * 100} 
+                          value={(item as any).completionRate * 100 || 0} 
                           max={100} 
-                          className={`h-1 w-16 mt-1 ${getProgressColor(item.completionRate * 100)}`} 
+                          className={`h-1 w-16 mt-1 ${getProgressColor((item as any).completionRate * 100 || 0)}`} 
                         />
                       </div>
                     </td>

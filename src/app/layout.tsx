@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/contexts/auth-context";
 import { LayoutWrapper } from "@/components/layout-wrapper";
 import { ServiceProvider } from "@/components/providers/ServiceProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,13 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ServiceProvider>
-          <AuthProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </AuthProvider>
-        </ServiceProvider>
+        <QueryProvider>
+          <ServiceProvider>
+            <AuthProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </AuthProvider>
+          </ServiceProvider>
+          <PerformanceMonitor />
+        </QueryProvider>
       </body>
     </html>
   );

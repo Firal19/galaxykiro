@@ -3,13 +3,29 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    
+    // Validate required fields
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+    
     const { event_type, event_data, session_id, page_url } = body
+
+    // Skip logging if essential data is missing
+    if (!event_type || !session_id) {
+      console.warn('⚠️ Skipping incomplete tracking request:', {
+        event_type: event_type || 'undefined',
+        session_id: session_id || 'undefined',
+        page_url: page_url || 'undefined'
+      })
+      return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 })
+    }
 
     // Log the interaction for debugging
     console.log('🔍 Tracking interaction:', {
       event_type,
       session_id,
-      page_url,
+      page_url: page_url || 'unknown',
       timestamp: new Date().toISOString()
     })
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SoftMemberLayout } from '@/components/layouts/soft-member-layout'
+// Layout handled by src/app/soft-member/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -294,7 +294,7 @@ export default function SoftMemberToolboxPage() {
         })
 
         // Track page visit
-        leadScoringService.trackInteraction({
+        leadScoringService.updateEngagement('high_engagement', {
           eventType: 'page_visit',
           page: 'soft_member_toolbox'
         })
@@ -364,19 +364,19 @@ export default function SoftMemberToolboxPage() {
 
   if (loading) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading your toolbox...</p>
           </div>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   return (
-    <SoftMemberLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -895,6 +895,6 @@ export default function SoftMemberToolboxPage() {
           </Tabs>
         </motion.div>
       </div>
-    </SoftMemberLayout>
+    </div>
   )
 }

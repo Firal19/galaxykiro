@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { SoftMemberLayout } from '@/components/layouts/soft-member-layout'
+// Layout handled by src/app/soft-member/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -159,7 +159,7 @@ export default function SoftMemberProfilePage() {
         setEditedProfile(mockProfile)
 
         // Track profile visit
-        leadScoringService.trackInteraction({
+        leadScoringService.updateEngagement('high_engagement', {
           eventType: 'page_visit',
           page: 'soft_member_profile'
         })
@@ -183,7 +183,7 @@ export default function SoftMemberProfilePage() {
       setEditing(false)
 
       // Track profile update
-      leadScoringService.trackInteraction({
+      leadScoringService.updateEngagement('high_engagement', {
         eventType: 'profile_update',
         updateType: 'basic_info'
       })
@@ -210,7 +210,7 @@ export default function SoftMemberProfilePage() {
         return {
           ...prev,
           [parent]: {
-            ...prev[parent as keyof UserProfile],
+            ...(prev[parent as keyof UserProfile] as object || {}),
             [child]: value
           }
         }
@@ -245,31 +245,31 @@ export default function SoftMemberProfilePage() {
 
   if (loading) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading profile...</p>
           </div>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   if (!profile || !editedProfile) {
     return (
-      <SoftMemberLayout>
+      <div className="min-h-screen">
         <div className="text-center py-16">
           <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Profile Not Found</h2>
           <p className="text-muted-foreground">Unable to load your profile. Please try again later.</p>
         </div>
-      </SoftMemberLayout>
+      </div>
     )
   }
 
   return (
-    <SoftMemberLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -816,6 +816,6 @@ export default function SoftMemberProfilePage() {
           </Tabs>
         </motion.div>
       </div>
-    </SoftMemberLayout>
+    </div>
   )
 }

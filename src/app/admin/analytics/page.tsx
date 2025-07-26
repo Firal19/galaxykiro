@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { AdminLayout } from '@/components/layouts/admin-layout'
+// Layout handled by src/app/admin/layout.tsx
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -375,20 +375,20 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading analytics...</p>
           </div>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   if (!analyticsData) {
     return (
-      <AdminLayout>
+      <div className="min-h-screen">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -396,12 +396,12 @@ export default function AdminAnalyticsPage() {
             <p className="text-muted-foreground">Please try refreshing the page.</p>
           </div>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen">
       <div className="space-y-8">
         {/* Header */}
         <motion.div
@@ -442,7 +442,7 @@ export default function AdminAnalyticsPage() {
                     mode="range"
                     defaultMonth={dateRange.from}
                     selected={dateRange}
-                    onSelect={(range) => range && setDateRange(range)}
+                    onSelect={(range) => range && range.from && range.to && setDateRange({ from: range.from, to: range.to })}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -985,6 +985,6 @@ export default function AdminAnalyticsPage() {
           </Tabs>
         </motion.div>
       </div>
-    </AdminLayout>
+    </div>
   )
 }

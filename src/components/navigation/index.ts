@@ -19,5 +19,5 @@ export { UnifiedSidebar } from './layouts/UnifiedSidebar'
 // Services
 export { navigationService } from '@/services/navigation/NavigationService'
 
-// Convenience re-exports for backward compatibility
-export { UnifiedHeader as MainNav } from './layouts/UnifiedHeader'
+// MainNav component should be imported directly from './main-nav'
+// This prevents any confusion with other navigation components
