@@ -113,7 +113,7 @@ export class ToolMigrationUtility {
    */
   static extractCategory(toolPath: string, title: string): DynamicTool['category'] {
     // Check path first
-    for (const [category, patterns] of Object.entries(CATEGORY_PATTERNS)) {
+    for (const [category] of Object.entries(CATEGORY_PATTERNS)) {
       if (toolPath.includes(`/tools/${category}/`)) {
         return category as DynamicTool['category']
       }

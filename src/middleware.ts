@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  // const { pathname } = request.nextUrl
   
   // Get session from cookies
-  const session = request.cookies.get('galaxy_kiro_session')
+  // const session = request.cookies.get('galaxy_kiro_session')
   
   // Parse URL parameters for attribution
   const searchParams = request.nextUrl.searchParams

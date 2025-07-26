@@ -204,7 +204,7 @@ export function validateFormData(data: Record<string, unknown>, level: number): 
     
     schema.parse(data);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
